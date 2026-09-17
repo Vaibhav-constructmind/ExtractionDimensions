@@ -109,6 +109,25 @@ class QuantityTakeoff(BaseModel):
     soffit_stair_formwork_area: QuantityField | None = None
 
 
+class DetailCallout(BaseModel):
+    """A numbered detail-bubble cross-reference on a drawing, e.g. a circled
+    '6' pointing to 'STEEL HANDRAIL DETAIL-1-5' on another sheet. These are
+    real annotated content but aren't a dimension or elevation datum, so they
+    need their own record rather than being dropped."""
+
+    callout_id: str = Field(..., description="Unique ID, e.g. P1-D2-CALLOUT01")
+    callout_number: str | None = Field(None, description="The number/tag inside the circle/bubble, e.g. '6'")
+    title: str | None = Field(None, description="The callout's label text, e.g. 'STEEL HANDRAIL DETAIL-1-5'")
+    target_drawing_number: str | None = Field(
+        None, description="The referenced sheet/drawing number printed under the callout, if shown, e.g. 'XXX-DWG-AR-AR-510002'"
+    )
+    section_part: str | None = Field(None, description="Where on the drawing this callout is, e.g. 'Top of upper flight, near grid 4'")
+    label_text: str = Field(..., description="Raw text as printed, e.g. '6 STEEL HANDRAIL DETAIL-1-5'; 'unclear' if illegible")
+    confidence: str | None = Field(None, description="high | medium | low -- low when the reading is uncertain")
+    notes: str | None = Field(None, description="Context explaining an uncertain/illegible reading")
+    page_number: int
+
+
 class BoundingBox(BaseModel):
     """A drawing's extent on its page, as fractions of the full page width/height
     (0,0 = top-left corner of the page, 1,1 = bottom-right). Used to crop and
@@ -124,7 +143,23 @@ class BoundingBox(BaseModel):
 
 class DrawingMetadata(BaseModel):
     project_name: str | None = Field(None, description="Project name from the title block, if visible")
-    drawing_title: str | None = Field(None, description="Drawing title/callout, e.g. 'Stair Details / Stair 00801'")
+    drawing_title: str | None = Field(
+        None,
+        description=(
+            "This drawing's own title callout text (e.g. 'STAIR-07-INTERMEDIATE LANDING-02'), read "
+            "from its title_callout_number circle -- never an internal equipment/room tag that "
+            "happens to appear inside the drawing's geometry."
+        ),
+    )
+    title_callout_number: str | None = Field(
+        None,
+        description=(
+            "The number inside this drawing's own title-callout circle/bubble (usually bottom-left "
+            "of its frame), e.g. '4'. On a sheet of N drawings these are typically sequential 1..N, "
+            "one per drawing -- used to cross-check that drawing_title was read from the right place "
+            "and wasn't duplicated from/confused with a neighboring drawing."
+        ),
+    )
     drawing_number: str | None = Field(None, description="Drawing/sheet number as printed on the title block, e.g. '2738-S13-H-26-S-512'")
     sheet_scale: str | None = Field(None, description="e.g. '1:50'")
     default_units: str | None = Field(None, description="Predominant unit used on this drawing, e.g. 'mm'")
@@ -140,6 +175,9 @@ class Drawing(BaseModel):
     drawing_metadata: DrawingMetadata = Field(default_factory=DrawingMetadata)
     dimensions: list[Dimension] = Field(default_factory=list)
     elevation_datums: list[ElevationDatum] = Field(default_factory=list)
+    detail_callouts: list[DetailCallout] = Field(
+        default_factory=list, description="Numbered detail-bubble cross-references found on this drawing"
+    )
     quantity_takeoff: QuantityTakeoff | None = Field(
         default=None, description="Stair/enclosure quantities derived from this drawing's dimensions and datums"
     )

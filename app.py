@@ -98,6 +98,7 @@ if result is not None:
     # (a mislabeled drawing, or a title block/legend mistaken for a drawing).
     suspect_notes: list[str] = []
     titles_by_page: dict[int, dict[str, str]] = {}
+    callout_numbers_by_page: dict[int, dict[str, str]] = {}
     for d in result.drawings:
         title = d.drawing_metadata.drawing_title
         if title:
@@ -109,6 +110,17 @@ if result is not None:
                 )
             else:
                 seen[title] = d.drawing_id
+        callout_number = d.drawing_metadata.title_callout_number
+        if callout_number:
+            seen_callouts = callout_numbers_by_page.setdefault(d.page_number, {})
+            if callout_number in seen_callouts:
+                suspect_notes.append(
+                    f"**{seen_callouts[callout_number]}** and **{d.drawing_id}** (page {d.page_number}) "
+                    f"report the same title-callout number *\"{callout_number}\"* — one of them likely "
+                    "read the wrong drawing's title callout."
+                )
+            else:
+                seen_callouts[callout_number] = d.drawing_id
         if not d.dimensions and not d.elevation_datums:
             suspect_notes.append(
                 f"**{d.drawing_id}** has no dimensions or elevation datums at all — could be a "
@@ -131,6 +143,7 @@ if result is not None:
             meta_bits = [
                 (label, value)
                 for label, value in [
+                    ("Title callout #", meta.title_callout_number),
                     ("Project", meta.project_name),
                     ("Sheet no.", meta.drawing_number),
                     ("Scale", meta.sheet_scale),
@@ -209,6 +222,26 @@ if result is not None:
                             "Notes": datum.notes or "",
                         }
                         for datum in drawing.elevation_datums
+                    ],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+            if drawing.detail_callouts:
+                st.markdown("**Detail callouts**")
+                st.dataframe(
+                    [
+                        {
+                            "ID": callout.callout_id,
+                            "No.": callout.callout_number or "",
+                            "Title": callout.title or "",
+                            "Target dwg": callout.target_drawing_number or "",
+                            "Section/Part": callout.section_part or "",
+                            "Label text": callout.label_text,
+                            "Confidence": callout.confidence or "",
+                            "Notes": callout.notes or "",
+                        }
+                        for callout in drawing.detail_callouts
                     ],
                     use_container_width=True,
                     hide_index=True,

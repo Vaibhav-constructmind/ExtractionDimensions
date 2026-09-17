@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import re
 
 from pydantic import ValidationError
 
@@ -10,6 +11,7 @@ from .doc_intelligence import OcrLine
 from .config import Settings
 from .schema import (
     BoundingBox,
+    DetailCallout,
     Dimension,
     Drawing,
     DrawingMetadata,
@@ -23,6 +25,21 @@ from .schema import (
 logger = logging.getLogger(__name__)
 
 
+_PLAIN_NUMBER_RE = re.compile(r"^\s*([+-]?\d+(?:\.\d+)?)\s*(?:mm|m|cm|ft|in|%)?\s*$", re.IGNORECASE)
+
+
+def _value_from_label_text(label_text: str) -> float | None:
+    """Recover a numeric `value` from `label_text` when the model returned
+    `value: null` but `label_text` is plainly just a number (optionally with
+    a trailing unit), e.g. label_text='1955' or '1955mm'. Deliberately narrow:
+    a compound label like '14 RISERS x 280 mm' won't match, since that isn't
+    a single measurement -- its total lives in step_formula instead. Purely
+    a regex over text the model already returned, so it generalizes to any
+    PDF/run rather than patching one drawing's output."""
+    match = _PLAIN_NUMBER_RE.match(label_text)
+    return float(match.group(1)) if match else None
+
+
 def _build_dimension(raw_dim: dict, drawing_id: str, dim_index: int, page_number: int) -> Dimension | None:
     step_formula = None
     raw_step = raw_dim.get("step_formula")
@@ -32,13 +49,20 @@ def _build_dimension(raw_dim: dict, drawing_id: str, dim_index: int, page_number
         except ValidationError:
             logger.warning("Skipping malformed step_formula on %s: %r", drawing_id, raw_step)
 
+    value = raw_dim.get("value")
+    label_text = raw_dim.get("label_text", "")
+    if value is None and label_text:
+        recovered = _value_from_label_text(label_text)
+        if recovered is not None:
+            value = recovered
+
     try:
         return Dimension(
             dimension_id=f"{drawing_id}-DIM{dim_index + 1:02d}",
             orientation=raw_dim.get("orientation"),
             section_part=raw_dim.get("section_part"),
             element=raw_dim.get("element"),
-            value=raw_dim.get("value"),
+            value=value,
             unit=raw_dim.get("unit"),
             start_reference=raw_dim.get("start_reference"),
             end_reference=raw_dim.get("end_reference"),
@@ -70,6 +94,24 @@ def _build_elevation_datum(raw_datum: dict, drawing_id: str, datum_index: int, p
         )
     except ValidationError:
         logger.warning("Skipping malformed elevation datum on %s: %r", drawing_id, raw_datum)
+        return None
+
+
+def _build_detail_callout(raw_callout: dict, drawing_id: str, callout_index: int, page_number: int) -> DetailCallout | None:
+    try:
+        return DetailCallout(
+            callout_id=f"{drawing_id}-CALLOUT{callout_index + 1:02d}",
+            callout_number=raw_callout.get("callout_number"),
+            title=raw_callout.get("title"),
+            target_drawing_number=raw_callout.get("target_drawing_number"),
+            section_part=raw_callout.get("section_part"),
+            label_text=raw_callout.get("label_text", ""),
+            confidence=raw_callout.get("confidence"),
+            notes=raw_callout.get("notes"),
+            page_number=page_number,
+        )
+    except ValidationError:
+        logger.warning("Skipping malformed detail_callout on %s: %r", drawing_id, raw_callout)
         return None
 
 
@@ -133,6 +175,42 @@ def _build_bounding_box(raw_box: object, drawing_id: str) -> BoundingBox | None:
         return None
 
 
+def _clear_title_if_borrowed_from_callout(
+    metadata: DrawingMetadata, detail_callouts: list[DetailCallout], drawing_id: str
+) -> DrawingMetadata:
+    """A drawing's own title must be read from its own title-callout circle,
+    never from one of its `detail_callouts` bubbles (a numbered cross-reference
+    to a detail on another sheet) -- but that confusion keeps happening on
+    hard crops despite prompt wording saying not to. This is the deterministic
+    half of that fix: if `drawing_title` is character-for-character identical
+    (case-insensitive) to one of this same drawing's own detail_callouts
+    titles, it was almost certainly copied from that bubble rather than read
+    from the drawing's real title block, so clear it rather than keep a value
+    we can prove is wrong. Purely structural -- compares two lists of data the
+    model already returned, with no hardcoded titles -- so it generalizes to
+    any sheet/project.
+    """
+    title = metadata.drawing_title
+    if not title:
+        return metadata
+    title_norm = title.strip().lower()
+
+    for callout in detail_callouts:
+        callout_title = callout.title
+        if not callout_title or callout_title.strip().lower() in ("", "unclear"):
+            continue
+        if callout_title.strip().lower() == title_norm:
+            logger.warning(
+                "%s: drawing_title %r is identical to detail_callout %s's title -- "
+                "likely borrowed from that callout bubble instead of this drawing's own "
+                "title block; clearing drawing_title/title_callout_number",
+                drawing_id, title, callout.callout_id,
+            )
+            return metadata.model_copy(update={"drawing_title": None, "title_callout_number": None})
+
+    return metadata
+
+
 def _build_drawing_fields(raw_drawing: dict, drawing_id: str, page_number: int) -> dict:
     """Build the dimensions/elevation_datums/metadata/quantity_takeoff/drawing_type
     for one drawing out of one raw Claude tool-call entry. Shared between the
@@ -150,12 +228,20 @@ def _build_drawing_fields(raw_drawing: dict, drawing_id: str, page_number: int) 
         if (datum := _build_elevation_datum(raw_datum, drawing_id, datum_index, page_number)) is not None
     ]
 
+    detail_callouts = [
+        callout
+        for callout_index, raw_callout in enumerate(raw_drawing.get("detail_callouts", []))
+        if (callout := _build_detail_callout(raw_callout, drawing_id, callout_index, page_number)) is not None
+    ]
+
     raw_metadata = raw_drawing.get("drawing_metadata") or {}
     try:
         metadata = DrawingMetadata(**raw_metadata) if isinstance(raw_metadata, dict) else DrawingMetadata()
     except ValidationError:
         logger.warning("Skipping malformed drawing_metadata on %s: %r", drawing_id, raw_metadata)
         metadata = DrawingMetadata()
+
+    metadata = _clear_title_if_borrowed_from_callout(metadata, detail_callouts, drawing_id)
 
     quantity_takeoff = _build_quantity_takeoff(raw_drawing.get("quantity_takeoff"), drawing_id)
 
@@ -164,28 +250,42 @@ def _build_drawing_fields(raw_drawing: dict, drawing_id: str, page_number: int) 
         "drawing_metadata": metadata,
         "dimensions": dimensions,
         "elevation_datums": elevation_datums,
+        "detail_callouts": detail_callouts,
         "quantity_takeoff": quantity_takeoff,
     }
 
 
-def _ocr_text_for_box(lines: list[OcrLine], box: BoundingBox, pad: float = 0.03) -> str:
-    """Scope OCR text down to just the lines overlapping this drawing's
-    (slightly padded) bounding box, instead of handing the detail pass the
-    whole page's OCR text.
+def _ocr_text_for_box(
+    lines: list[OcrLine],
+    box: BoundingBox,
+    sibling_boxes: list[BoundingBox],
+    pad: float = 0.015,
+) -> str:
+    """Scope OCR text down to just the lines belonging to this drawing,
+    instead of handing the detail pass the whole page's OCR text.
 
-    Without this, every drawing's detail-pass call could see every other
-    drawing's title-block text too -- on a sheet packed with several similar
-    stair-plan drawings, that's exactly the kind of ambiguity that lets a
-    model pull the wrong title (or other text) off a neighboring drawing
-    even when it read the crop's own dimensions correctly.
+    A small pad picks up text sitting right at this drawing's own edge, but
+    on a sheet of stacked/touching drawings (zero gap between boxes -- the
+    common case here) that same pad reaches straight into the neighboring
+    drawing, exactly where ITS title sits (title text conventionally sits at
+    the bottom edge of each drawing's frame). That's what was pulling a
+    neighbor's title into this drawing's detail-pass context even after the
+    OCR was scoped down at all -- so any line whose center falls inside a
+    sibling drawing's own (unpadded) box is excluded here, regardless of
+    whether this box's padding also reaches it.
     """
     x0, y0 = box.x0 - pad, box.y0 - pad
     x1, y1 = box.x1 + pad, box.y1 + pad
-    matched = [
-        line.text
-        for line in lines
-        if line.x1 >= x0 and line.x0 <= x1 and line.y1 >= y0 and line.y0 <= y1
-    ]
+    matched = []
+    for line in lines:
+        center_x, center_y = (line.x0 + line.x1) / 2, (line.y0 + line.y1) / 2
+        if any(
+            sb.x0 <= center_x <= sb.x1 and sb.y0 <= center_y <= sb.y1
+            for sb in sibling_boxes
+        ):
+            continue
+        if line.x1 >= x0 and line.x0 <= x1 and line.y1 >= y0 and line.y0 <= y1:
+            matched.append(line.text)
     return "\n".join(matched)
 
 
@@ -247,7 +347,130 @@ def _run_detail_pass(
     merged = dict(raw_detail_drawings[0])
     merged["dimensions"] = [d for raw in raw_detail_drawings for d in raw.get("dimensions", [])]
     merged["elevation_datums"] = [d for raw in raw_detail_drawings for d in raw.get("elevation_datums", [])]
+    merged["detail_callouts"] = [d for raw in raw_detail_drawings for d in raw.get("detail_callouts", [])]
     return merged
+
+
+def _find_drawing_directly_above(
+    drawing_id: str, box: BoundingBox, page_boxes: dict[str, BoundingBox]
+) -> str | None:
+    """Find the id of the drawing on the same page whose box sits immediately
+    above `box` in the same column: their x-ranges overlap, its bottom edge
+    is at or above this box's top edge, and it's the closest such neighbor.
+    Purely geometric (uses only bounding_box coordinates already produced),
+    so it applies to any sheet layout, not just this one."""
+    best_id = None
+    best_gap = None
+    for other_id, other_box in page_boxes.items():
+        if other_id == drawing_id:
+            continue
+        x_overlap = min(box.x1, other_box.x1) - max(box.x0, other_box.x0)
+        if x_overlap <= 0:
+            continue
+        gap = box.y0 - other_box.y1
+        if gap < -1e-6:
+            continue
+        if best_gap is None or gap < best_gap:
+            best_gap = gap
+            best_id = other_id
+    return best_id
+
+
+_TITLE_LIKE_RE = re.compile(r"[A-Za-z]{3,}")
+
+
+def _looks_like_title_text(text: str) -> bool:
+    """Heuristic for 'this OCR line is descriptive title-block text, not a
+    bare dimension number or a lone grid-bubble digit' -- at least one run of
+    3+ letters, and not purely numeric. Deliberately generic (no drawing- or
+    project-specific words) so it doesn't just pattern-match this one sheet's
+    vocabulary; it's only used to decide whether a line found just below a
+    box's reported bottom edge is worth pulling that edge down to enclose,
+    not to identify what the title actually says."""
+    text = text.strip()
+    return bool(text) and not text.isdigit() and bool(_TITLE_LIKE_RE.search(text))
+
+
+def _find_touching_neighbor_below(
+    drawing_id: str, box: BoundingBox, boxes: dict[str, BoundingBox], tol: float = 0.01
+) -> str | None:
+    """The geometric inverse of _find_drawing_directly_above: the closest
+    box in the same column (x-ranges overlap) whose top edge sits at or just
+    below this box's bottom edge."""
+    best_id, best_gap = None, None
+    for other_id, other_box in boxes.items():
+        if other_id == drawing_id:
+            continue
+        x_overlap = min(box.x1, other_box.x1) - max(box.x0, other_box.x0)
+        if x_overlap <= 0:
+            continue
+        gap = other_box.y0 - box.y1
+        if gap < -tol:
+            continue
+        if best_gap is None or gap < best_gap:
+            best_gap, best_id = gap, other_id
+    return best_id
+
+
+def _snap_boxes_to_include_own_title(
+    boxes: dict[str, BoundingBox], lines: list[OcrLine], search_margin: float = 0.10
+) -> dict[str, BoundingBox]:
+    """Confirmed empirically (by tracing real OCR line coordinates against
+    real bounding boxes): Pass 1 sometimes draws a drawing's bottom edge just
+    above its own title-callout line -- the gap between the box edge and
+    the title varies from ~0 to ~7% of page height depending on the sheet,
+    so no fixed offset can fix this. That gap then causes the render_crop
+    for the box UNDERNEATH to include the neighbor's title instead of its
+    own, which is what was producing the observed 'this drawing has the
+    title that rightfully belongs to the one above it' pattern.
+
+    For each box, this looks for a title-like OCR line sitting just below
+    its reported bottom edge, with overlapping x-range (same column, so a
+    line from an unrelated adjacent column can't be pulled in), and expands
+    the box to enclose it. Whatever box was touching it below gets its top
+    edge pushed down to match, so the two don't end up overlapping and the
+    same title doesn't end up in both. Purely geometric plus the generic
+    "is this descriptive text" heuristic above -- no drawing-specific
+    keywords or magic offsets -- so it applies to any sheet layout.
+    """
+    adjusted = dict(boxes)
+
+    for drawing_id, box in boxes.items():
+        new_y1 = box.y1
+        for line in lines:
+            if line.y1 <= box.y1 + 1e-6:
+                continue  # already fully enclosed by this box -- nothing to fix
+            if line.y0 > box.y1 + search_margin:
+                continue  # starts too far below to plausibly be this box's own title
+            x_overlap = min(box.x1, line.x1) - max(box.x0, line.x0)
+            if x_overlap <= 0:
+                continue  # different column
+            if not _looks_like_title_text(line.text):
+                continue
+            new_y1 = max(new_y1, min(1.0, line.y1))
+
+        if new_y1 <= box.y1:
+            continue
+
+        logger.warning(
+            "%s: expanding bounding_box.y1 from %.4f to %.4f to enclose a title-like "
+            "line found just below its reported edge (was about to spill into whatever "
+            "box sits underneath)",
+            drawing_id, box.y1, new_y1,
+        )
+        # Base the update on the current entry in `adjusted`, not the original
+        # `box` -- a still-earlier iteration (the box above this one) may
+        # already have pushed this box's own y0 down, and copying from the
+        # stale `box` here would silently discard that.
+        adjusted[drawing_id] = adjusted[drawing_id].model_copy(update={"y1": new_y1})
+
+        below_id = _find_touching_neighbor_below(drawing_id, box, boxes)
+        if below_id is not None:
+            below_box = adjusted[below_id]
+            if new_y1 > below_box.y0 and new_y1 < below_box.y1:
+                adjusted[below_id] = below_box.model_copy(update={"y0": new_y1})
+
+    return adjusted
 
 
 def _warn_on_suspect_drawings(drawings: list[Drawing]) -> None:
@@ -264,6 +487,9 @@ def _warn_on_suspect_drawings(drawings: list[Drawing]) -> None:
 
     for page_number, page_drawings in by_page.items():
         seen_titles: dict[str, str] = {}
+        seen_callout_numbers: dict[str, str] = {}
+        page_boxes = {d.drawing_id: d.bounding_box for d in page_drawings if d.bounding_box is not None}
+
         for d in page_drawings:
             title = d.drawing_metadata.drawing_title
             if title:
@@ -276,12 +502,46 @@ def _warn_on_suspect_drawings(drawings: list[Drawing]) -> None:
                 else:
                     seen_titles[title] = d.drawing_id
 
+            # title_callout_number is a short, low-ambiguity signal (typically
+            # sequential 1..N across the sheet) -- a collision here is a
+            # stronger sign of mislabeling than a duplicate title string,
+            # which can vary in phrasing even when correct.
+            callout_number = d.drawing_metadata.title_callout_number
+            if callout_number:
+                if callout_number in seen_callout_numbers:
+                    logger.warning(
+                        "Page %s: %s and %s report the same title_callout_number %r -- "
+                        "one of them likely read the wrong drawing's title callout",
+                        page_number, seen_callout_numbers[callout_number], d.drawing_id, callout_number,
+                    )
+                else:
+                    seen_callout_numbers[callout_number] = d.drawing_id
+
             if not d.dimensions and not d.elevation_datums:
                 logger.warning(
                     "%s has no dimensions or elevation_datums -- possibly a title "
                     "block/legend/keyplan region mistakenly segmented as a drawing, "
                     "or a detail pass that found nothing",
                     d.drawing_id,
+                )
+
+        # Positional check: on a page of stacked/columned drawings, a
+        # recurring failure is a drawing reporting the title_callout_number
+        # that rightfully belongs to whichever drawing sits immediately
+        # above it (same column, closest box above) -- as if the model's
+        # attention lagged one drawing behind while reading down a stack.
+        # This looks only at geometry (bounding_box) plus the number each
+        # drawing already reported, so it's structural and sheet-agnostic.
+        callout_by_id = {d.drawing_id: d.drawing_metadata.title_callout_number for d in page_drawings}
+        for d in page_drawings:
+            if d.bounding_box is None or not d.drawing_metadata.title_callout_number:
+                continue
+            above_id = _find_drawing_directly_above(d.drawing_id, d.bounding_box, page_boxes)
+            if above_id and callout_by_id.get(above_id) == d.drawing_metadata.title_callout_number:
+                logger.warning(
+                    "Page %s: %s reports title_callout_number %r, the same as %s directly "
+                    "above it -- likely reused the drawing above's title instead of its own",
+                    page_number, d.drawing_id, d.drawing_metadata.title_callout_number, above_id,
                 )
 
 
@@ -311,11 +571,33 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
             settings=settings,
         )
 
+        # Bounding boxes for every drawing on this page, computed up front so
+        # each drawing's detail pass knows where its siblings sit -- needed
+        # to keep OCR context (and title text especially) from leaking across
+        # touching/stacked drawing boundaries.
+        page_drawing_ids = [f"P{page_number}-D{i + 1}" for i in range(len(raw_drawings))]
+        page_bounding_boxes = [
+            _build_bounding_box(raw_drawing.get("bounding_box"), page_drawing_ids[i])
+            for i, raw_drawing in enumerate(raw_drawings)
+        ]
+
+        # Snap each box to fully enclose its own title-callout line rather
+        # than cutting it off at a boundary Pass 1 drew slightly too early
+        # (see _snap_boxes_to_include_own_title) -- this is what was causing
+        # a drawing's detail-pass crop to show its neighbor's title instead
+        # of its own.
+        boxes_by_id = {
+            page_drawing_ids[i]: b for i, b in enumerate(page_bounding_boxes) if b is not None
+        }
+        if boxes_by_id and page_ocr_lines:
+            boxes_by_id = _snap_boxes_to_include_own_title(boxes_by_id, page_ocr_lines)
+        page_bounding_boxes = [boxes_by_id.get(drawing_id) for drawing_id in page_drawing_ids]
+
         for drawing_index, raw_drawing in enumerate(raw_drawings):
-            drawing_id = f"P{page_number}-D{drawing_index + 1}"
+            drawing_id = page_drawing_ids[drawing_index]
 
             fields = _build_drawing_fields(raw_drawing, drawing_id, page_number)
-            bounding_box = _build_bounding_box(raw_drawing.get("bounding_box"), drawing_id)
+            bounding_box = page_bounding_boxes[drawing_index]
             detail_pass_applied = False
 
             # 4. Detail pass: re-render just this drawing's bounding box at a
@@ -323,7 +605,14 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
             #    alone, so small dimension text that was unreadable in the
             #    full-page pass gets another, much sharper look.
             if bounding_box is not None:
-                scoped_ocr_text = _ocr_text_for_box(page_ocr_lines, bounding_box) if page_ocr_lines else page_ocr_text
+                sibling_boxes = [
+                    b for i, b in enumerate(page_bounding_boxes)
+                    if i != drawing_index and b is not None
+                ]
+                scoped_ocr_text = (
+                    _ocr_text_for_box(page_ocr_lines, bounding_box, sibling_boxes)
+                    if page_ocr_lines else page_ocr_text
+                )
                 raw_detail = _run_detail_pass(
                     pdf_bytes, page_number, bounding_box, scoped_ocr_text, drawing_id, settings
                 )

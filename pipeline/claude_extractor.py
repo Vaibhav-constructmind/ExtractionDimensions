@@ -116,6 +116,36 @@ _ELEVATION_DATUM_ITEM_SCHEMA = {
     "required": ["label_text"],
 }
 
+_DETAIL_CALLOUT_ITEM_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "callout_number": {"type": "string", "description": "The number/tag inside the circle/bubble, e.g. '6'."},
+        "title": {"type": "string", "description": "The callout's label text, e.g. 'STEEL HANDRAIL DETAIL-1-5'."},
+        "target_drawing_number": {
+            "type": "string",
+            "description": "Referenced sheet/drawing number printed under the callout, if shown, e.g. 'XXX-DWG-AR-AR-510002'.",
+        },
+        "section_part": {
+            "type": "string",
+            "description": "Where on the drawing this callout is, e.g. 'Top of upper flight, near grid 4'.",
+        },
+        "label_text": {
+            "type": "string",
+            "description": "Raw text as printed, e.g. '6 STEEL HANDRAIL DETAIL-1-5'. Use 'unclear' if illegible.",
+        },
+        "confidence": {
+            "type": "string",
+            "enum": CONFIDENCE_LEVELS,
+            "description": "'low' if this reading is uncertain or illegible; 'high' if clearly legible.",
+        },
+        "notes": {
+            "type": "string",
+            "description": "Context for an uncertain/illegible reading.",
+        },
+    },
+    "required": ["label_text"],
+}
+
 _QUANTITY_FIELD_SCHEMA = {
     "type": "object",
     "properties": {
@@ -213,7 +243,20 @@ TOOL_SCHEMA = {
                                 "project_name": {"type": "string"},
                                 "drawing_title": {
                                     "type": "string",
-                                    "description": "e.g. 'Stair Details / Stair 00801'",
+                                    "description": (
+                                        "This drawing's OWN title-callout text, e.g. 'Stair Details / "
+                                        "Stair 00801' -- read from its title_callout_number circle, "
+                                        "never from an internal equipment/room tag that happens to "
+                                        "appear inside the drawing's own geometry."
+                                    ),
+                                },
+                                "title_callout_number": {
+                                    "type": "string",
+                                    "description": (
+                                        "The number inside THIS drawing's own title-callout circle "
+                                        "(usually bottom-left of its frame), e.g. '4'. On a sheet of N "
+                                        "drawings these are typically sequential 1..N, one per drawing."
+                                    ),
                                 },
                                 "drawing_number": {
                                     "type": "string",
@@ -239,6 +282,16 @@ TOOL_SCHEMA = {
                             "type": "array",
                             "description": "Every elevation/level datum called out on this drawing (e.g. FFL values).",
                             "items": _ELEVATION_DATUM_ITEM_SCHEMA,
+                        },
+                        "detail_callouts": {
+                            "type": "array",
+                            "description": (
+                                "Every numbered detail-bubble cross-reference on this drawing (e.g. a "
+                                "circled '6' pointing to 'STEEL HANDRAIL DETAIL-1-5' on another sheet). "
+                                "These are real annotated content -- record them here rather than "
+                                "dropping them just because they aren't a dimension or elevation datum."
+                            ),
+                            "items": _DETAIL_CALLOUT_ITEM_SCHEMA,
                         },
                         "quantity_takeoff": _QUANTITY_TAKEOFF_SCHEMA,
                         "bounding_box": _BOUNDING_BOX_SCHEMA,
@@ -277,14 +330,39 @@ SYSTEM_PROMPT = (
     "nothing near the edge is clipped -- this box will be used to crop and re-render this exact "
     "drawing alone at much higher resolution in a later pass, so a slightly loose box is fine but "
     "a tight/clipped one will cut off real content. If two drawings are packed tightly together "
-    "with no gap, split the boundary between them rather than overlapping their interiors.\n"
-    "2. Metadata scan: title, drawing/sheet number, scale, default units (mm or m), and "
+    "with no gap (e.g. stacked in a column), split the boundary between them rather than "
+    "overlapping their interiors -- each drawing's own title/number callout (usually printed at "
+    "the bottom of its frame) belongs inside THAT drawing's own box, not the box of the drawing "
+    "below it, so make sure your padding on a shared edge does not creep into the neighboring "
+    "drawing's title text.\n"
+    "2. Metadata scan -- find THIS drawing's own title callout: a distinctly bold/large number "
+    "inside a circle or box (usually at the bottom-left of this drawing's own frame), immediately "
+    "followed by this drawing's name (e.g. '(4) STAIR-07-INTERMEDIATE LANDING-03'). On a sheet "
+    "with N drawings, these callout numbers are typically sequential across the whole sheet (1, 2, "
+    "3, ... up to N), one per drawing -- record that number as `title_callout_number` and the text "
+    "beside it as `drawing_title`. Do NOT confuse this with:\n"
+    "   - an internal equipment/room identifier tag printed INSIDE the drawing's geometry (e.g. a "
+    "small label like 'EGRESS STAIR 07 BG1 03 C' next to a door or room) -- that is a label for a "
+    "component within the drawing, not the drawing's own title, even though both can look like "
+    "short bold text;\n"
+    "   - a `detail_callouts` bubble (a numbered circle pointing to a detail on another sheet) -- "
+    "those are handled separately in step 3 below and are NOT this drawing's own title, even when "
+    "their number happens to coincide with another drawing's title_callout_number;\n"
+    "   - a grid-line bubble (e.g. a plain circled 'A' or '3' marking a column/row on the drawing) "
+    "-- these have no title text beside them and are not a title callout.\n"
+    "If you cannot find a bold numbered title callout for this drawing at all, set drawing_title to "
+    "'unclear' and title_callout_number to null rather than reusing a neighboring drawing's number "
+    "or an internal tag. Also record the drawing/sheet number, scale, default units (mm or m), and "
     "revision status from the title block.\n"
     "3. Spatial categorization -- systematically sweep the whole drawing:\n"
     "   - Exterior dimension strings (left, right, top, bottom)\n"
     "   - Interior compartment/shaft clear dimensions and headroom\n"
     "   - Vertical elevation datums (F.F.L., T.O.S., T.O.C., S.S.L.)\n"
     "   - Component details (stairs, handrails, doors, nosings, wall thicknesses, tread going)\n"
+    "   - Detail-bubble cross-references: a circled/numbered tag (e.g. a circle containing '6') "
+    "next to a title (e.g. 'STEEL HANDRAIL DETAIL-1-5') and often a small referenced drawing/sheet "
+    "number underneath -- record every one of these as a `detail_callouts` entry (not as a "
+    "dimension); they point to a detail shown elsewhere and are real sheet content worth keeping.\n"
     "4. Trace witness/extension lines: for every numerical figure, trace its bounding witness "
     "lines or datum markers to determine the precise start_reference and end_reference.\n"
     "5. Independent math cross-check: verify step-rise formulas (count * riser_or_tread_dim == "
@@ -301,8 +379,11 @@ SYSTEM_PROMPT = (
     "num_flights (count of stair_rise entries), num_risers_total (sum of their counts), "
     "riser_height (typical/per-flight riser dim), num_treads_total (risers - 1 per flight, "
     "summed), num_landings (distinct intermediate FFL levels between flights), and "
-    "total_vertical_drop (top FFL minus bottom FFL -- cross-check against the sum of riser "
-    "rises). tread_length/total_tread_length need a horizontal run or plan dimension; only fill "
+    "total_vertical_drop = the HIGHEST elevation_datum value you recorded for this drawing minus "
+    "the LOWEST one -- use the actual max/min of this drawing's own `elevation_datums` list, never "
+    "an arbitrary or intermediate pair of FFLs, even if one of them is labeled as a landing near "
+    "the top; cross-check the result against the sum of all riser rises (they should match). "
+    "tread_length/total_tread_length need a horizontal run or plan dimension; only fill "
     "them if one is actually shown (e.g. a diagonal flight-run dimension combined with the "
     "known rise), and mark the method/derivation used.\n"
     "   - perimeter_wall_length, internal_room_footprint_area, inner_perimeter, wall_thickness, "
@@ -364,6 +445,10 @@ def _validate_drawings(raw: object) -> list[dict]:
         elevation_datums = item.get("elevation_datums", [])
         if not isinstance(elevation_datums, list) or any(not isinstance(d, dict) for d in elevation_datums):
             raise ValueError(f"'elevation_datums' must be an array of JSON objects, got: {elevation_datums!r}")
+
+        detail_callouts = item.get("detail_callouts", [])
+        if not isinstance(detail_callouts, list) or any(not isinstance(d, dict) for d in detail_callouts):
+            raise ValueError(f"'detail_callouts' must be an array of JSON objects, got: {detail_callouts!r}")
 
         drawing_metadata = item.get("drawing_metadata", {})
         if drawing_metadata is not None and not isinstance(drawing_metadata, dict):
