@@ -1,0 +1,16 @@
+Number of flights
+* Number of treads and tread length
+* Total tread length
+* Number of risers
+* Riser height
+* Number of landings
+* Total vertical drop between floors
+* Perimeter wall length
+* Internal room footprint area
+* Inner perimeter
+* Wall thickness
+* Centerline perimeter
+* Perimeter wall concrete quantity
+* Flight and landing concrete quantity
+* Wall formwork area 
+* Soffit/stair formwork area
