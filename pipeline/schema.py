@@ -90,6 +90,8 @@ class QuantityTakeoff(BaseModel):
     source drawing doesn't show them.
     """
 
+    num_doors: QuantityField | None = Field(None, description="Count of doors visible on this drawing")
+    num_drains: QuantityField | None = Field(None, description="Count of drains visible on this drawing")
     num_flights: QuantityField | None = None
     num_risers_total: QuantityField | None = None
     riser_height: QuantityField | None = None

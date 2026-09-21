@@ -172,6 +172,7 @@ _QUANTITY_FIELD_SCHEMA = {
 }
 
 _QUANTITY_TAKEOFF_FIELDS = [
+    "num_doors", "num_drains",
     "num_flights", "num_risers_total", "riser_height", "num_treads_total", "tread_length",
     "total_tread_length", "num_landings", "total_vertical_drop", "perimeter_wall_length",
     "internal_room_footprint_area", "inner_perimeter", "wall_thickness", "centerline_perimeter",
@@ -375,6 +376,14 @@ SYSTEM_PROMPT = (
     "OCR text to help disambiguate anything hard to read in the image.\n"
     "7. Quantity takeoff: after recording dimensions/datums, derive `quantity_takeoff` for this "
     "drawing:\n"
+    "   - num_doors: count every distinct door symbol/leaf visible on this drawing (typically a "
+    "plan or detail view) -- a door swing arc, a door leaf line across an opening, or a door tag "
+    "(e.g. 'D1', 'HD-01'). Count each physical door once even if it also has a dimension or tag "
+    "labeling it. If this drawing is a section/elevation with no doors shown, leave it null with "
+    "method 'not derivable -- no doors visible on this drawing'.\n"
+    "   - num_drains: count every distinct drain symbol/tag visible on this drawing (e.g. a floor "
+    "drain circle, gully, or a tag like 'FD-01'). Leave it null with an explanatory method if none "
+    "are shown on this drawing.\n"
     "   - From a section/elevation showing stair_rise dimensions and FFL datums, derive: "
     "num_flights (count of stair_rise entries), num_risers_total (sum of their counts), "
     "riser_height (typical/per-flight riser dim), num_treads_total (risers - 1 per flight, "
