@@ -1,4 +1,4 @@
-"""Streamlit app: upload an architectural PDF, extract drawings + dimensions.
+"""Streamlit app: upload architectural PDF(s), extract drawings + dimensions.
 
 Run with: streamlit run app.py
 """
@@ -6,11 +6,12 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 
 import streamlit as st
 
 from pipeline.config import ConfigError, load_settings, missing_vars
-from pipeline.orchestrator import run_pipeline
+from pipeline.orchestrator import _suggest_missing_callout_number, run_pipeline
 from pipeline.schema import ExtractionResult
 
 logging.basicConfig(level=logging.INFO)
@@ -19,64 +20,16 @@ st.set_page_config(page_title="Drawing Dimension Extraction", page_icon="📐", 
 
 st.title("📐 Drawing Dimension Extraction")
 st.caption(
-    "Upload a PDF of architectural/structural drawings. The pipeline counts the "
-    "individual drawings on the sheet, classifies each one, and extracts every "
+    "Upload PDF(s) of architectural/structural drawings. The pipeline counts the "
+    "individual drawings on each sheet, classifies each one, and extracts every "
     "dimension with a unique ID."
 )
 
-# --- Sidebar: configuration status -----------------------------------------
-with st.sidebar:
-    st.header("Configuration")
-    gaps = missing_vars()
-    all_vars = [
-        "AZURE_DOC_INTEL_ENDPOINT",
-        "AZURE_DOC_INTEL_KEY",
-        "AZURE_FOUNDRY_ENDPOINT",
-        "AZURE_FOUNDRY_API_KEY",
-    ]
-    for var in all_vars:
-        if var in gaps:
-            st.markdown(f"🔴 `{var}` — not set")
-        else:
-            st.markdown(f"🟢 `{var}` — set")
-    if gaps:
-        st.info("Fill in the missing values in your `.env` file (see `.env.example`), then rerun.")
 
-# --- Main: upload + run ------------------------------------------------------
-uploaded = st.file_uploader("Upload drawing PDF", type=["pdf"])
-
-if uploaded is not None:
-    run_clicked = st.button("Run extraction", type="primary", disabled=bool(gaps))
-    if gaps:
-        st.warning("Cannot run extraction until all configuration values above are set.")
-
-    if run_clicked:
-        try:
-            settings = load_settings()
-        except ConfigError as exc:
-            st.error(str(exc))
-            st.stop()
-
-        pdf_bytes = uploaded.getvalue()
-
-        with st.spinner("Analyzing document layout and extracting drawings/dimensions..."):
-            try:
-                result: ExtractionResult = run_pipeline(pdf_bytes, uploaded.name, settings)
-            except Exception:
-                logging.exception("Pipeline failed")
-                st.error(
-                    "Extraction failed. Check the app logs/console for details "
-                    "(this is usually a credential, endpoint, or model-deployment-name issue)."
-                )
-                st.stop()
-
-        st.session_state["result"] = result
-
-# --- Results view -------------------------------------------------------------
-result: ExtractionResult | None = st.session_state.get("result")
-
-if result is not None:
-    st.divider()
+def render_result(result: ExtractionResult, key_prefix: str) -> None:
+    """Render one file's extraction result: metrics, download, suspect-drawing
+    checks, and the per-drawing expanders. `key_prefix` keeps widget keys
+    unique when this is called once per tab across multiple uploaded files."""
     col1, col2, col3 = st.columns(3)
     col1.metric("Pages", result.total_pages)
     col2.metric("Drawings found", result.total_drawings)
@@ -90,6 +43,7 @@ if result is not None:
         data=result.model_dump_json(indent=2),
         file_name=f"{result.source_file.rsplit('.', 1)[0]}_extraction.json",
         mime="application/json",
+        key=f"{key_prefix}-download-full",
     )
 
     # Surface the same suspect-drawing checks the pipeline logs, right in the
@@ -114,10 +68,17 @@ if result is not None:
         if callout_number:
             seen_callouts = callout_numbers_by_page.setdefault(d.page_number, {})
             if callout_number in seen_callouts:
+                page_drawings = [dr for dr in result.drawings if dr.page_number == d.page_number]
+                suggestion = _suggest_missing_callout_number(page_drawings)
+                suggestion_text = (
+                    f" The only number missing from this page's 1..{len(page_drawings)} "
+                    f"sequence is *\"{suggestion}\"* — likely the real value for one of them."
+                    if suggestion else ""
+                )
                 suspect_notes.append(
                     f"**{seen_callouts[callout_number]}** and **{d.drawing_id}** (page {d.page_number}) "
                     f"report the same title-callout number *\"{callout_number}\"* — one of them likely "
-                    "read the wrong drawing's title callout."
+                    f"read the wrong drawing's title callout.{suggestion_text}"
                 )
             else:
                 seen_callouts[callout_number] = d.drawing_id
@@ -269,5 +230,103 @@ if result is not None:
                 data=json.dumps(drawing.model_dump(), indent=2),
                 file_name=f"{drawing.drawing_id}.json",
                 mime="application/json",
-                key=f"download-{drawing.drawing_id}",
+                key=f"{key_prefix}-download-{drawing.drawing_id}",
             )
+
+
+# --- Sidebar: configuration status -----------------------------------------
+with st.sidebar:
+    st.header("Configuration")
+    gaps = missing_vars()
+    all_vars = [
+        "AZURE_DOC_INTEL_ENDPOINT",
+        "AZURE_DOC_INTEL_KEY",
+        "AZURE_FOUNDRY_ENDPOINT",
+        "AZURE_FOUNDRY_API_KEY",
+    ]
+    for var in all_vars:
+        if var in gaps:
+            st.markdown(f"🔴 `{var}` — not set")
+        else:
+            st.markdown(f"🟢 `{var}` — set")
+    if gaps:
+        st.info("Fill in the missing values in your `.env` file (see `.env.example`), then rerun.")
+
+# --- Main: upload + run ------------------------------------------------------
+uploaded_files = st.file_uploader(
+    "Upload drawing PDF(s)", type=["pdf"], accept_multiple_files=True
+)
+
+if uploaded_files:
+    run_clicked = st.button("Run extraction", type="primary", disabled=bool(gaps))
+    if gaps:
+        st.warning("Cannot run extraction until all configuration values above are set.")
+
+    if run_clicked:
+        try:
+            settings = load_settings()
+        except ConfigError as exc:
+            st.error(str(exc))
+            st.stop()
+
+        results: dict[str, ExtractionResult] = {}
+        errors: dict[str, str] = {}
+
+        progress = st.progress(0.0)
+        status = st.empty()
+        start_time = time.monotonic()
+        for i, uploaded in enumerate(uploaded_files):
+            elapsed = time.monotonic() - start_time
+            status.text(
+                f"Processing {i + 1} of {len(uploaded_files)}: {uploaded.name} "
+                f"(elapsed {elapsed:.0f}s)"
+            )
+            try:
+                results[uploaded.name] = run_pipeline(
+                    uploaded.getvalue(), uploaded.name, settings
+                )
+            except Exception:
+                logging.exception("Pipeline failed for %s", uploaded.name)
+                errors[uploaded.name] = (
+                    "Extraction failed. Check the app logs/console for details "
+                    "(this is usually a credential, endpoint, or model-deployment-name issue)."
+                )
+            progress.progress((i + 1) / len(uploaded_files))
+
+        status.empty()
+        progress.empty()
+
+        st.session_state["results"] = results
+        st.session_state["errors"] = errors
+        st.session_state["elapsed_seconds"] = time.monotonic() - start_time
+
+# --- Results view -------------------------------------------------------------
+results: dict[str, ExtractionResult] = st.session_state.get("results", {})
+errors: dict[str, str] = st.session_state.get("errors", {})
+
+if results or errors:
+    st.divider()
+
+    elapsed_seconds = st.session_state.get("elapsed_seconds")
+    if elapsed_seconds is not None:
+        st.caption(f"⏱️ Extraction took {elapsed_seconds:.1f}s")
+
+    if len(results) + len(errors) > 1:
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Files processed", f"{len(results)}/{len(results) + len(errors)}")
+        col2.metric("Drawings found", sum(r.total_drawings for r in results.values()))
+        col3.metric(
+            "Total dimensions",
+            sum(len(d.dimensions) for r in results.values() for d in r.drawings),
+        )
+
+    tab_labels = [f"✅ {name}" for name in results] + [f"❌ {name}" for name in errors]
+    tabs = st.tabs(tab_labels)
+
+    for tab, filename in zip(tabs[: len(results)], results.keys()):
+        with tab:
+            render_result(results[filename], key_prefix=filename)
+
+    for tab, filename in zip(tabs[len(results):], errors.keys()):
+        with tab:
+            st.error(errors[filename])

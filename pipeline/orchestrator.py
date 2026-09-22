@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections import Counter
 
 from pydantic import ValidationError
 
@@ -26,6 +27,61 @@ logger = logging.getLogger(__name__)
 
 
 _PLAIN_NUMBER_RE = re.compile(r"^\s*([+-]?\d+(?:\.\d+)?)\s*(?:mm|m|cm|ft|in|%)?\s*$", re.IGNORECASE)
+
+_BARE_CALLOUT_DIGIT_RE = re.compile(r"^\(?\s*(\d{1,2})\s*\)?[.:]?$")
+
+
+def _ocr_title_callout_number(
+    box: BoundingBox, lines: list[OcrLine], search_band: float = 0.07
+) -> str | None:
+    """Read a drawing's own title-callout digit straight from OCR rather than
+    trusting the vision pass for it. On this sheet family the callout circle
+    sits at the very bottom-left of a drawing's frame, immediately left of
+    its title text -- a short, isolated digit that Document Intelligence's
+    OCR reads far more reliably than asking the vision model to transcribe a
+    small circled numeral (this is exactly the kind of misread that produced
+    two drawings on one sheet both reporting title_callout_number '6').
+
+    Looks for OCR lines that are just a bare 1-2 digit number, sitting near
+    the box's bottom edge (title-callout row) and left edge (callout sits
+    left of the title text). Returns None -- never guesses -- unless exactly
+    one such candidate is found, since the callout circle for a *different*
+    drawing/detail-bubble elsewhere in the box must not be picked up.
+    """
+    band_top = box.y1 - search_band
+    candidates = [
+        line
+        for line in lines
+        if _BARE_CALLOUT_DIGIT_RE.match(line.text.strip())
+        and line.x0 <= box.x0 + 0.12
+        and band_top <= line.y0 <= box.y1 + 0.04
+    ]
+    if len(candidates) != 1:
+        return None
+    match = _BARE_CALLOUT_DIGIT_RE.match(candidates[0].text.strip())
+    assert match is not None
+    return match.group(1)
+
+
+def _suggest_missing_callout_number(page_drawings: list[Drawing]) -> str | None:
+    """When a page's title_callout_numbers look like they should be a
+    sequential 1..N set (one per drawing, N = drawing count) but exactly one
+    number is used twice and exactly one number in that range is missing,
+    that's a strong structural signal for what the miscounted drawing's real
+    number should be. Returns that missing number, or None if the pattern
+    doesn't hold cleanly -- more than one collision, a missing/non-numeric
+    label, or numbers outside the expected 1..N range."""
+    numbers = [d.drawing_metadata.title_callout_number for d in page_drawings]
+    if not all(n and n.isdigit() for n in numbers):
+        return None
+    n = len(page_drawings)
+    if len(set(numbers)) != n - 1:
+        return None  # not exactly one collision
+    expected = {str(i) for i in range(1, n + 1)}
+    missing = expected - set(numbers)
+    if len(missing) == 1 and set(numbers) <= expected:
+        return next(iter(missing))
+    return None
 
 
 def _value_from_label_text(label_text: str) -> float | None:
@@ -211,6 +267,27 @@ def _clear_title_if_borrowed_from_callout(
     return metadata
 
 
+_CROSS_DRAWING_LEAK_RE = re.compile(
+    r"next drawing|neighboring drawing|different drawing|cut off|extends beyond|"
+    r"not fully captured|separate sheet region|outside (?:this|the) drawing|"
+    r"outside (?:this|the) (?:page|crop)'s visible area",
+    re.IGNORECASE,
+)
+
+
+def _looks_like_cross_drawing_leak(callout: DetailCallout) -> bool:
+    """True if this callout's own notes/section_part admit it's describing
+    content that belongs to a different drawing rather than this one -- a
+    known detail-pass crop-leakage pattern where a sliver of a neighboring
+    drawing's frame/title sneaks into this drawing's crop, and the model
+    says so itself (e.g. '...this next drawing... is cut off... extends
+    beyond the page's visible area'). Purely a text pattern over what the
+    model already wrote in its own notes, so it generalizes to any
+    drawing/run rather than special-casing one entry."""
+    text = f"{callout.notes or ''} {callout.section_part or ''}"
+    return bool(_CROSS_DRAWING_LEAK_RE.search(text))
+
+
 def _build_drawing_fields(raw_drawing: dict, drawing_id: str, page_number: int) -> dict:
     """Build the dimensions/elevation_datums/metadata/quantity_takeoff/drawing_type
     for one drawing out of one raw Claude tool-call entry. Shared between the
@@ -228,11 +305,19 @@ def _build_drawing_fields(raw_drawing: dict, drawing_id: str, page_number: int) 
         if (datum := _build_elevation_datum(raw_datum, drawing_id, datum_index, page_number)) is not None
     ]
 
-    detail_callouts = [
-        callout
-        for callout_index, raw_callout in enumerate(raw_drawing.get("detail_callouts", []))
-        if (callout := _build_detail_callout(raw_callout, drawing_id, callout_index, page_number)) is not None
-    ]
+    detail_callouts = []
+    for callout_index, raw_callout in enumerate(raw_drawing.get("detail_callouts", [])):
+        callout = _build_detail_callout(raw_callout, drawing_id, callout_index, page_number)
+        if callout is None:
+            continue
+        if _looks_like_cross_drawing_leak(callout):
+            logger.warning(
+                "%s: dropping detail_callout %r -- its own notes/section_part admit it "
+                "describes content outside this drawing (detail-pass crop leakage): %r",
+                drawing_id, callout.label_text, callout.notes,
+            )
+            continue
+        detail_callouts.append(callout)
 
     raw_metadata = raw_drawing.get("drawing_metadata") or {}
     try:
@@ -473,6 +558,127 @@ def _snap_boxes_to_include_own_title(
     return adjusted
 
 
+def _clamp_overlapping_boxes(boxes: dict[str, BoundingBox]) -> dict[str, BoundingBox]:
+    """Final safety pass after all other box adjustments: no two drawings'
+    boxes in the same column should vertically overlap, since the detail
+    pass renders each box's exact coordinates with no further trimming --
+    any leftover overlap here (from a model-reported box generously padded
+    per the extraction prompt, not from the intentional title-inclusion
+    expansion above) would let one drawing's high-res crop bleed into its
+    neighbor's frame/title, which is what has produced spurious
+    detail_callouts describing a neighboring drawing's content. For each
+    overlapping pair in the same column, clips the box that starts higher
+    to stop exactly where the other begins, rather than leaving the two
+    crops overlapping. Purely geometric (x/y overlap only, no OCR/text
+    involved), so it applies to any sheet layout, not just stacked columns.
+    """
+    adjusted = dict(boxes)
+    ids = list(adjusted)
+    for i, id_a in enumerate(ids):
+        for id_b in ids[i + 1:]:
+            a, b = adjusted[id_a], adjusted[id_b]
+            x_overlap = min(a.x1, b.x1) - max(a.x0, b.x0)
+            if x_overlap <= 0:
+                continue
+            upper_id, lower_id = (id_a, id_b) if a.y0 <= b.y0 else (id_b, id_a)
+            upper, lower = adjusted[upper_id], adjusted[lower_id]
+            if upper.y1 > lower.y0:
+                logger.warning(
+                    "%s and %s overlap after box adjustments (%.4f > %.4f) -- clipping "
+                    "%s's bottom edge to stop where %s begins, so their crops don't bleed "
+                    "into each other",
+                    upper_id, lower_id, upper.y1, lower.y0, upper_id, lower_id,
+                )
+                adjusted[upper_id] = upper.model_copy(update={"y1": lower.y0})
+    return adjusted
+
+
+def _normalize_callout_key(text: str | None) -> str | None:
+    """Collapse a detail-callout's title (or, failing that, its raw
+    label_text) down to its bare alphabetic content -- letters only,
+    uppercased, digits/punctuation/whitespace stripped -- so the same
+    recurring sheet-wide annotation can be recognized across drawings even
+    when one drawing's read dropped part of the title (e.g. 'STEEL HANDRAIL
+    DETAIL-1-5' vs just 'DETAIL-1-5' vs 'unclear'). Returns None when there's
+    not enough legible text to key on."""
+    if not text or text.strip().lower() == "unclear":
+        return None
+    letters = re.sub(r"[^A-Za-z]", "", text).upper()
+    return letters if len(letters) >= 4 else None
+
+
+def _reconcile_detail_callouts(page_drawings: list[Drawing]) -> None:
+    """Cross-check each drawing's detail_callouts against how the SAME
+    annotation was read on other drawings on this page. A numbered detail
+    bubble (e.g. '6 STEEL HANDRAIL DETAIL-1-5' / 'XXX-DWG-AR-AR-510102') is
+    printed identically on every drawing on a sheet, so different readings of
+    it across drawings are misreads, not real variation -- but a plain vote
+    count is the wrong way to pick the correct one: the same misread (e.g.
+    several drawings all dropping "STEEL HANDRAIL" down to just "DETAIL-1-5")
+    can easily outnumber the one drawing that read the full text correctly.
+    Instead this scores each distinct reading by how COMPLETE its title is
+    (a longer, non-truncated title is strictly more informative than a short
+    fragment, however many drawings share that fragment) and only falls back
+    to vote count to break ties between equally-complete readings. Requires
+    at least 3 legible readings before acting, so a genuine one-off callout
+    (seen on only one or two drawings) is never touched. Also dedupes any
+    drawing left with two callouts now sharing identical content.
+    """
+    groups: dict[str, list[DetailCallout]] = {}
+    for d in page_drawings:
+        for callout in d.detail_callouts:
+            key = _normalize_callout_key(callout.title) or _normalize_callout_key(callout.label_text)
+            if key is None:
+                continue
+            # Merge into an existing group if one key contains the other
+            # (covers a title read as only a fragment of the full text).
+            matched_key = next((k for k in groups if k in key or key in k), key)
+            groups.setdefault(matched_key, []).append(callout)
+
+    for callouts in groups.values():
+        if len(callouts) < 3:
+            continue
+        candidates = [
+            c for c in callouts
+            if c.callout_number and c.callout_number != "unclear"
+            and c.target_drawing_number and c.target_drawing_number != "unclear"
+        ]
+        if not candidates:
+            continue
+        counts = Counter((c.callout_number, c.title, c.target_drawing_number) for c in candidates)
+
+        def _completeness(c: DetailCallout) -> tuple[int, int]:
+            title_len = len(c.title.strip()) if c.title and c.title.strip().lower() != "unclear" else 0
+            return (title_len, counts[(c.callout_number, c.title, c.target_drawing_number)])
+
+        canonical = max(candidates, key=_completeness)
+        number, title, target = canonical.callout_number, canonical.title, canonical.target_drawing_number
+        for c in callouts:
+            if (c.callout_number, c.title, c.target_drawing_number) == (number, title, target):
+                continue
+            logger.warning(
+                "%s: detail_callout %r read as (number=%r, title=%r, target=%r) but the most "
+                "complete reading on this page is (number=%r, title=%r, target=%r) -- overriding",
+                c.callout_id, c.label_text, c.callout_number, c.title, c.target_drawing_number,
+                number, title, target,
+            )
+            c.callout_number = number
+            c.title = title
+            c.target_drawing_number = target
+
+    for d in page_drawings:
+        seen: set[tuple[str | None, str | None, str | None]] = set()
+        deduped = []
+        for c in d.detail_callouts:
+            sig = (c.callout_number, c.title, c.target_drawing_number)
+            if sig in seen:
+                continue
+            seen.add(sig)
+            deduped.append(c)
+        if len(deduped) != len(d.detail_callouts):
+            d.detail_callouts = deduped
+
+
 def _warn_on_suspect_drawings(drawings: list[Drawing]) -> None:
     """Best-effort consistency check over the finished result: flag drawings
     on the same page that share a title, and drawings with no dimensions or
@@ -509,10 +715,16 @@ def _warn_on_suspect_drawings(drawings: list[Drawing]) -> None:
             callout_number = d.drawing_metadata.title_callout_number
             if callout_number:
                 if callout_number in seen_callout_numbers:
+                    suggestion = _suggest_missing_callout_number(page_drawings)
+                    suggestion_note = (
+                        f" -- the only number missing from this page's 1..{len(page_drawings)} "
+                        f"sequence is {suggestion!r}, likely the real value for one of them"
+                        if suggestion else ""
+                    )
                     logger.warning(
-                        "Page %s: %s and %s report the same title_callout_number %r -- "
-                        "one of them likely read the wrong drawing's title callout",
-                        page_number, seen_callout_numbers[callout_number], d.drawing_id, callout_number,
+                        "Page %s: %s and %s report the same title_callout_number %r%s",
+                        page_number, seen_callout_numbers[callout_number], d.drawing_id,
+                        callout_number, suggestion_note,
                     )
                 else:
                     seen_callout_numbers[callout_number] = d.drawing_id
@@ -562,6 +774,7 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
     #    its bounding box).
     for index, image_bytes in enumerate(page_images):
         page_number = index + 1
+        page_start = len(drawings)
         page_ocr_text = ocr_text.get(page_number, "")
         page_ocr_lines = ocr_lines.get(page_number, [])
         raw_drawings = claude_extractor.extract_page(
@@ -591,6 +804,8 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
         }
         if boxes_by_id and page_ocr_lines:
             boxes_by_id = _snap_boxes_to_include_own_title(boxes_by_id, page_ocr_lines)
+        if boxes_by_id:
+            boxes_by_id = _clamp_overlapping_boxes(boxes_by_id)
         page_bounding_boxes = [boxes_by_id.get(drawing_id) for drawing_id in page_drawing_ids]
 
         for drawing_index, raw_drawing in enumerate(raw_drawings):
@@ -620,6 +835,24 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
                     fields = _build_drawing_fields(raw_detail, drawing_id, page_number)
                     detail_pass_applied = True
 
+            # 5. Cross-check the title-callout number against OCR: a short,
+            #    isolated digit is exactly what Document Intelligence reads
+            #    most reliably, and is a cheap, deterministic correction for
+            #    a class of vision misread that has shown up in practice
+            #    (see _ocr_title_callout_number).
+            if bounding_box is not None and page_ocr_lines:
+                ocr_number = _ocr_title_callout_number(bounding_box, page_ocr_lines)
+                metadata = fields["drawing_metadata"]
+                if ocr_number is not None and ocr_number != metadata.title_callout_number:
+                    logger.warning(
+                        "%s: OCR reads title-callout number %r but the vision pass "
+                        "returned %r -- overriding with the OCR reading",
+                        drawing_id, ocr_number, metadata.title_callout_number,
+                    )
+                    fields["drawing_metadata"] = metadata.model_copy(
+                        update={"title_callout_number": ocr_number}
+                    )
+
             try:
                 drawings.append(
                     Drawing(
@@ -632,6 +865,12 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
                 )
             except ValidationError:
                 logger.warning("Skipping malformed drawing %s: %r", drawing_id, raw_drawing)
+
+        # 6. Reconcile detail_callouts across this page's drawings: the same
+        #    numbered detail bubble is printed identically on every drawing on
+        #    a sheet, so if most drawings agree on one and a minority disagree,
+        #    the minority almost certainly misread it (see _reconcile_detail_callouts).
+        _reconcile_detail_callouts(drawings[page_start:])
 
     _warn_on_suspect_drawings(drawings)
 
