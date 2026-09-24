@@ -24,7 +24,7 @@ DRAWING_TYPES = ["elevation", "section", "isometric", "plan", "detail", "schedul
 ORIENTATIONS = ["vertical", "horizontal", "diagonal", "other"]
 DIMENSION_TYPES = [
     "clearance", "headroom", "floor_to_floor", "level_difference", "guardrail_height",
-    "stair_rise", "tread_going", "wall_thickness", "width", "other",
+    "stair_rise", "tread_going", "stair_width", "wall_thickness", "width", "other",
 ]
 CONFIDENCE_LEVELS = ["high", "medium", "low"]
 
@@ -360,6 +360,12 @@ SYSTEM_PROMPT = (
     "   - Interior compartment/shaft clear dimensions and headroom\n"
     "   - Vertical elevation datums (F.F.L., T.O.S., T.O.C., S.S.L.)\n"
     "   - Component details (stairs, handrails, doors, nosings, wall thicknesses, tread going)\n"
+    "   - Stair width: on a PLAN view, the CLEAR WIDTH of the stair flight itself -- the "
+    "dimension spanning across the flight between its two bounding wall faces (or wall-to-"
+    "handrail), measured perpendicular to the direction of travel. Tag this `stair_width`. "
+    "Do NOT tag as `stair_width`: landing width/depth, overall room or enclosure width, "
+    "corridor width, or wall thickness -- those are real dimensions worth recording too, "
+    "just under `width`/`wall_thickness`/`other` instead, not `stair_width`.\n"
     "   - Detail-bubble cross-references: a circled/numbered tag (e.g. a circle containing '6') "
     "next to a title (e.g. 'STEEL HANDRAIL DETAIL-1-5') and often a small referenced drawing/sheet "
     "number underneath -- record every one of these as a `detail_callouts` entry (not as a "
@@ -391,8 +397,10 @@ SYSTEM_PROMPT = (
     "are shown on this drawing.\n"
     "   - From a section/elevation showing stair_rise dimensions and FFL datums, derive: "
     "num_flights (count of stair_rise entries), num_risers_total (sum of their counts), "
-    "riser_height (typical/per-flight riser dim), num_treads_total (risers - 1 per flight, "
-    "summed), num_landings (distinct intermediate FFL levels between flights), and "
+    "riser_height (typical/per-flight riser dim), num_treads_total -- this project treats the "
+    "number of treads as EQUAL to the number of risers for each flight (do NOT use a risers-1 "
+    "convention), so num_treads_total must equal num_risers_total, summed the same way -- "
+    "num_landings (distinct intermediate FFL levels between flights), and "
     "total_vertical_drop = the HIGHEST elevation_datum value you recorded for this drawing minus "
     "the LOWEST one -- use the actual max/min of this drawing's own `elevation_datums` list, never "
     "an arbitrary or intermediate pair of FFLs, even if one of them is labeled as a landing near "

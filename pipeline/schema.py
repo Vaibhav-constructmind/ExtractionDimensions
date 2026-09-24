@@ -80,6 +80,42 @@ class QuantityField(BaseModel):
     notes: str | None = Field(None, description="Caveats, ambiguity, or what additional drawing (e.g. plan view) would be needed")
 
 
+class MeasuredValue(BaseModel):
+    """A single numeric value with its unit -- used as an auditable input or
+    output of a deterministic (non-LLM) calculation, as opposed to
+    QuantityField which also carries a model-derived confidence/method."""
+
+    value: float
+    unit: str
+    source: str | None = Field(
+        None, description="dimension_id this value came from, if traceable -- never fabricated"
+    )
+
+
+class SingleStepConcrete(BaseModel):
+    """Concrete volume of ONE stair step, computed deterministically (never
+    by the model) as a triangular prism: 0.5 * tread_depth * riser_height *
+    stair_width. Covers exactly one step -- per-flight volume, landing
+    volume, and total stair/project volume are separate, not-yet-implemented
+    calculations.
+    """
+
+    tread_depth: MeasuredValue
+    riser_height: MeasuredValue
+    stair_width: MeasuredValue
+    volume: MeasuredValue = Field(..., description="0.5 * tread_depth * riser_height * stair_width, in m3")
+    formula: str = Field(..., description="The formula as evaluated, e.g. '0.5 × 0.290 × 0.165 × 1.570'")
+    tread_depth_source: str | None = Field(
+        None, description="dimension_id this tread_depth came from, if traceable"
+    )
+    riser_height_source: str | None = Field(
+        None, description="dimension_id this riser_height came from, if traceable"
+    )
+    stair_width_source: str | None = Field(
+        None, description="dimension_id this stair_width came from, if traceable"
+    )
+
+
 class QuantityTakeoff(BaseModel):
     """Stair/enclosure quantity-takeoff figures derived from this drawing's dimensions and datums.
 
@@ -95,6 +131,13 @@ class QuantityTakeoff(BaseModel):
     num_flights: QuantityField | None = None
     num_risers_total: QuantityField | None = None
     riser_height: QuantityField | None = None
+    single_step_concrete: SingleStepConcrete | None = Field(
+        None,
+        description=(
+            "Concrete volume of ONE stair step, computed deterministically in Python "
+            "(not by the model) from this drawing's own tread/riser/width dimensions."
+        ),
+    )
     num_treads_total: QuantityField | None = None
     tread_length: QuantityField | None = Field(None, description="Tread going/depth, per tread")
     total_tread_length: QuantityField | None = Field(None, description="Sum of horizontal tread run across all flights")
@@ -109,6 +152,89 @@ class QuantityTakeoff(BaseModel):
     flight_landing_concrete_quantity: QuantityField | None = None
     wall_formwork_area: QuantityField | None = None
     soffit_stair_formwork_area: QuantityField | None = None
+
+
+class IncompleteFlight(BaseModel):
+    """A step count found on one side (tread or riser) of a stair group with
+    no matching reading on the other side, so no volume could be computed
+    for it without fabricating the missing value."""
+
+    num_steps: int
+    reason: str
+
+
+class FlightConcrete(BaseModel):
+    """Concrete volume for ONE physical stair flight on ONE drawing (a run
+    of steps sharing the same tread depth, riser height, and width), as a
+    triangular prism per step:
+
+        volume_per_step = 0.5 * tread_depth * riser_height * stair_width
+        total_volume = volume_per_step * num_steps
+
+    Every flight found on a drawing gets its OWN record here -- flights are
+    never pooled or copied across drawings, and two physical flights that
+    happen to share a step count still each get their own entry (no
+    instance-count collapsing).
+    """
+
+    flight_label: str = Field(
+        ...,
+        description=(
+            "This flight's physical position within its drawing, e.g. 'upper_flight' or "
+            "'lower_flight' (read from the drawing's own annotations when they say so, "
+            "otherwise an ordinal position like 'flight_1') -- never the step count."
+        ),
+    )
+    num_steps: MeasuredValue = Field(..., description="Step count for this flight (unit='count')")
+    num_steps_method: str | None = Field(
+        None, description="How num_steps was resolved, e.g. a tread/riser count disagreement"
+    )
+    tread_depth: MeasuredValue
+    riser_height: MeasuredValue
+    stair_width: MeasuredValue = Field(..., description="This flight's OWN clear width -- may differ from another flight's on the same drawing")
+    volume_per_step: MeasuredValue = Field(..., description="0.5 * tread_depth * riser_height * stair_width, in m3")
+    formula_per_step: str
+    total_volume: MeasuredValue = Field(..., description="volume_per_step * num_steps, in m3")
+    formula_total: str
+
+
+class StairQuantityTakeoff(BaseModel):
+    """Stair concrete-volume takeoff for ONE drawing, computed entirely from
+    that drawing's OWN dimensions -- tread, riser, and stair width are never
+    pooled or copied from a sibling drawing in the same stair group.
+    `stair_group_id` identifies which physical stair this drawing belongs to
+    (drawings sharing a title stem like 'STAIR-07-*'); it's identity only,
+    not a dimension pool. Computed entirely in Python (pipeline.calculations)
+    from dimensions the model already extracted and tagged; the model never
+    performs this arithmetic.
+    """
+
+    stair_group_id: str = Field(..., description="e.g. 'STAIR-07', the physical stair this drawing belongs to")
+    source_drawings: list[str] = Field(
+        default_factory=list,
+        description="Always just this one drawing's drawing_id -- kept as a list for schema stability.",
+    )
+    flights: list[FlightConcrete] = Field(
+        default_factory=list,
+        description="One entry per physical flight actually found on this drawing -- the authoritative, exact per-flight volumes",
+    )
+    incomplete_flights: list[IncompleteFlight] = Field(
+        default_factory=list,
+        description="Step counts found on only one side (tread, riser, or width) on this drawing -- recorded rather than fabricated",
+    )
+    tread_depth_representative: MeasuredValue = Field(
+        ..., description="Most common tread depth across this drawing's resolved flights -- reference only; precise values are in `flights[]`"
+    )
+    riser_height_representative: MeasuredValue = Field(
+        ..., description="Mode riser height across this drawing's resolved flights -- reference only; precise values are in `flights[]`"
+    )
+    riser_height_method: str = Field(..., description="How the representative riser height was chosen")
+    stair_width_representative: MeasuredValue = Field(
+        ..., description="Mode stair width across this drawing's resolved flights -- reference only; each flight's own stair_width in `flights[]` is authoritative"
+    )
+    num_steps_total: MeasuredValue = Field(..., description="Sum of num_steps across this drawing's own flights (unit='count')")
+    total_volume: MeasuredValue = Field(..., description="Sum of this drawing's own flights' total_volume -- exact, not approximated")
+    formula_total: str = Field(default="sum of each flight's total_volume across this drawing's own flights")
 
 
 class DetailCallout(BaseModel):
@@ -182,6 +308,14 @@ class Drawing(BaseModel):
     )
     quantity_takeoff: QuantityTakeoff | None = Field(
         default=None, description="Stair/enclosure quantities derived from this drawing's dimensions and datums"
+    )
+    stair_quantity_takeoff: StairQuantityTakeoff | None = Field(
+        default=None,
+        description=(
+            "Stair concrete-volume takeoff for THIS drawing's own stair flights, computed "
+            "solely from this drawing's own dimensions -- never pooled or copied from another "
+            "drawing in the same stair group."
+        ),
     )
     bounding_box: BoundingBox | None = Field(
         default=None,

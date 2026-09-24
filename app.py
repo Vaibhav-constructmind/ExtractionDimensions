@@ -11,7 +11,12 @@ import time
 import streamlit as st
 
 from pipeline.config import ConfigError, load_settings, missing_vars
-from pipeline.orchestrator import _suggest_missing_callout_number, run_pipeline
+from pipeline.orchestrator import (
+    _suggest_missing_callout_number,
+    run_pipeline,
+    to_export_dict,
+    to_export_dict_result,
+)
 from pipeline.schema import ExtractionResult
 
 logging.basicConfig(level=logging.INFO)
@@ -40,7 +45,7 @@ def render_result(result: ExtractionResult, key_prefix: str) -> None:
 
     st.download_button(
         "⬇️ Download full result (JSON)",
-        data=result.model_dump_json(indent=2),
+        data=json.dumps(to_export_dict_result(result), indent=2),
         file_name=f"{result.source_file.rsplit('.', 1)[0]}_extraction.json",
         mime="application/json",
         key=f"{key_prefix}-download-full",
@@ -87,6 +92,15 @@ def render_result(result: ExtractionResult, key_prefix: str) -> None:
                 f"**{d.drawing_id}** has no dimensions or elevation datums at all — could be a "
                 "title block/legend/keyplan mistakenly segmented as its own drawing."
             )
+        if d.quantity_takeoff:
+            risers = d.quantity_takeoff.num_risers_total.value if d.quantity_takeoff.num_risers_total else None
+            treads = d.quantity_takeoff.num_treads_total.value if d.quantity_takeoff.num_treads_total else None
+            if risers is not None and treads is not None and risers != treads:
+                suspect_notes.append(
+                    f"**{d.drawing_id}** reports `num_risers_total` = {risers:g} but "
+                    f"`num_treads_total` = {treads:g} — these should be the same count for the "
+                    "same flights; worth a manual check."
+                )
     if suspect_notes:
         with st.expander(f"⚠️ {len(suspect_notes)} drawing(s) flagged for a manual check", expanded=True):
             for note in suspect_notes:
@@ -219,15 +233,73 @@ def render_result(result: ExtractionResult, key_prefix: str) -> None:
                         "Notes": field.notes or "",
                     }
                     for field_name in drawing.quantity_takeoff.model_fields
-                    if (field := getattr(drawing.quantity_takeoff, field_name)) is not None
+                    if field_name != "single_step_concrete"
+                    and (field := getattr(drawing.quantity_takeoff, field_name)) is not None
                 ]
                 if takeoff_rows:
                     st.markdown("**Quantity takeoff**")
                     st.dataframe(takeoff_rows, use_container_width=True, hide_index=True)
 
+                single_step = drawing.quantity_takeoff.single_step_concrete
+                if single_step:
+                    st.markdown("**Single stair-step concrete volume**")
+                    st.caption(f"Formula: {single_step.formula} = {single_step.volume.value:.8f} m³")
+                    st.dataframe(
+                        [
+                            {
+                                "Input": label,
+                                "Value": measured.value,
+                                "Unit": measured.unit,
+                                "Source dimension": source or "",
+                            }
+                            for label, measured, source in [
+                                ("Tread depth", single_step.tread_depth, single_step.tread_depth_source),
+                                ("Riser height", single_step.riser_height, single_step.riser_height_source),
+                                ("Stair width", single_step.stair_width, single_step.stair_width_source),
+                                ("Volume", single_step.volume, None),
+                            ]
+                        ],
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+
+            stair_takeoff = drawing.stair_quantity_takeoff
+            if stair_takeoff:
+                st.markdown(f"**Stair concrete takeoff ({stair_takeoff.stair_group_id})**")
+                st.caption(
+                    f"This drawing's own flights · "
+                    f"total {stair_takeoff.num_steps_total.value:g} steps · "
+                    f"total volume {stair_takeoff.total_volume.value:.6f} m³"
+                )
+                st.dataframe(
+                    [
+                        {
+                            "Flight": f.flight_label,
+                            "Steps": f.num_steps.value,
+                            "Tread depth": f"{f.tread_depth.value:g}{f.tread_depth.unit}",
+                            "Riser height": f"{f.riser_height.value:g}{f.riser_height.unit}",
+                            "Stair width": f"{f.stair_width.value:g}{f.stair_width.unit}",
+                            "Volume/step (m³)": f"{f.volume_per_step.value:.8f}",
+                            "Total volume (m³)": f"{f.total_volume.value:.6f}",
+                            "Formula": f.formula_total,
+                        }
+                        for f in stair_takeoff.flights
+                    ],
+                    use_container_width=True,
+                    hide_index=True,
+                )
+                if stair_takeoff.incomplete_flights:
+                    st.caption(
+                        "⚠️ Not computed (missing tread, riser, or width match on this drawing): "
+                        + "; ".join(
+                            f"{inc.num_steps} steps ({inc.reason})"
+                            for inc in stair_takeoff.incomplete_flights
+                        )
+                    )
+
             st.download_button(
                 f"Download {drawing.drawing_id} (JSON)",
-                data=json.dumps(drawing.model_dump(), indent=2),
+                data=json.dumps(to_export_dict(drawing), indent=2),
                 file_name=f"{drawing.drawing_id}.json",
                 mime="application/json",
                 key=f"{key_prefix}-download-{drawing.drawing_id}",

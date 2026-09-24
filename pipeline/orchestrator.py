@@ -4,10 +4,11 @@ from __future__ import annotations
 import logging
 import re
 from collections import Counter
+from typing import Callable
 
 from pydantic import ValidationError
 
-from . import claude_extractor, doc_intelligence, render
+from . import calculations, claude_extractor, doc_intelligence, render
 from .doc_intelligence import OcrLine
 from .config import Settings
 from .schema import (
@@ -18,8 +19,13 @@ from .schema import (
     DrawingMetadata,
     ElevationDatum,
     ExtractionResult,
+    FlightConcrete,
+    IncompleteFlight,
+    MeasuredValue,
     QuantityField,
     QuantityTakeoff,
+    SingleStepConcrete,
+    StairQuantityTakeoff,
     StepFormula,
 )
 
@@ -171,6 +177,54 @@ def _build_detail_callout(raw_callout: dict, drawing_id: str, callout_index: int
         return None
 
 
+def _find_single_step_concrete(dimensions: list[Dimension], drawing_id: str) -> SingleStepConcrete | None:
+    """Best-effort, deterministic (non-LLM) single-step concrete volume for
+    this drawing, built only from dimensions the model already extracted --
+    the volume calculation itself (pipeline.calculations) never touches the
+    model.
+
+    Tread depth and riser height are read from this drawing's own
+    tread_going / stair_rise dimensions' step_formula.riser_or_tread_dim --
+    an unambiguous signal, since those are the only dimension types that
+    carry a per-step figure.
+
+    Stair width is NOT auto-detected here: DIMENSION_TYPES has no dedicated
+    "stair_width" category, and a drawing typically has several generic
+    `type == "width"` dimensions (landing width, wall-to-wall width, etc.) --
+    guessing which one is the stair's own clear width would risk silently
+    picking the wrong dimension. TODO: once dimensions can be tagged/scored
+    as "this is the stair flight's own width" (or a dedicated stair_width
+    field exists), source it here and call
+    calculations.build_single_step_concrete(...) to complete this record.
+    Until then, this intentionally returns None rather than fabricate a
+    stair_width.
+    """
+    tread = next(
+        (
+            d for d in dimensions
+            if d.type == "tread_going" and d.step_formula and d.step_formula.riser_or_tread_dim
+        ),
+        None,
+    )
+    riser = next(
+        (
+            d for d in dimensions
+            if d.type == "stair_rise" and d.step_formula and d.step_formula.riser_or_tread_dim
+        ),
+        None,
+    )
+    if tread is None or riser is None:
+        return None
+
+    logger.debug(
+        "%s: found tread_going (%s) and stair_rise (%s) dimensions, but no reliable "
+        "stair_width source exists yet -- skipping single_step_concrete (see TODO in "
+        "_find_single_step_concrete)",
+        drawing_id, tread.dimension_id, riser.dimension_id,
+    )
+    return None
+
+
 def _build_quantity_field(raw_field: object) -> QuantityField | None:
     if not isinstance(raw_field, dict):
         return None
@@ -186,17 +240,26 @@ def _build_quantity_field(raw_field: object) -> QuantityField | None:
         return None
 
 
-def _build_quantity_takeoff(raw_takeoff: object, drawing_id: str) -> QuantityTakeoff | None:
+def _build_quantity_takeoff(
+    raw_takeoff: object, drawing_id: str, dimensions: list[Dimension]
+) -> QuantityTakeoff | None:
     if raw_takeoff is None:
         return None
     if not isinstance(raw_takeoff, dict):
         logger.warning("Skipping malformed quantity_takeoff on %s: %r", drawing_id, raw_takeoff)
         return None
     try:
-        return QuantityTakeoff(**{
-            field_name: _build_quantity_field(raw_takeoff.get(field_name))
-            for field_name in QuantityTakeoff.model_fields
-        })
+        # single_step_concrete is computed deterministically from `dimensions`
+        # (see _find_single_step_concrete), never from the model's raw
+        # quantity_takeoff output like every other field here.
+        return QuantityTakeoff(
+            single_step_concrete=_find_single_step_concrete(dimensions, drawing_id),
+            **{
+                field_name: _build_quantity_field(raw_takeoff.get(field_name))
+                for field_name in QuantityTakeoff.model_fields
+                if field_name != "single_step_concrete"
+            },
+        )
     except ValidationError:
         logger.warning("Skipping malformed quantity_takeoff on %s: %r", drawing_id, raw_takeoff)
         return None
@@ -328,7 +391,7 @@ def _build_drawing_fields(raw_drawing: dict, drawing_id: str, page_number: int) 
 
     metadata = _clear_title_if_borrowed_from_callout(metadata, detail_callouts, drawing_id)
 
-    quantity_takeoff = _build_quantity_takeoff(raw_drawing.get("quantity_takeoff"), drawing_id)
+    quantity_takeoff = _build_quantity_takeoff(raw_drawing.get("quantity_takeoff"), drawing_id, dimensions)
 
     return {
         "drawing_type": raw_drawing.get("drawing_type", "other"),
@@ -679,6 +742,372 @@ def _reconcile_detail_callouts(page_drawings: list[Drawing]) -> None:
             d.detail_callouts = deduped
 
 
+_STAIR_GROUP_RE = re.compile(r"STAIR[^0-9]*?(\d{1,3})", re.IGNORECASE)
+
+
+def _stair_group_key(drawing_title: str | None) -> str | None:
+    """Extract a stair group identifier (e.g. 'STAIR-07') from a drawing's
+    title, however that title is phrased -- 'STAIR-07-INTERMEDIATE LANDING-
+    03', 'STAIR-07-BG1-TUNNEL PLAN', 'STAIR DETAIL-07', and '3D_STAIR-07' all
+    resolve to the same 'STAIR-07' group. Purely a text pattern (the stair
+    number nearest the word 'STAIR'), so it generalizes to any stair number,
+    not just this sheet's. Returns None for a title that doesn't mention a
+    stair number at all (e.g. a schedule/legend drawing) -- such drawings
+    simply don't participate in any stair group.
+    """
+    if not drawing_title:
+        return None
+    match = _STAIR_GROUP_RE.search(drawing_title)
+    return f"STAIR-{match.group(1)}" if match else None
+
+
+def _ordered_flight_readings(
+    drawing: Drawing, dimension_type: str
+) -> list[tuple[int, float, str, str | None]]:
+    """Every dimension of `dimension_type` (e.g. 'tread_going' or
+    'stair_rise') on THIS drawing that carries a usable step_formula, in the
+    order it appears in `drawing.dimensions` -- each kept as its own
+    distinct entry (count, riser_or_tread_dim, dimension_id, section_part),
+    never collapsed with another sharing the same step count. Two readings
+    with the same count on one drawing are two distinct physical flights
+    (e.g. a section showing three separate 14-riser flights), not repeats
+    of one -- so each gets its own downstream record, never an instance
+    count."""
+    readings: list[tuple[int, float, str, str | None]] = []
+    for dim in drawing.dimensions:
+        if dim.type != dimension_type or dim.step_formula is None:
+            continue
+        count = dim.step_formula.count
+        value = dim.step_formula.riser_or_tread_dim
+        if not count or not value or count <= 0 or value <= 0:
+            continue
+        readings.append((round(count), value, dim.dimension_id, dim.section_part))
+    return readings
+
+
+_RISER_TREAD_LABEL_RE = re.compile(r"(?:RISERS?|TREADS?)\s*[xX@]\s*(\d+(?:\.\d+)?)")
+
+
+def _pool_canonical_stair_value(
+    page_drawings: list[Drawing], stair_group_id: str, dimension_type: str
+) -> tuple[float, str, str] | None:
+    """Majority (most common) per-step value for `dimension_type`
+    ('stair_rise' or 'tread_going') across EVERY drawing on this page
+    belonging to `stair_group_id` -- riser height and tread going are
+    treated as properties of the STAIR as a whole, not of one drawing: a
+    real stair almost always uses a single uniform riser height and a
+    single uniform tread going throughout (a building-code requirement), so
+    pooling every view's reading and taking the majority is more reliable
+    than trusting any one drawing's own reading, which can be a misread
+    (e.g. a '280' that should have read '165') or a value borrowed from the
+    other side when only one of tread/riser was found on that drawing. An
+    isolated or conflicting reading is simply outvoted, never deleted --
+    it's not in this function's output, but it's still visible wherever the
+    dimension it came from is listed, so nothing is silently discarded.
+
+    Considers `step_formula.riser_or_tread_dim` first; when step_formula is
+    empty but the dimension's own `label_text` still spells out a clear
+    'N RISERS/TREADS x Xmm' pattern, that's accepted too -- a real
+    extraction gap where the model read the label correctly but left the
+    structured step_formula field blank. Returns None if nothing usable
+    was found anywhere in the group.
+    """
+    readings: list[tuple[float, str, str]] = []
+    for d in page_drawings:
+        if _stair_group_key(d.drawing_metadata.drawing_title) != stair_group_id:
+            continue
+        for dim in d.dimensions:
+            if dim.type != dimension_type:
+                continue
+            value: float | None = None
+            if dim.step_formula and dim.step_formula.riser_or_tread_dim:
+                value = dim.step_formula.riser_or_tread_dim
+            elif dim.label_text:
+                match = _RISER_TREAD_LABEL_RE.search(dim.label_text)
+                if match:
+                    value = float(match.group(1))
+            if value and value > 0:
+                readings.append((value, dim.unit or "mm", dim.dimension_id))
+
+    if not readings:
+        return None
+
+    chosen_value = calculations.select_mode_value([(v, 1.0) for v, _, _ in readings])
+    unit, source = next((u, s) for v, u, s in readings if v == chosen_value)
+    return chosen_value, unit, source
+
+
+def _ordered_stair_width_readings(drawing: Drawing) -> list[tuple[float, str, str, str | None]]:
+    """Every usable `stair_width`-typed dimension on THIS drawing, in
+    appearance order, as (value, unit, dimension_id, section_part).
+
+    Prefers VERTICAL-orientation readings: on these plan views, a flight's
+    clear width (spanning across the flight, perpendicular to the direction
+    of travel) is drawn as a vertical dimension line, while a horizontal-
+    oriented dimension also tagged `stair_width` has repeatedly turned out
+    to be a different measurement (e.g. an overall wall-to-wall span) that
+    was mistagged -- so horizontal readings are only used when this drawing
+    has no vertical one at all.
+    """
+    vertical: list[tuple[float, str, str, str | None]] = []
+    all_readings: list[tuple[float, str, str, str | None]] = []
+    for dim in drawing.dimensions:
+        if dim.type == "stair_width" and dim.value and dim.value > 0:
+            entry = (dim.value, dim.unit or "mm", dim.dimension_id, dim.section_part)
+            all_readings.append(entry)
+            if dim.orientation == "vertical":
+                vertical.append(entry)
+    return vertical or all_readings
+
+
+_UPPER_KEYWORDS = ("upper", "top")
+_LOWER_KEYWORDS = ("lower", "bottom")
+
+
+def _flight_position_from_text(*section_parts: str | None) -> str | None:
+    """Look for an 'upper'/'top' or 'lower'/'bottom' keyword in whichever
+    section_part text is available (tread's, then riser's, then width's) to
+    label a flight by its actual physical position when the drawing's own
+    annotations say so, rather than always falling back to a bare ordinal
+    position. Returns None if none of the texts say either."""
+    for text in section_parts:
+        if not text:
+            continue
+        lowered = text.lower()
+        if any(kw in lowered for kw in _UPPER_KEYWORDS):
+            return "upper_flight"
+        if any(kw in lowered for kw in _LOWER_KEYWORDS):
+            return "lower_flight"
+    return None
+
+
+_FlightReading = tuple[int, float, str, str | None]
+
+
+def _pair_flights_in_drawing(
+    drawing: Drawing,
+) -> tuple[list[tuple[_FlightReading, _FlightReading, str]], list[IncompleteFlight]]:
+    """Pair THIS drawing's own tread_going and stair_rise readings into
+    physical flights -- never matched against a different drawing's
+    readings. Each tread reading is greedily matched to the first not-yet-
+    used riser reading sharing its exact step count, so two same-count
+    readings on one drawing become two separate pairs, not one collapsed
+    entry.
+
+    Whatever's left over after exact matching is resolved in priority order:
+    1. The single unambiguous 1:1 leftover (one tread-only count, one
+       riser-only count) is almost certainly a tread/riser count
+       disagreement for the same physical flight -- paired with the riser
+       count winning, per the stated rule.
+    2. Any remaining tread-only or riser-only reading is SELF-PAIRED: per
+       the project's rule that tread depth and riser height are assumed
+       equal when only one of them was found on this drawing, that one
+       reading is used for BOTH sides rather than left uncalculated. This
+       is what lets a plan-only or section-only drawing (the common case in
+       this document family) still produce a flight.
+
+    `incomplete_flights` is returned for schema/signature stability, but
+    tread/riser leftovers no longer land there -- only a missing stair_width
+    (checked later, in _compute_stair_quantity_takeoff_for_drawing) does.
+
+    Returns (pairs, incomplete) where each pair is
+    (tread_reading, riser_reading, num_steps_method).
+    """
+    treads = _ordered_flight_readings(drawing, "tread_going")
+    risers = _ordered_flight_readings(drawing, "stair_rise")
+
+    used_riser_idx: set[int] = set()
+    tread_only: list[_FlightReading] = []
+    pairs: list[tuple[_FlightReading, _FlightReading, str]] = []
+
+    for t in treads:
+        match_idx = next(
+            (i for i, r in enumerate(risers) if i not in used_riser_idx and r[0] == t[0]),
+            None,
+        )
+        if match_idx is not None:
+            used_riser_idx.add(match_idx)
+            pairs.append((t, risers[match_idx], f"tread count and riser count agree ({t[0]} steps)"))
+        else:
+            tread_only.append(t)
+
+    riser_only = [r for i, r in enumerate(risers) if i not in used_riser_idx]
+
+    if len(tread_only) == 1 and len(riser_only) == 1:
+        t, r = tread_only[0], riser_only[0]
+        pairs.append((
+            t, r,
+            f"tread count ({t[0]}) disagreed with riser count ({r[0]}) for what appears "
+            "to be the same flight; riser count used",
+        ))
+    else:
+        for t in tread_only:
+            pairs.append((
+                t, t,
+                f"riser height not found on this drawing for this flight ({t[0]} steps) -- "
+                f"tread depth ({t[1]:g}) used for riser height too, per the project's "
+                "tread/riser-equal-when-one-missing rule",
+            ))
+        for r in riser_only:
+            pairs.append((
+                r, r,
+                f"tread depth not found on this drawing for this flight ({r[0]} steps) -- "
+                f"riser height ({r[1]:g}) used for tread depth too, per the project's "
+                "tread/riser-equal-when-one-missing rule",
+            ))
+
+    return pairs, []
+
+
+def _compute_stair_quantity_takeoff_for_drawing(
+    drawing: Drawing,
+    stair_group_id: str,
+    canonical_riser: tuple[float, str, str] | None,
+    canonical_tread: tuple[float, str, str] | None,
+) -> StairQuantityTakeoff | None:
+    """Identify THIS drawing's own stair flights (which physical flights
+    exist on it, and their step counts) from this drawing's own dimensions
+    alone -- but use the STAIR-WIDE canonical riser height / tread going
+    (majority across the whole group, see _pool_canonical_stair_value) for
+    the actual volume calculation, rather than this one drawing's own
+    possibly-noisy reading. Falls back to this flight's own paired reading
+    only when the group has no canonical value for that side at all (e.g.
+    no drawing anywhere in the group has a usable stair_rise dimension).
+    Returns None if this drawing doesn't belong to a recognizable stair, or
+    if not a single flight could be fully resolved on it.
+    """
+    pairs, incomplete = _pair_flights_in_drawing(drawing)
+    if not pairs:
+        return None
+
+    widths = _ordered_stair_width_readings(drawing)
+    if not widths:
+        return None  # nothing computable without a stair_width on this drawing
+
+    # A single width reading on the drawing is treated as shared across every
+    # flight (the common case: one clear width for the whole stair); two or
+    # more are assigned positionally, one per flight in appearance order --
+    # any flight beyond the number of width readings available is recorded
+    # as incomplete rather than reusing an unrelated flight's width.
+    resolved: list[tuple[_FlightReading, _FlightReading, tuple[float, str, str, str | None], str]] = []
+    for index, (tread, riser, method) in enumerate(pairs):
+        width_entry = widths[0] if len(widths) == 1 else (widths[index] if index < len(widths) else None)
+        if width_entry is None:
+            incomplete.append(IncompleteFlight(
+                num_steps=riser[0],
+                reason=(
+                    f"tread ({tread[2]}) and riser ({riser[2]}) matched at {riser[0]} steps, "
+                    "but no stair_width reading is available for this flight's position on this drawing"
+                ),
+            ))
+            continue
+        resolved.append((tread, riser, width_entry, method))
+
+    if not resolved:
+        return None
+
+    total_resolved = len(resolved)
+    flights: list[FlightConcrete] = []
+    for index, (tread, riser, width_entry, method) in enumerate(resolved):
+        count, tread_value, tread_source, tread_section_part = tread
+        _, riser_value, riser_source, riser_section_part = riser
+        width_value, unit, width_source, width_section_part = width_entry
+
+        # Stair-wide canonical riser/tread values (majority across the whole
+        # group) take priority over this one flight's own paired reading --
+        # falls back to the flight's own value only when the group has no
+        # canonical value for that side at all.
+        if canonical_riser is not None:
+            riser_value, _, riser_source = canonical_riser
+        if canonical_tread is not None:
+            tread_value, _, tread_source = canonical_tread
+
+        label = _flight_position_from_text(tread_section_part, riser_section_part, width_section_part)
+        if label is None:
+            if total_resolved == 2:
+                label = "upper_flight" if index == 0 else "lower_flight"
+            elif total_resolved == 1:
+                label = "flight"
+            else:
+                label = f"flight_{index + 1}"
+
+        flights.append(
+            calculations.build_flight_concrete(
+                flight_label=label,
+                tread_depth=tread_value,
+                riser_height=riser_value,
+                stair_width=width_value,
+                num_steps=count,
+                unit=unit,
+                tread_depth_source=tread_source,
+                riser_height_source=riser_source,
+                stair_width_source=width_source,
+                num_steps_source=riser_source,
+                num_steps_method=method,
+            )
+        )
+
+    num_steps_total = sum(f.num_steps.value for f in flights)
+    total_volume = sum(f.total_volume.value for f in flights)
+    tread_depth_representative = _select_mode_for_flights(flights, lambda f: f.tread_depth.value)
+    riser_height_representative = _select_mode_for_flights(flights, lambda f: f.riser_height.value)
+    stair_width_representative = _select_mode_for_flights(flights, lambda f: f.stair_width.value)
+    unit = flights[0].tread_depth.unit
+
+    return StairQuantityTakeoff(
+        stair_group_id=stair_group_id,
+        source_drawings=[drawing.drawing_id],
+        flights=flights,
+        incomplete_flights=incomplete,
+        tread_depth_representative=MeasuredValue(value=tread_depth_representative, unit=unit),
+        riser_height_representative=MeasuredValue(value=riser_height_representative, unit=unit),
+        riser_height_method=(
+            "stair-wide canonical value: majority across every riser/tread reading in this "
+            "stair's whole group of drawings (see _pool_canonical_stair_value), not just this "
+            "drawing -- falls back to a mode across this drawing's own flights only if the "
+            "group has no canonical value for that side at all"
+            if (canonical_riser is not None or canonical_tread is not None)
+            else "mode across this drawing's own resolved flights, weighted by each flight's step count"
+        ),
+        stair_width_representative=MeasuredValue(value=stair_width_representative, unit=unit),
+        num_steps_total=MeasuredValue(value=num_steps_total, unit="count"),
+        total_volume=MeasuredValue(value=total_volume, unit="m3"),
+    )
+
+
+def _select_mode_for_flights(flights: list[FlightConcrete], getter: Callable[[FlightConcrete], float]) -> float:
+    """Pick a single representative value across a drawing's own resolved
+    flights, weighting each flight's value by its own step count."""
+    return calculations.select_mode_value([(getter(f), f.num_steps.value) for f in flights])
+
+
+def _assign_stair_quantity_takeoffs(page_drawings: list[Drawing]) -> None:
+    """For each stair group on this page, compute the canonical riser
+    height and tread going ONCE (majority across every drawing in that
+    group -- see _pool_canonical_stair_value), then compute each drawing's
+    own flights (which physical flights exist on it, and their step counts
+    -- never pooled or copied from a sibling drawing) using those canonical
+    values for the actual dimensions."""
+    canonical_cache: dict[str, tuple[tuple | None, tuple | None]] = {}
+
+    for d in page_drawings:
+        stair_group_id = _stair_group_key(d.drawing_metadata.drawing_title)
+        if stair_group_id is None:
+            d.stair_quantity_takeoff = None
+            continue
+
+        if stair_group_id not in canonical_cache:
+            canonical_cache[stair_group_id] = (
+                _pool_canonical_stair_value(page_drawings, stair_group_id, "stair_rise"),
+                _pool_canonical_stair_value(page_drawings, stair_group_id, "tread_going"),
+            )
+        canonical_riser, canonical_tread = canonical_cache[stair_group_id]
+
+        d.stair_quantity_takeoff = _compute_stair_quantity_takeoff_for_drawing(
+            d, stair_group_id, canonical_riser, canonical_tread
+        )
+
+
 def _warn_on_suspect_drawings(drawings: list[Drawing]) -> None:
     """Best-effort consistency check over the finished result: flag drawings
     on the same page that share a title, and drawings with no dimensions or
@@ -736,6 +1165,23 @@ def _warn_on_suspect_drawings(drawings: list[Drawing]) -> None:
                     "or a detail pass that found nothing",
                     d.drawing_id,
                 )
+
+            # Verify this drawing's own riser count and tread count agree --
+            # per the stated rule, a drawing's number of risers and number of
+            # treads should be the same; a mismatch here means the model's
+            # own num_risers_total/num_treads_total reasoning disagreed with
+            # itself (e.g. one used a "risers-1" convention, the other counted
+            # labeled treads directly), which is worth a manual check.
+            takeoff = d.quantity_takeoff
+            if takeoff is not None:
+                risers = takeoff.num_risers_total.value if takeoff.num_risers_total else None
+                treads = takeoff.num_treads_total.value if takeoff.num_treads_total else None
+                if risers is not None and treads is not None and risers != treads:
+                    logger.warning(
+                        "%s: num_risers_total (%s) does not equal num_treads_total (%s) -- "
+                        "these should be the same count for the same flights; worth a manual check",
+                        d.drawing_id, risers, treads,
+                    )
 
         # Positional check: on a page of stacked/columned drawings, a
         # recurring failure is a drawing reporting the title_callout_number
@@ -872,6 +1318,11 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
         #    the minority almost certainly misread it (see _reconcile_detail_callouts).
         _reconcile_detail_callouts(drawings[page_start:])
 
+        # 7. Compute each drawing's own stair concrete-volume takeoff from
+        #    its own tread/riser/stair-width dimensions alone (never pooled
+        #    or copied across drawings in the same stair group).
+        _assign_stair_quantity_takeoffs(drawings[page_start:])
+
     _warn_on_suspect_drawings(drawings)
 
     return ExtractionResult(
@@ -880,3 +1331,36 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
         total_drawings=len(drawings),
         drawings=drawings,
     )
+
+
+def _drawing_number_from_id(drawing_id: str) -> str:
+    """'P1-D6' -> 'D6' -- the drawing-number suffix used in the dynamic
+    total_volume field name below."""
+    return drawing_id.rsplit("-", 1)[-1] if "-" in drawing_id else drawing_id
+
+
+def to_export_dict(drawing: Drawing) -> dict:
+    """`drawing.model_dump()`, but with `stair_quantity_takeoff.total_volume`
+    renamed to `total_volume_<N>_steps_<drawing_number>` (e.g.
+    'total_volume_74_steps_D6'), per spec. `StairQuantityTakeoff.total_volume`
+    stays a plain, fixed pydantic field everywhere else in the codebase (so
+    existing model_fields-based code -- and the model itself -- is
+    unaffected); only this export boundary renames the key, right before it
+    becomes JSON."""
+    data = drawing.model_dump()
+    takeoff = data.get("stair_quantity_takeoff")
+    if takeoff:
+        num_steps = int(round(takeoff["num_steps_total"]["value"]))
+        drawing_number = _drawing_number_from_id(drawing.drawing_id)
+        key = f"total_volume_{num_steps}_steps_{drawing_number}"
+        takeoff[key] = takeoff.pop("total_volume")
+    return data
+
+
+def to_export_dict_result(result: ExtractionResult) -> dict:
+    """`result.model_dump()`, with each drawing's `stair_quantity_takeoff`
+    renamed via `to_export_dict` -- use this (not `result.model_dump()`
+    directly) whenever exporting the full result to JSON."""
+    data = result.model_dump()
+    data["drawings"] = [to_export_dict(d) for d in result.drawings]
+    return data
