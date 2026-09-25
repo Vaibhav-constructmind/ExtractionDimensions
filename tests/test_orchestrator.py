@@ -30,7 +30,7 @@ from pipeline.schema import Dimension, Drawing, DrawingMetadata, QuantityField, 
 
 
 def _dim(dimension_id, dim_type, count=None, per_step=None, value=None, unit="mm",
-         orientation=None, section_part=None):
+         orientation=None, section_part=None, confidence=None):
     step_formula = (
         StepFormula(count=count, riser_or_tread_dim=per_step, calculated_total=(count or 0) * (per_step or 0))
         if count is not None
@@ -43,6 +43,7 @@ def _dim(dimension_id, dim_type, count=None, per_step=None, value=None, unit="mm
         unit=unit,
         orientation=orientation,
         section_part=section_part,
+        confidence=confidence,
         label_text="x",
         step_formula=step_formula,
         page_number=1,
@@ -288,6 +289,27 @@ class TestOrderedStairWidthReadings(unittest.TestCase):
         readings = _ordered_stair_width_readings(d)
         self.assertEqual([r[2] for r in readings], ["P1-D2-DIM08", "P1-D2-DIM13"])
 
+    def test_falls_back_to_plain_width_type_when_no_stair_width_tagged(self):
+        # The model sometimes mistags the real width dimension as plain
+        # "width" instead of "stair_width" -- this must not lose the value.
+        d = _drawing("P1-D3", "STAIR-07-PLAN", [
+            _dim("P1-D3-DIM06", "width", value=1570, unit="mm", orientation="vertical"),
+            _dim("P1-D3-DIM09", "width", value=1570, unit="mm", orientation="horizontal"),
+        ])
+        readings = _ordered_stair_width_readings(d)
+        self.assertEqual(len(readings), 1)
+        self.assertEqual(readings[0][0], 1570)
+        self.assertEqual(readings[0][2], "P1-D3-DIM06")
+
+    def test_does_not_fall_back_when_a_real_stair_width_exists(self):
+        d = _drawing("P1-D5", "STAIR-07-PLAN", [
+            _dim("P1-D5-DIM02", "stair_width", value=1220, unit="mm", orientation="vertical"),
+            _dim("P1-D5-DIM03", "width", value=1600, unit="mm", orientation="vertical"),
+        ])
+        readings = _ordered_stair_width_readings(d)
+        self.assertEqual(len(readings), 1)
+        self.assertEqual(readings[0][0], 1220)
+
 
 class TestComputeStairQuantityTakeoffForDrawing(unittest.TestCase):
     """Your exact example: D1 has an upper flight (10 steps) and a lower
@@ -352,6 +374,67 @@ class TestComputeStairQuantityTakeoffForDrawing(unittest.TestCase):
             _dim("P1-D9-DIM01", "tread_going", count=10, per_step=290),
         ])
         self.assertIsNone(_takeoff_for_single_drawing(d))
+
+    def test_landing_with_two_different_widths_per_flight(self):
+        # Reproduces STAIR-07-INTERMEDIATE LANDING-03: one drawing, two
+        # stacked flights, upper flight is 1600mm wide, lower flight is
+        # 1570mm wide -- these must NOT be collapsed into one shared value.
+        d = _drawing("P1-D1", "STAIR-07-INTERMEDIATE LANDING-03", [
+            _dim("P1-D1-DIM01", "tread_going", count=14, per_step=290, section_part="Upper flight"),
+            _dim("P1-D1-DIM02", "stair_rise", count=14, per_step=165, section_part="Upper flight"),
+            _dim("P1-D1-DIM17", "stair_width", value=1600, unit="mm", orientation="vertical", section_part="Upper flight clear width"),
+            _dim("P1-D1-DIM03", "tread_going", count=7, per_step=290, section_part="Lower flight"),
+            _dim("P1-D1-DIM04", "stair_rise", count=7, per_step=165, section_part="Lower flight"),
+            _dim("P1-D1-DIM18", "stair_width", value=1570, unit="mm", orientation="vertical", section_part="Lower flight clear width"),
+        ])
+        takeoff = _takeoff_for_single_drawing(d)
+        self.assertIsNotNone(takeoff)
+        by_label = {f.flight_label: f for f in takeoff.flights}
+        self.assertEqual(by_label["upper_flight"].stair_width.value, 1600)
+        self.assertEqual(by_label["lower_flight"].stair_width.value, 1570)
+
+    def test_two_candidates_for_same_flight_prefers_higher_confidence(self):
+        # Reproduces the BG1-tunnel-plan case: two stair_width candidates
+        # tagged for the SAME flight (upper), one high-confidence (the real
+        # wall-to-wall clear width) and one low-confidence (a partial
+        # sub-segment) -- the higher-confidence one must win, not whichever
+        # was read first.
+        d = _drawing("P1-D4", "STAIR-07-BG1-TUNNEL PLAN", [
+            _dim("P1-D4-DIM11", "stair_width", value=1375, orientation="vertical",
+                 section_part="Upper flight", confidence="low"),
+            _dim("P1-D4-DIM12", "stair_width", value=1570, orientation="vertical",
+                 section_part="Upper flight", confidence="high"),
+            _dim("P1-D4-DIM01", "tread_going", count=10, per_step=290, section_part="Upper flight"),
+            _dim("P1-D4-DIM02", "stair_rise", count=10, per_step=165, section_part="Upper flight"),
+            _dim("P1-D4-DIM15", "stair_width", value=1570, orientation="vertical",
+                 section_part="Lower flight", confidence="high"),
+            _dim("P1-D4-DIM03", "tread_going", count=14, per_step=290, section_part="Lower flight"),
+            _dim("P1-D4-DIM04", "stair_rise", count=14, per_step=165, section_part="Lower flight"),
+        ])
+        takeoff = _takeoff_for_single_drawing(d)
+        self.assertIsNotNone(takeoff)
+        by_label = {f.flight_label: f for f in takeoff.flights}
+        self.assertEqual(by_label["upper_flight"].stair_width.value, 1570)
+        self.assertEqual(by_label["upper_flight"].stair_width.source, "P1-D4-DIM12")
+        self.assertEqual(by_label["lower_flight"].stair_width.value, 1570)
+
+    def test_landing_with_two_widths_but_no_position_text_falls_back_positional(self):
+        # No section_part position hints on the width readings -- falls
+        # back to positional (appearance-order) assignment rather than
+        # crashing or dropping a flight.
+        d = _drawing("P1-D1", "STAIR-07-PLAN", [
+            _dim("P1-D1-DIM01", "tread_going", count=14, per_step=290, section_part="Upper flight"),
+            _dim("P1-D1-DIM02", "stair_rise", count=14, per_step=165, section_part="Upper flight"),
+            _dim("P1-D1-DIM03", "tread_going", count=7, per_step=290, section_part="Lower flight"),
+            _dim("P1-D1-DIM04", "stair_rise", count=7, per_step=165, section_part="Lower flight"),
+            _dim("P1-D1-DIM17", "stair_width", value=1600, unit="mm", orientation="vertical"),
+            _dim("P1-D1-DIM18", "stair_width", value=1570, unit="mm", orientation="vertical"),
+        ])
+        takeoff = _takeoff_for_single_drawing(d)
+        self.assertIsNotNone(takeoff)
+        by_label = {f.flight_label: f for f in takeoff.flights}
+        self.assertEqual(by_label["upper_flight"].stair_width.value, 1600)
+        self.assertEqual(by_label["lower_flight"].stair_width.value, 1570)
 
     def test_no_width_on_drawing_returns_none(self):
         d = _drawing("P1-D1", "STAIR-07-PLAN", [
@@ -559,6 +642,45 @@ class TestCanonicalOverrideEndToEnd(unittest.TestCase):
         # D2 and D3 (already 165) are unaffected.
         self.assertEqual(d2.stair_quantity_takeoff.flights[0].riser_height.value, 165)
         self.assertEqual(d3.stair_quantity_takeoff.flights[0].riser_height.value, 165)
+
+
+class TestStairWidthIsNeverPooledAcrossViews(unittest.TestCase):
+    """Your exact STAIR-07 scenario: BG1-tunnel and the three intermediate-
+    landing plans all show 1570mm, while the G01-grade-plan genuinely shows
+    1600mm for a different condition. Unlike riser height and tread going,
+    stair_width must stay per-drawing -- neither value should leak into the
+    other drawing's takeoff."""
+
+    def _member(self, drawing_id, title, width_value):
+        return _drawing(drawing_id, title, [
+            _dim(f"{drawing_id}-DIM01", "tread_going", count=10, per_step=290),
+            _dim(f"{drawing_id}-DIM02", "stair_rise", count=10, per_step=165),
+            _dim(f"{drawing_id}-DIM03", "stair_width", value=width_value, unit="mm", orientation="vertical"),
+        ])
+
+    def test_1570_views_and_1600_grade_plan_stay_independent(self):
+        tunnel = self._member("P1-D1", "STAIR-07-BG1-TUNNEL PLAN", 1570)
+        landing01 = self._member("P1-D2", "STAIR-07-INTERMEDIATE LANDING-01", 1570)
+        landing02 = self._member("P1-D3", "STAIR-07-INTERMEDIATE LANDING-02", 1570)
+        landing03 = self._member("P1-D4", "STAIR-07-INTERMEDIATE LANDING-03", 1570)
+        grade_plan = self._member("P1-D5", "STAIR-07-G01-GRADE PLAN", 1600)
+
+        page_drawings = [tunnel, landing01, landing02, landing03, grade_plan]
+        _assign_stair_quantity_takeoffs(page_drawings)
+
+        for d in (tunnel, landing01, landing02, landing03):
+            self.assertIsNotNone(d.stair_quantity_takeoff)
+            self.assertEqual(d.stair_quantity_takeoff.flights[0].stair_width.value, 1570)
+
+        # The grade plan keeps its own 1600mm -- not overridden by the 1570mm majority.
+        self.assertIsNotNone(grade_plan.stair_quantity_takeoff)
+        self.assertEqual(grade_plan.stair_quantity_takeoff.flights[0].stair_width.value, 1600)
+        self.assertEqual(grade_plan.stair_quantity_takeoff.flights[0].stair_width.source, "P1-D5-DIM03")
+
+        # Meanwhile riser height (165mm, unanimous here) IS shared group-wide,
+        # confirming width and riser/tread are handled by genuinely different rules.
+        for d in page_drawings:
+            self.assertEqual(d.stair_quantity_takeoff.flights[0].riser_height.value, 165)
 
 
 class TestAssignStairQuantityTakeoffs(unittest.TestCase):

@@ -837,27 +837,84 @@ def _pool_canonical_stair_value(
     return chosen_value, unit, source
 
 
-def _ordered_stair_width_readings(drawing: Drawing) -> list[tuple[float, str, str, str | None]]:
-    """Every usable `stair_width`-typed dimension on THIS drawing, in
-    appearance order, as (value, unit, dimension_id, section_part).
+_CONFIDENCE_RANK = {"high": 3, "medium": 2, "low": 1, None: 0}
 
-    Prefers VERTICAL-orientation readings: on these plan views, a flight's
-    clear width (spanning across the flight, perpendicular to the direction
-    of travel) is drawn as a vertical dimension line, while a horizontal-
-    oriented dimension also tagged `stair_width` has repeatedly turned out
-    to be a different measurement (e.g. an overall wall-to-wall span) that
-    was mistagged -- so horizontal readings are only used when this drawing
-    has no vertical one at all.
+# No building code permits an egress stair flight narrower than this -- a
+# reading below it is essentially guaranteed to be some OTHER dimension (a
+# landing-nib gap, a nosing offset, a wall thickness) that got mistagged as
+# `width`/`stair_width`, not a genuine physical flight width. This is a
+# domain-knowledge sanity floor, not a sheet-specific value: it never varies
+# per project and it's only ever used to REJECT an implausible candidate,
+# never to select or prefer one specific plausible value over another.
+_MIN_PLAUSIBLE_STAIR_WIDTH_MM = 600.0
+
+
+def _ordered_stair_width_readings(
+    drawing: Drawing,
+) -> list[tuple[float, str, str, str | None, str | None]]:
+    """Every usable stair-width candidate on THIS drawing, in priority order,
+    as (value, unit, dimension_id, section_part, confidence).
+
+    Deliberately scoped to THIS ONE drawing only -- unlike riser height and
+    tread going (see _pool_canonical_stair_value), stair width is NEVER
+    pooled or majority-voted across a stair group's other drawings/views.
+    Different views of the same physical stair can legitimately show a
+    different clear width for a genuinely different condition -- e.g. a
+    typical intermediate-landing flight vs. a grade-level entry condition --
+    so forcing one view's width onto another would silently produce a wrong
+    volume for whichever view disagrees. Each drawing's own width reading
+    (or readings) is used exactly as found on it, full stop.
+
+    Orientation, not the `stair_width` vs `width` type tag, is the strongest
+    signal here: on every drawing where this project's data has had a
+    correct reading, the flight's clear width (spanning across the flight,
+    perpendicular to travel) was drawn as a VERTICAL dimension line -- and
+    every time a HORIZONTAL dimension got tagged `stair_width`, it turned out
+    to be something else entirely (a tread-run total, an overall wall-to-
+    wall span). So this checks, in order: (1) `stair_width`-typed AND
+    vertical, (2) `width`-typed AND vertical -- since the model sometimes
+    tags the correct reading under the wrong type but still draws/traces it
+    correctly as vertical, (3) `stair_width`-typed, any orientation, (4)
+    `width`-typed, any orientation. The first non-empty tier wins; later
+    tiers exist only for drawings with no vertical candidate at all.
+
+    Deliberately does NOT deduplicate or pick a "winner" between multiple
+    candidates in the same tier by magnitude -- per the updated extraction
+    protocol, the model is now asked to tag every plausible stair_width
+    candidate (not silently discard the one it doesn't prefer under a
+    different type), each with its own confidence. Picking between colliding
+    candidates for the same flight is the caller's job
+    (_compute_stair_quantity_takeoff_for_drawing), which has the flight-
+    position context to resolve it and can prefer the higher-confidence
+    reading when two candidates land on the same flight.
+
+    Readings implausibly narrow for any real stair flight
+    (< _MIN_PLAUSIBLE_STAIR_WIDTH_MM) are dropped everywhere -- they're
+    consistently a different, smaller dimension (e.g. a landing gap) mis-
+    tagged as width, and using one produces a confidently wrong volume that
+    is worse than reporting no takeoff for that flight at all.
     """
-    vertical: list[tuple[float, str, str, str | None]] = []
-    all_readings: list[tuple[float, str, str, str | None]] = []
-    for dim in drawing.dimensions:
-        if dim.type == "stair_width" and dim.value and dim.value > 0:
-            entry = (dim.value, dim.unit or "mm", dim.dimension_id, dim.section_part)
+    def _collect(dim_type: str) -> tuple[
+        list[tuple[float, str, str, str | None, str | None]],
+        list[tuple[float, str, str, str | None, str | None]],
+    ]:
+        vertical: list[tuple[float, str, str, str | None, str | None]] = []
+        all_readings: list[tuple[float, str, str, str | None, str | None]] = []
+        for dim in drawing.dimensions:
+            if dim.type != dim_type or not dim.value or dim.value <= 0:
+                continue
+            if dim.value < _MIN_PLAUSIBLE_STAIR_WIDTH_MM:
+                continue
+            entry = (dim.value, dim.unit or "mm", dim.dimension_id, dim.section_part, dim.confidence)
             all_readings.append(entry)
             if dim.orientation == "vertical":
                 vertical.append(entry)
-    return vertical or all_readings
+        return vertical, all_readings
+
+    stair_width_vertical, stair_width_all = _collect("stair_width")
+    width_vertical, width_all = _collect("width")
+
+    return stair_width_vertical or width_vertical or stair_width_all or width_all
 
 
 _UPPER_KEYWORDS = ("upper", "top")
@@ -973,6 +1030,16 @@ def _compute_stair_quantity_takeoff_for_drawing(
     possibly-noisy reading. Falls back to this flight's own paired reading
     only when the group has no canonical value for that side at all (e.g.
     no drawing anywhere in the group has a usable stair_rise dimension).
+
+    Stair WIDTH is the one exception to this group-wide canonicalization:
+    it's read from THIS drawing alone (see _ordered_stair_width_readings)
+    and never pooled/majority-voted across the group, since different views
+    of the same physical stair can legitimately show a different clear
+    width for a different condition (e.g. a grade-level entry vs. a typical
+    intermediate landing) -- riser height and tread going are architectural
+    constants for a whole stair, but width is a per-view/per-condition
+    measurement.
+
     Returns None if this drawing doesn't belong to a recognizable stair, or
     if not a single flight could be fully resolved on it.
     """
@@ -985,13 +1052,51 @@ def _compute_stair_quantity_takeoff_for_drawing(
         return None  # nothing computable without a stair_width on this drawing
 
     # A single width reading on the drawing is treated as shared across every
-    # flight (the common case: one clear width for the whole stair); two or
-    # more are assigned positionally, one per flight in appearance order --
-    # any flight beyond the number of width readings available is recorded
-    # as incomplete rather than reusing an unrelated flight's width.
-    resolved: list[tuple[_FlightReading, _FlightReading, tuple[float, str, str, str | None], str]] = []
+    # flight (the common case: one clear width for the whole stair). With two
+    # or more readings, a width whose own section_part names a physical
+    # position ("upper flight" / "lower flight") is matched to the flight
+    # sharing that same position -- this is what lets a single drawing with
+    # two stacked flights (e.g. an intermediate-landing plan) carry two
+    # genuinely different widths, one per flight, instead of both being
+    # forced to share whichever width happens to be first/positionally
+    # aligned. When two or more candidates land on the SAME position (the
+    # model is now asked to tag every plausible candidate rather than
+    # silently discard one -- see _ordered_stair_width_readings), the
+    # higher-confidence one wins rather than whichever happened to be read
+    # first; the loser is kept in the positional pool as a fallback rather
+    # than discarded outright. Any width without a resolvable position is
+    # assigned positionally, in appearance order, to whichever flights are
+    # left after position-matched ones are taken -- any flight beyond the
+    # number of width readings available is recorded as incomplete rather
+    # than reusing an unrelated flight's width.
+    width_by_position: dict[str, tuple[float, str, str, str | None, str | None]] = {}
+    positional_widths: list[tuple[float, str, str, str | None, str | None]] = []
+    for w in widths:
+        position = _flight_position_from_text(w[3])
+        if position is None:
+            positional_widths.append(w)
+            continue
+        existing = width_by_position.get(position)
+        if existing is None:
+            width_by_position[position] = w
+        elif _CONFIDENCE_RANK.get(w[4], 0) > _CONFIDENCE_RANK.get(existing[4], 0):
+            width_by_position[position] = w
+            positional_widths.append(existing)
+        else:
+            positional_widths.append(w)
+
+    resolved: list[tuple[_FlightReading, _FlightReading, tuple[float, str, str, str | None, str | None], str]] = []
+    positional_cursor = 0
     for index, (tread, riser, method) in enumerate(pairs):
-        width_entry = widths[0] if len(widths) == 1 else (widths[index] if index < len(widths) else None)
+        if len(widths) == 1:
+            width_entry = widths[0]
+        else:
+            flight_position = _flight_position_from_text(tread[3], riser[3])
+            width_entry = width_by_position.get(flight_position) if flight_position else None
+            if width_entry is None:
+                width_entry = positional_widths[positional_cursor] if positional_cursor < len(positional_widths) else None
+                if width_entry is not None:
+                    positional_cursor += 1
         if width_entry is None:
             incomplete.append(IncompleteFlight(
                 num_steps=riser[0],
@@ -1011,7 +1116,7 @@ def _compute_stair_quantity_takeoff_for_drawing(
     for index, (tread, riser, width_entry, method) in enumerate(resolved):
         count, tread_value, tread_source, tread_section_part = tread
         _, riser_value, riser_source, riser_section_part = riser
-        width_value, unit, width_source, width_section_part = width_entry
+        width_value, unit, width_source, width_section_part, _width_confidence = width_entry
 
         # Stair-wide canonical riser/tread values (majority across the whole
         # group) take priority over this one flight's own paired reading --
