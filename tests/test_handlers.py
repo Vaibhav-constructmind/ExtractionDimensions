@@ -150,16 +150,26 @@ class TestParseRebarCallout(unittest.TestCase):
         self.assertEqual(_parse_rebar_callout(""), {})
 
 
-class TestMatchDimensionForRoleRebarAndOrientation(unittest.TestCase):
+class TestMatchDimensionForRole(unittest.TestCase):
+    def test_plain_text_match_returns_value_unit_and_source(self):
+        dims = [_dim("P1-D1-DIM01", "other", 5000.0, element="footing length")]
+        result = _match_dimension_for_role("footing_length", dims)
+        self.assertEqual(result, (5000.0, "mm", "P1-D1-DIM01"))
+
     def test_rebar_diameter_role_resolves_from_label_text(self):
         dims = [_dim("P1-D1-DIM01", "other", None, element="Top wall rebar", label_text="Y32-100")]
         result = _match_dimension_for_role("top_bar_diameter", dims)
-        self.assertEqual(result, (32.0, "P1-D1-DIM01"))
+        self.assertEqual(result, (32.0, "mm", "P1-D1-DIM01"))
 
     def test_rebar_spacing_role_resolves_from_label_text(self):
         dims = [_dim("P1-D1-DIM01", "other", None, element="Top wall rebar", label_text="Y32-100")]
         result = _match_dimension_for_role("top_bar_spacing", dims)
-        self.assertEqual(result, (100.0, "P1-D1-DIM01"))
+        self.assertEqual(result, (100.0, "mm", "P1-D1-DIM01"))
+
+    def test_rebar_count_role_has_no_unit(self):
+        dims = [_dim("P1-D1-DIM01", "other", None, element="Top wall rebar", label_text="12 Y32")]
+        result = _match_dimension_for_role("top_bar_count", dims)
+        self.assertEqual(result, (12.0, None, "P1-D1-DIM01"))
 
     def test_rebar_role_still_requires_text_match_first(self):
         # A bar-mark callout that doesn't mention "bottom" at all must not
@@ -176,33 +186,88 @@ class TestMatchDimensionForRoleRebarAndOrientation(unittest.TestCase):
         result = _match_dimension_for_role("top_bar_diameter", dims)
         self.assertIsNone(result)
 
-    def test_orientation_fallback_when_no_text_match_at_all(self):
-        # No dimension's text mentions "wall"/"height" at all -- falls back
-        # to the sole vertical-oriented numeric dimension on the drawing.
+    def test_no_orientation_only_fallback_leaves_role_unresolved(self):
+        # A lone vertical-oriented dimension with NO text relation to "wall"
+        # or "height" must NOT be claimed by 'wall_height' just because it's
+        # the only vertical value on the drawing (the retired orientation-
+        # fallback tier used to do this and produced real false positives).
         dims = [Dimension(
             dimension_id="P1-D1-DIM01", type="other", value=3000.0, unit="mm",
-            orientation="vertical", label_text="3000", page_number=1,
+            orientation="vertical", label_text="3000", section_part="Recess width between wall faces",
+            page_number=1,
         )]
-        result = _match_dimension_for_role("wall_height", dims)
-        self.assertEqual(result, (3000.0, "P1-D1-DIM01"))
-
-    def test_orientation_fallback_refuses_when_multiple_vertical_values_differ(self):
-        dims = [
-            Dimension(dimension_id="P1-D1-DIM01", type="other", value=3000.0, unit="mm",
-                      orientation="vertical", label_text="3000", page_number=1),
-            Dimension(dimension_id="P1-D1-DIM02", type="other", value=4500.0, unit="mm",
-                      orientation="vertical", label_text="4500", page_number=1),
-        ]
         result = _match_dimension_for_role("wall_height", dims)
         self.assertIsNone(result)
 
-    def test_text_match_takes_priority_over_orientation_fallback(self):
-        dims = [
-            _dim("P1-D1-DIM01", "other", 3000.0, element="wall height", label_text="3000"),
-        ]
-        dims[0] = Dimension(**{**dims[0].model_dump(), "orientation": "horizontal"})
-        result = _match_dimension_for_role("wall_height", dims)
-        self.assertEqual(result, (3000.0, "P1-D1-DIM01"))
+
+class TestUnitConversionInDynamicTakeoff(unittest.TestCase):
+    def _drawing_with_default_units(self, dims, default_units="mm"):
+        return Drawing(
+            drawing_id="P1-D1", page_number=1, drawing_type="plan",
+            drawing_metadata=DrawingMetadata(drawing_title="FOOTING PLAN", default_units=default_units),
+            dimensions=dims,
+        )
+
+    def test_matched_mm_dimension_converted_to_declared_metre_unit(self):
+        drawing = self._drawing_with_default_units([
+            _dim("P1-D1-DIM01", "other", 5000.0, element="wall length"),
+        ])
+        item = DynamicQuantityItemSpec(
+            name="x", unit="m", measurement_basis="length", resource_category="material",
+            depends_on=["wall_length"], input_units={"wall_length": "m"}, formula="wall_length",
+        )
+        entry = SchemaRegistryEntry(schema_id="abc", version=1, discipline_key="structural", drawing_type_key="section", items=[item])
+        takeoff = compute_dynamic_takeoff(drawing, entry)
+        self.assertAlmostEqual(takeoff.quantities[0].value.value, 5.0)  # 5000mm -> 5m
+
+    def test_mixed_unit_rebar_weight_formula_computes_correctly(self):
+        # Classic rebar-weight convention: diameter in mm, length in m,
+        # combined in one formula -- proves per-role unit declarations let
+        # one formula legitimately mix units.
+        drawing = self._drawing_with_default_units([
+            _dim("P1-D1-DIM01", "other", None, element="main bar", label_text="Y16-150"),
+            _dim("P1-D1-DIM02", "other", 2000.0, element="member length"),
+        ])
+        item = DynamicQuantityItemSpec(
+            name="rebar_weight", unit="kg", measurement_basis="weight", resource_category="material",
+            depends_on=["main_bar_diameter", "member_length"],
+            input_units={"main_bar_diameter": "mm", "member_length": "m"},
+            formula="main_bar_diameter * main_bar_diameter * 0.00617 * member_length",
+        )
+        entry = SchemaRegistryEntry(schema_id="abc", version=1, discipline_key="structural", drawing_type_key="section", items=[item])
+        takeoff = compute_dynamic_takeoff(drawing, entry)
+        # diameter stays 16mm (already mm), length converts 2000mm -> 2m
+        self.assertAlmostEqual(takeoff.quantities[0].value.value, 16.0 * 16.0 * 0.00617 * 2.0)
+
+    def test_no_declared_input_unit_leaves_value_unconverted(self):
+        drawing = self._drawing_with_default_units([_dim("P1-D1-DIM01", "other", 600.0, element="wall thickness")])
+        item = DynamicQuantityItemSpec(
+            name="x", unit="mm", measurement_basis="length", resource_category="material",
+            depends_on=["wall_thickness"], formula="wall_thickness",  # no input_units declared
+        )
+        entry = SchemaRegistryEntry(schema_id="abc", version=1, discipline_key="structural", drawing_type_key="section", items=[item])
+        takeoff = compute_dynamic_takeoff(drawing, entry)
+        self.assertAlmostEqual(takeoff.quantities[0].value.value, 600.0)
+
+    def test_reported_quantity_uses_drawing_default_units_before_conversion(self):
+        drawing = self._drawing_with_default_units([], default_units="mm")
+        item = DynamicQuantityItemSpec(
+            name="x", unit="m", measurement_basis="length", resource_category="material",
+            depends_on=["wall_length"], input_units={"wall_length": "m"}, formula="wall_length",
+        )
+        entry = SchemaRegistryEntry(schema_id="abc", version=1, discipline_key="structural", drawing_type_key="section", items=[item])
+        takeoff = compute_dynamic_takeoff(drawing, entry, {"wall_length": 5000.0})
+        self.assertAlmostEqual(takeoff.quantities[0].value.value, 5.0)
+
+    def test_reported_rebar_diameter_stays_mm_regardless_of_drawing_default_units(self):
+        drawing = self._drawing_with_default_units([], default_units="m")
+        item = DynamicQuantityItemSpec(
+            name="x", unit="mm", measurement_basis="length", resource_category="material",
+            depends_on=["main_bar_diameter"], input_units={"main_bar_diameter": "mm"}, formula="main_bar_diameter",
+        )
+        entry = SchemaRegistryEntry(schema_id="abc", version=1, discipline_key="structural", drawing_type_key="section", items=[item])
+        takeoff = compute_dynamic_takeoff(drawing, entry, {"main_bar_diameter": 32.0})
+        self.assertAlmostEqual(takeoff.quantities[0].value.value, 32.0)
 
 
 if __name__ == "__main__":

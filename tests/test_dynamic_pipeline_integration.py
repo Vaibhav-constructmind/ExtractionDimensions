@@ -133,7 +133,6 @@ class TestDynamicSchemaPipelineIntegration(unittest.TestCase):
         manifest = json.loads(Path(result.schema_manifest_path).read_text(encoding="utf-8"))
         self.assertEqual(len(manifest["drawings"]), 1)
         self.assertEqual(manifest["drawings"][0]["schema_id"], drawing.dynamic_takeoff.schema_id)
-        self.assertFalse(manifest["drawings"][0]["reused_existing_schema"])
 
     def test_second_run_adds_new_timestamped_files_without_overwriting(self):
         # The registry is scoped to one run (per spec section 5: "Maintain a

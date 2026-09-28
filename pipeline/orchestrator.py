@@ -829,13 +829,15 @@ def _assign_dynamic_takeoffs(
     registry: SchemaRegistry,
     filename: str,
 ) -> None:
-    """For every drawing on this page, get-or-create its takeoff schema in
-    the registry, persist it if this is a new/extended version, and compute
-    its dynamic quantities. `reported_quantities` is whatever this drawing's
-    own detail-pass extraction reported directly under its merged
-    `quantities` object (see claude_extractor._tool_schema_with_dynamic_properties)
-    -- handlers.compute_dynamic_takeoff prefers these over its own
-    dimension-text role-matching heuristics."""
+    """For every drawing on this page, generate its OWN independent takeoff
+    schema (never shared or extended from another drawing's, even one with
+    the same classification -- see SchemaRegistry.create_for_drawing),
+    persist it, and compute its dynamic quantities. `reported_quantities`
+    is whatever this drawing's own detail-pass extraction reported directly
+    under its merged `quantities` object (see
+    claude_extractor._tool_schema_with_dynamic_properties) -- handlers.
+    compute_dynamic_takeoff prefers these over its own dimension-text
+    role-matching heuristics."""
     for index, drawing in enumerate(page_drawings, start=1):
         classification = classifications.get(drawing.drawing_id)
         drawing.classification = classification
@@ -844,7 +846,7 @@ def _assign_dynamic_takeoffs(
 
         items = proposed_items.get(drawing.drawing_id, [])
         header = SchemaHeader(
-            schema_id="",  # filled in after get_or_create
+            schema_id="",  # filled in after create_for_drawing
             version=0,
             run_timestamp=registry.run_timestamp,
             source_pdf=filename,
@@ -855,20 +857,20 @@ def _assign_dynamic_takeoffs(
         )
 
         if not items:
-            registry.record_drawing(drawing.drawing_id, header, None, False, error=None)
+            registry.record_drawing(drawing.drawing_id, header, None, error=None)
             continue
 
         try:
-            entry, reused = registry.get_or_create(classification, items)
+            entry = registry.create_for_drawing(classification, items)
             header = header.model_copy(update={"schema_id": entry.schema_id, "version": entry.version})
             registry.write_schema_file_if_needed(entry, header)
-            registry.record_drawing(drawing.drawing_id, header, entry, reused)
+            registry.record_drawing(drawing.drawing_id, header, entry)
             drawing.dynamic_takeoff = handlers.compute_dynamic_takeoff(
                 drawing, entry, reported_quantities.get(drawing.drawing_id)
             )
         except SchemaValidationError as exc:
             logger.warning("%s: generated takeoff schema failed validation: %s", drawing.drawing_id, exc)
-            registry.record_drawing(drawing.drawing_id, header, None, False, error=str(exc))
+            registry.record_drawing(drawing.drawing_id, header, None, error=str(exc))
 
 
 def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> ExtractionResult:

@@ -90,17 +90,30 @@ class DrawingClassification(BaseModel):
 
 
 class DynamicQuantityItemSpec(BaseModel):
-    """One quantity-takeoff item proposed by the model for a given drawing
-    classification -- the metadata needed to compute it deterministically in
-    Python (pipeline.calculations), never by the model itself.
+    """One quantity-takeoff item proposed by the model for ONE specific
+    drawing -- the metadata needed to compute it deterministically in
+    Python (pipeline.calculations), never by the model itself. Generated
+    fresh per drawing (see SchemaRegistry.create_for_drawing) -- never
+    reused or extended across drawings, even ones sharing a classification,
+    since two drawings classified the same way can still show entirely
+    different physical subjects.
 
     `depends_on` is a list of logical input roles (e.g. 'wall_length',
-    'wall_height'), not literal dimension_ids -- the same spec is reused
-    across every drawing that shares this classification, and each drawing's
-    own dimensions are matched to these roles at compute time (see
+    'wall_height'), not literal dimension_ids -- this drawing's own
+    dimensions are matched to these roles at compute time (see
     pipeline.handlers._match_dimension_for_role). A role with no matching
-    dimension on a given drawing simply produces a null quantity with a
+    dimension on this drawing simply produces a null quantity with a
     reason, never a guess.
+
+    `input_units` states, per role, the unit that role's value must be
+    converted to before the formula is evaluated (e.g. {'wall_length': 'm',
+    'main_bar_diameter': 'mm'}) -- this is what lets one formula correctly
+    mix units the way real engineering formulas do (rebar weight
+    conventionally uses a millimetre bar diameter together with a metre bar
+    length) without Python having to guess or hardcode any one convention:
+    the model states the convention its own formula assumes, and Python's
+    only job is converting whatever unit a value was actually found in
+    into that stated unit.
     """
 
     name: str = Field(..., description="Quantity item name, e.g. 'wall_concrete_volume'")
@@ -109,6 +122,10 @@ class DynamicQuantityItemSpec(BaseModel):
     measurement_basis: str = Field(..., description="count | length | area | volume | weight")
     resource_category: str = Field(..., description="material | labor | equipment")
     depends_on: list[str] = Field(default_factory=list, description="Logical input roles this formula needs")
+    input_units: dict[str, str] = Field(
+        default_factory=dict,
+        description="Per-role required unit for formula evaluation, e.g. {'wall_length': 'm', 'main_bar_diameter': 'mm'}",
+    )
     formula: str = Field(..., description="Restricted arithmetic expression over `depends_on` names, e.g. 'wall_length * wall_height * wall_thickness'")
 
 

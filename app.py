@@ -77,8 +77,7 @@ def render_result(result: ExtractionResult, key_prefix: str) -> None:
                 for path in result.schema_files_written:
                     st.markdown(f"- `{path}`")
             else:
-                st.caption("No new schema files this run (every drawing either had no dynamic "
-                           "takeoff, or reused an already-written schema).")
+                st.caption("No new schema files this run (no drawing had a dynamic takeoff to schematize).")
             if result.schema_manifest_path:
                 st.caption(f"Manifest: `{result.schema_manifest_path}`")
 
@@ -281,12 +280,7 @@ def render_result(result: ExtractionResult, key_prefix: str) -> None:
                         schema_payload = json.load(f)
                 except OSError:
                     pass
-                label = (
-                    f"**Generated takeoff schema** `{manifest_row['schema_id']}` "
-                    f"v{manifest_row['schema_version']}"
-                    + (" (reused from another drawing)" if manifest_row.get("reused_existing_schema") else "")
-                )
-                st.markdown(label)
+                st.markdown(f"**Generated takeoff schema** `{manifest_row['schema_id']}`")
                 if schema_payload:
                     with st.expander("View JSON Schema"):
                         st.json(schema_payload["json_schema"])

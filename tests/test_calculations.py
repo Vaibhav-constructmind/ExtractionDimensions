@@ -13,8 +13,39 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from pipeline.calculations import FormulaError, compute_dynamic_quantity, evaluate_formula
+from pipeline.calculations import (
+    FormulaError,
+    UnitConversionError,
+    compute_dynamic_quantity,
+    convert_length_unit,
+    evaluate_formula,
+)
 from pipeline.schema import DynamicQuantityItemSpec
+
+
+class TestConvertLengthUnit(unittest.TestCase):
+    def test_mm_to_metres(self):
+        self.assertAlmostEqual(convert_length_unit(5000.0, "mm", "m"), 5.0)
+
+    def test_metres_to_mm(self):
+        self.assertAlmostEqual(convert_length_unit(5.0, "m", "mm"), 5000.0)
+
+    def test_cm_to_metres(self):
+        self.assertAlmostEqual(convert_length_unit(150.0, "cm", "m"), 1.5)
+
+    def test_same_unit_is_a_no_op(self):
+        self.assertEqual(convert_length_unit(42.0, "mm", "mm"), 42.0)
+
+    def test_case_insensitive(self):
+        self.assertAlmostEqual(convert_length_unit(1000.0, "MM", "M"), 1.0)
+
+    def test_unrecognized_source_unit_raises(self):
+        with self.assertRaises(UnitConversionError):
+            convert_length_unit(5.0, "ft", "m")
+
+    def test_unrecognized_target_unit_raises(self):
+        with self.assertRaises(UnitConversionError):
+            convert_length_unit(5.0, "mm", "ft")
 
 
 class TestEvaluateFormula(unittest.TestCase):

@@ -1,0 +1,87 @@
+{
+  "header": {
+    "schema_id": "423b9140990e",
+    "version": 1,
+    "run_timestamp": "20260928_112438862464",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 4,
+    "drawing_title": null,
+    "classification": {
+      "project_type": "building (reinforced concrete structure)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "column",
+        "rebar",
+        "stirrup/tie",
+        "longitudinal bars"
+      ],
+      "confidence": "high",
+      "notes": "Section 1'-1' shows a rectangular RC column cross-section (800x600mm) with 12 Y32 main bars and Y16-150 ties. Left fragment appears to be a companion elevation/wall view showing bar spacing dots but lacks dimensions or labels."
+    }
+  },
+  "schema_id": "423b9140990e",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:423b9140990e:v1",
+    "title": "Quantity takeoff schema 423b9140990e v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "column_cross_section_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Cross-sectional area of the column as cut in this section, usable for concrete volume once a run length/height is known from a companion plan/elevation.",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "column_width",
+              "column_depth"
+            ],
+            "x-formula": "column_width * column_depth"
+          },
+          "main_bar_steel_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total cross-sectional steel area of the longitudinal main bars visible in the section callout.",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_count",
+              "main_bar_diameter"
+            ],
+            "x-formula": "main_bar_count * 3.1416 * (main_bar_diameter/1000)**2 / 4"
+          },
+          "tie_bar_perimeter_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Approximate length of a single rectangular tie/stirrup loop derived from the column's cross-section dimensions shown in this section.",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "column_width",
+              "column_depth"
+            ],
+            "x-formula": "2 * (column_width + column_depth)"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

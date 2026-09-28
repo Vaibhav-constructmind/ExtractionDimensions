@@ -15,6 +15,53 @@ import operator
 
 from .schema import ComputedQuantity, DynamicQuantityItemSpec, MeasuredValue
 
+# --- Unit conversion for dynamic-schema inputs ------------------------------
+#
+# A drawing's own dimensions are extracted in whatever unit is printed (mm,
+# cm, m), but a formula's own convention (declared per-role via
+# DynamicQuantityItemSpec.input_units) may need a different one for the same
+# role -- most notably real rebar-weight formulas, which conventionally mix
+# a millimetre bar diameter with a metre bar length in one expression. This
+# is deliberately just a length-unit converter, not a "pick the right
+# convention" heuristic: the model states which unit each role's formula
+# needs, and this only ever converts a value FROM the unit it was actually
+# found in TO that stated unit -- it never guesses a convention itself.
+
+_LENGTH_UNITS_TO_METRES = {
+    "mm": 0.001,
+    "cm": 0.01,
+    "m": 1.0,
+}
+
+
+class UnitConversionError(ValueError):
+    """Raised when a value's unit or the target unit isn't a recognized
+    length unit -- callers should leave the value unconverted (and let the
+    caller decide whether that's still usable) rather than silently
+    guessing a scale factor."""
+
+
+def convert_length_unit(value: float, from_unit: str, to_unit: str) -> float:
+    """Convert `value` from `from_unit` to `to_unit`, both length units
+    (mm/cm/m). Returns `value` unchanged if `from_unit == to_unit` (no
+    normalization risk from a no-op). Raises UnitConversionError for any
+    unit not in the recognized length set -- e.g. a bare count or an
+    already-derived area/volume/weight unit, which this function never
+    touches since only individual length-basis inputs are converted before
+    formula evaluation.
+    """
+    from_norm = (from_unit or "").strip().lower()
+    to_norm = (to_unit or "").strip().lower()
+    if from_norm == to_norm:
+        return value
+    if from_norm not in _LENGTH_UNITS_TO_METRES or to_norm not in _LENGTH_UNITS_TO_METRES:
+        raise UnitConversionError(
+            f"Cannot convert from {from_unit!r} to {to_unit!r} -- both must be one of "
+            f"{sorted(_LENGTH_UNITS_TO_METRES)}"
+        )
+    return value * _LENGTH_UNITS_TO_METRES[from_norm] / _LENGTH_UNITS_TO_METRES[to_norm]
+
+
 # --- Generic dynamic-schema formula evaluation -----------------------------
 #
 # A restricted arithmetic expression evaluator with NO `eval`/`exec` and no

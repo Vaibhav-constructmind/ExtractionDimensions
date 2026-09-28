@@ -1,5 +1,7 @@
 """Unit tests for pipeline/schema_registry.py: JSON Schema assembly + meta-
-schema validation, reuse/extend-by-classification, and file/manifest I/O.
+schema validation, per-drawing independent schema generation (no reuse or
+extension across drawings, even ones sharing a classification), and
+file/manifest I/O.
 
 Run with:
     .venv\\Scripts\\python.exe -m unittest tests.test_schema_registry -v
@@ -45,7 +47,7 @@ class TestBuildJsonSchema(unittest.TestCase):
         validate_schema(schema)
 
 
-class TestSchemaRegistryReuse(unittest.TestCase):
+class TestSchemaRegistryPerDrawingIndependence(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.TemporaryDirectory()
         self.registry = SchemaRegistry(self.tmpdir.name, "20260101_120000")
@@ -53,38 +55,31 @@ class TestSchemaRegistryReuse(unittest.TestCase):
     def tearDown(self):
         self.tmpdir.cleanup()
 
-    def test_new_classification_creates_version_1(self):
-        entry, reused = self.registry.get_or_create(_classification(), [_item()])
-        self.assertFalse(reused)
+    def test_new_drawing_creates_version_1(self):
+        entry = self.registry.create_for_drawing(_classification(), [_item()])
         self.assertEqual(entry.version, 1)
 
-    def test_same_classification_reuses_schema_id(self):
-        entry1, _ = self.registry.get_or_create(_classification(), [_item()])
-        entry2, reused = self.registry.get_or_create(_classification(), [_item()])
-        self.assertTrue(reused)
-        self.assertEqual(entry1.schema_id, entry2.schema_id)
-        self.assertEqual(entry2.version, 1)  # no new items -- no version bump
-
-    def test_new_item_on_reuse_extends_and_bumps_version(self):
-        entry1, _ = self.registry.get_or_create(_classification(), [_item()])
-        entry2, reused = self.registry.get_or_create(
-            _classification(), [_item(), _item(name="rebar_weight", depends_on=["length"], formula="length * 7.85")]
-        )
-        self.assertTrue(reused)
-        self.assertEqual(entry1.schema_id, entry2.schema_id)
-        self.assertEqual(entry2.version, 2)
-        self.assertEqual({i.name for i in entry2.items}, {"footing_concrete_volume", "rebar_weight"})
-
-    def test_different_classification_gets_different_schema_id(self):
-        entry1, _ = self.registry.get_or_create(_classification(discipline="structural"), [_item()])
-        entry2, _ = self.registry.get_or_create(_classification(discipline="MEP"), [_item()])
+    def test_same_classification_still_gets_a_distinct_schema_id(self):
+        # Two drawings sharing a classification must NOT share a schema --
+        # each drawing's schema is independent, even if their proposed
+        # items happen to be identical.
+        entry1 = self.registry.create_for_drawing(_classification(), [_item()])
+        entry2 = self.registry.create_for_drawing(_classification(), [_item()])
         self.assertNotEqual(entry1.schema_id, entry2.schema_id)
 
-    def test_classification_key_is_case_and_whitespace_insensitive(self):
-        entry1, _ = self.registry.get_or_create(_classification(discipline="Structural"), [_item()])
-        entry2, reused = self.registry.get_or_create(_classification(discipline="  structural "), [_item()])
-        self.assertTrue(reused)
-        self.assertEqual(entry1.schema_id, entry2.schema_id)
+    def test_first_drawings_items_are_unaffected_by_a_later_drawings_items(self):
+        entry1 = self.registry.create_for_drawing(_classification(), [_item()])
+        entry2 = self.registry.create_for_drawing(
+            _classification(), [_item(), _item(name="rebar_weight", depends_on=["length"], formula="length * 7.85")]
+        )
+        self.assertEqual({i.name for i in entry1.items}, {"footing_concrete_volume"})
+        self.assertEqual({i.name for i in entry2.items}, {"footing_concrete_volume", "rebar_weight"})
+        self.assertNotEqual(entry1.schema_id, entry2.schema_id)
+
+    def test_different_classification_gets_different_schema_id(self):
+        entry1 = self.registry.create_for_drawing(_classification(discipline="structural"), [_item()])
+        entry2 = self.registry.create_for_drawing(_classification(discipline="MEP"), [_item()])
+        self.assertNotEqual(entry1.schema_id, entry2.schema_id)
 
 
 class TestSchemaRegistryFileIO(unittest.TestCase):
@@ -104,7 +99,7 @@ class TestSchemaRegistryFileIO(unittest.TestCase):
 
     def test_write_schema_file_creates_file_with_header(self):
         classification = _classification()
-        entry, _ = self.registry.get_or_create(classification, [_item()])
+        entry = self.registry.create_for_drawing(classification, [_item()])
         header = self._header(classification).model_copy(update={"schema_id": entry.schema_id, "version": entry.version})
         path = self.registry.write_schema_file_if_needed(entry, header)
         self.assertIsNotNone(path)
@@ -115,31 +110,38 @@ class TestSchemaRegistryFileIO(unittest.TestCase):
 
     def test_write_schema_file_is_noop_when_already_written(self):
         classification = _classification()
-        entry, _ = self.registry.get_or_create(classification, [_item()])
+        entry = self.registry.create_for_drawing(classification, [_item()])
         header = self._header(classification).model_copy(update={"schema_id": entry.schema_id, "version": entry.version})
         first = self.registry.write_schema_file_if_needed(entry, header)
         second = self.registry.write_schema_file_if_needed(entry, header)
         self.assertIsNotNone(first)
         self.assertIsNone(second)
 
-    def test_extending_schema_allows_rewrite_for_new_version(self):
+    def test_two_drawings_each_get_their_own_written_file(self):
         classification = _classification()
-        entry, _ = self.registry.get_or_create(classification, [_item()])
-        header = self._header(classification).model_copy(update={"schema_id": entry.schema_id, "version": entry.version})
-        self.registry.write_schema_file_if_needed(entry, header)
+        entry1 = self.registry.create_for_drawing(classification, [_item()])
+        header1 = self._header(classification).model_copy(update={"schema_id": entry1.schema_id, "version": entry1.version})
+        path1 = self.registry.write_schema_file_if_needed(entry1, header1)
 
-        entry2, _ = self.registry.get_or_create(classification, [_item(name="new_item", depends_on=["length"], formula="length")])
-        header2 = header.model_copy(update={"version": entry2.version})
+        entry2 = self.registry.create_for_drawing(
+            classification, [_item(name="new_item", depends_on=["length"], formula="length")]
+        )
+        header2 = self._header(classification).model_copy(
+            update={"schema_id": entry2.schema_id, "version": entry2.version, "drawing_index": 2}
+        )
         path2 = self.registry.write_schema_file_if_needed(entry2, header2)
+
+        self.assertIsNotNone(path1)
         self.assertIsNotNone(path2)
+        self.assertNotEqual(path1, path2)
 
     def test_manifest_records_every_drawing(self):
         classification = _classification()
-        entry, reused = self.registry.get_or_create(classification, [_item()])
+        entry = self.registry.create_for_drawing(classification, [_item()])
         header = self._header(classification).model_copy(update={"schema_id": entry.schema_id, "version": entry.version})
         self.registry.write_schema_file_if_needed(entry, header)
-        self.registry.record_drawing("P1-D1", header, entry, reused)
-        self.registry.record_drawing("P1-D2", header, None, False, error="classification failed")
+        self.registry.record_drawing("P1-D1", header, entry)
+        self.registry.record_drawing("P1-D2", header, None, error="classification failed")
 
         manifest_path = self.registry.write_manifest()
         payload = json.loads(Path(manifest_path).read_text(encoding="utf-8"))

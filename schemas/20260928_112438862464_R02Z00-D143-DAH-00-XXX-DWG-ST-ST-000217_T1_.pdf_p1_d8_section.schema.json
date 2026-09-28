@@ -1,0 +1,114 @@
+{
+  "header": {
+    "schema_id": "9acc4fb9de2a",
+    "version": 1,
+    "run_timestamp": "20260928_112438862464",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 8,
+    "drawing_title": "SECTION B-B",
+    "classification": {
+      "project_type": "tunnel / underground infrastructure (King Abdulaziz West Tunnel)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "tunnel_cross_section",
+        "reinforced_concrete_wall",
+        "rebar",
+        "web_reinforcement",
+        "tie_bars"
+      ],
+      "confidence": "high",
+      "notes": "This is a reinforced-concrete cross section (Section B-B) of a multi-cell tunnel/box structure showing web, main, and corner reinforcement bar-mark callouts (Y12-150, Y32-100, Y25-100, Y20-125, 2x4 Y16). No overall member thickness or length dimensions are legible, so only bar-mark-derived quantities (diameter, spacing, count) can be computed; concrete volume, formwork area, and rebar weight/length cannot be derived without a companion plan or dimensioned section."
+    }
+  },
+  "schema_id": "9acc4fb9de2a",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:9acc4fb9de2a:v1",
+    "title": "Quantity takeoff schema 9acc4fb9de2a v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "web_bar_count_per_meter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of web reinforcement bars (Y12-150) per metre of wall run, derived from the bar spacing callout.",
+            "x-unit": "bars/m",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "1000 / web_bar_spacing"
+          },
+          "top_main_bar_count_per_meter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of top main reinforcement bars (Y32-100) per metre of run, derived from the bar spacing callout.",
+            "x-unit": "bars/m",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_main_bar_spacing"
+            ],
+            "x-formula": "1000 / top_main_bar_spacing"
+          },
+          "bottom_main_bar_count_per_meter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of bottom main reinforcement bars (Y25-100) per metre of run, derived from the bar spacing callout.",
+            "x-unit": "bars/m",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_main_bar_spacing"
+            ],
+            "x-formula": "1000 / bottom_main_bar_spacing"
+          },
+          "corner_bar_count_per_meter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of corner/side reinforcement bars (Y20-125) per metre of run, derived from the bar spacing callout.",
+            "x-unit": "bars/m",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "corner_bar_spacing"
+            ],
+            "x-formula": "1000 / corner_bar_spacing"
+          },
+          "tie_bar_total_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total number of typical tie bars (2x4 Y16) per group, derived directly from the bar-mark callout's row and per-row counts.",
+            "x-unit": "each",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tie_bar_row_count",
+              "tie_bar_count_per_row"
+            ],
+            "x-formula": "tie_bar_row_count * tie_bar_count_per_row"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

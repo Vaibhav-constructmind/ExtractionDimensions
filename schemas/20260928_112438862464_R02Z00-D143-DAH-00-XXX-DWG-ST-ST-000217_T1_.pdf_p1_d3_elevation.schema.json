@@ -1,0 +1,104 @@
+{
+  "header": {
+    "schema_id": "8a699ad0450f",
+    "version": 1,
+    "run_timestamp": "20260928_112438862464",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 3,
+    "drawing_title": "ADDITIONAL REINFORCEMENT AROUND THE OPENING AT THE INNER WALL AT STA: 0+314",
+    "classification": {
+      "project_type": "infrastructure (tunnel/culvert or buried structure with wall openings, station-referenced)",
+      "discipline": "structural",
+      "drawing_type": "elevation",
+      "building_elements": [
+        "wall",
+        "opening",
+        "rebar",
+        "reinforcement_bars",
+        "diagonal_reinforcement"
+      ],
+      "confidence": "medium",
+      "notes": "Elevation of an inner wall panel at STA: 0+314 showing two rectangular openings with additional diagonal reinforcement (4 Y25) around each, vertical bars (12 Y32) at three locations, and Y16/Y18-150 stirrup/tie bars in the pier between openings. No overall wall height/length dimension is given, only opening dimensions and rebar callouts."
+    }
+  },
+  "schema_id": "8a699ad0450f",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:8a699ad0450f:v1",
+    "title": "Quantity takeoff schema 8a699ad0450f v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "opening_diagonal_bar_count_total": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total count of diagonal Y25 reinforcement bars placed around the wall openings (labelled '4 Y25' at 4 locations around each opening corner band).",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "diagonal_bar_count_per_label",
+              "diagonal_bar_label_count"
+            ],
+            "x-formula": "diagonal_bar_count_per_label * diagonal_bar_label_count"
+          },
+          "vertical_bar_count_total": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total count of vertical Y32 reinforcement bars shown at the three '12 Y32' callout locations along the wall base.",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "vertical_bar_count_per_label",
+              "vertical_bar_label_count"
+            ],
+            "x-formula": "vertical_bar_count_per_label * vertical_bar_label_count"
+          },
+          "opening_area_total": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total blockout/formwork area of the two rectangular wall openings, each dimensioned 3000mm x 1500mm.",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_width",
+              "opening_height",
+              "opening_count"
+            ],
+            "x-formula": "opening_width * opening_height * opening_count"
+          },
+          "pier_tie_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of Y16/Y18-150 tie/stirrup bars in the wall pier between the two openings, derived from spacing over the visible tie zone height.",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "pier_tie_zone_height",
+              "pier_tie_bar_spacing"
+            ],
+            "x-formula": "pier_tie_zone_height / pier_tie_bar_spacing + 1"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

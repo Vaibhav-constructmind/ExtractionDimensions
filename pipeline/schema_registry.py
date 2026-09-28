@@ -1,13 +1,18 @@
 """Registry of generated quantity-takeoff JSON Schemas for one pipeline run.
 
-Every drawing that goes through the generic (non-stair) dynamic-takeoff path
-gets a classification (discipline + drawing_type) and a proposed list of
-quantity items (see DynamicQuantityItemSpec in schema.py). This module:
+Every drawing that goes through the dynamic-takeoff path gets a
+classification (discipline + drawing_type) and a proposed list of quantity
+items (see DynamicQuantityItemSpec in schema.py). This module:
 
-  1. Reuses or extends an existing schema when a later drawing shares the
-     same (discipline, drawing_type) key, so quantities from similar
-     drawings across different files stay comparable/aggregatable, instead
-     of minting a fresh schema per drawing.
+  1. Generates each drawing's OWN independent schema -- deliberately never
+     reused or extended across drawings, even when two drawings share the
+     same discipline/drawing_type classification. Two drawings classified
+     the same way can still show entirely different physical subjects (a
+     full wall section vs. a small local recess detail, say), and forcing
+     them through one shared, growing schema meant later drawings inherited
+     roles from the first drawing's geometry that they could never satisfy.
+     Every drawing's schema is scoped ONLY to what that drawing's own
+     classification pass proposed.
   2. Turns a validated item list into an actual JSON Schema (Draft 2020-12)
      document and checks it against the meta-schema.
   3. Persists every schema as its own timestamped .json file in one fixed
@@ -98,62 +103,46 @@ def validate_schema(json_schema: dict) -> None:
 
 
 class SchemaRegistry:
-    """In-memory registry for one pipeline run, keyed by
-    (discipline, drawing_type). Also accumulates this run's manifest and
-    writes both schema files and the manifest to SCHEMA_OUTPUT_DIR."""
+    """One schema per drawing, for one pipeline run. Also accumulates this
+    run's manifest and writes both schema files and the manifest to
+    SCHEMA_OUTPUT_DIR."""
 
     def __init__(self, output_dir: str, run_timestamp: str):
         self.output_dir = Path(output_dir)
         self.run_timestamp = run_timestamp
-        self._entries: dict[tuple[str, str], SchemaRegistryEntry] = {}
+        self._entries: list[SchemaRegistryEntry] = []
         self._manifest_entries: list[dict] = []
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def get_or_create(
+    def create_for_drawing(
         self,
         classification: DrawingClassification,
         proposed_items: list[DynamicQuantityItemSpec],
-    ) -> tuple[SchemaRegistryEntry, bool]:
-        """Return (entry, reused) for this classification. `reused` is True
-        when an existing entry for this (discipline, drawing_type) key was
-        found -- its schema_id is kept, and any proposed item NOT already
-        present (by name) is unioned in, bumping the version. A brand new
-        key creates version 1.
-        """
-        key = (_normalize_key_part(classification.discipline), _normalize_key_part(classification.drawing_type))
-        existing = self._entries.get(key)
-
-        if existing is None:
-            schema_id = uuid.uuid4().hex[:12]
-            json_schema = build_json_schema(schema_id, 1, proposed_items)
-            validate_schema(json_schema)
-            entry = SchemaRegistryEntry(
-                schema_id=schema_id,
-                version=1,
-                discipline_key=key[0],
-                drawing_type_key=key[1],
-                items=list(proposed_items),
-                json_schema=json_schema,
-            )
-            self._entries[key] = entry
-            return entry, False
-
-        existing_names = {item.name for item in existing.items}
-        new_items = [item for item in proposed_items if item.name not in existing_names]
-        if new_items:
-            existing.items = existing.items + new_items
-            existing.version += 1
-            existing.json_schema = build_json_schema(existing.schema_id, existing.version, existing.items)
-            validate_schema(existing.json_schema)
-            existing.file_path = None  # needs re-writing under the new version
-        return existing, True
+    ) -> SchemaRegistryEntry:
+        """Build this ONE drawing's own schema from its own proposed items
+        -- always a fresh schema_id, never looked up or extended from any
+        other drawing's entry, even one sharing the same classification."""
+        discipline_key = _normalize_key_part(classification.discipline)
+        drawing_type_key = _normalize_key_part(classification.drawing_type)
+        schema_id = uuid.uuid4().hex[:12]
+        json_schema = build_json_schema(schema_id, 1, proposed_items)
+        validate_schema(json_schema)
+        entry = SchemaRegistryEntry(
+            schema_id=schema_id,
+            version=1,
+            discipline_key=discipline_key,
+            drawing_type_key=drawing_type_key,
+            items=list(proposed_items),
+            json_schema=json_schema,
+        )
+        self._entries.append(entry)
+        return entry
 
     def write_schema_file_if_needed(self, entry: SchemaRegistryEntry, header: SchemaHeader) -> str | None:
-        """Write `entry`'s current version to disk if it hasn't been
-        written yet (or was just extended to a new version). Returns the
-        path written, or None if this exact version was already on disk
-        (a genuinely reused, unchanged schema -- recorded in the manifest
-        instead of being written again, per spec)."""
+        """Write `entry` to disk if it hasn't been written yet. Returns the
+        path written, or None if already written (defensive -- in practice
+        every entry is fresh and written exactly once, since schemas are no
+        longer shared/reused across drawings)."""
         if entry.file_path is not None:
             return None
 
@@ -178,7 +167,6 @@ class SchemaRegistry:
         drawing_id: str,
         header: SchemaHeader,
         entry: SchemaRegistryEntry | None,
-        reused: bool,
         error: str | None = None,
     ) -> None:
         """Add one row to this run's manifest -- called for every drawing
@@ -193,7 +181,6 @@ class SchemaRegistry:
             "schema_id": entry.schema_id if entry else None,
             "schema_version": entry.version if entry else None,
             "schema_file": entry.file_path if entry else None,
-            "reused_existing_schema": reused,
             "error": error,
         })
 
@@ -214,4 +201,4 @@ class SchemaRegistry:
 
     @property
     def written_files(self) -> list[str]:
-        return [e.file_path for e in self._entries.values() if e.file_path]
+        return [e.file_path for e in self._entries if e.file_path]

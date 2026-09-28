@@ -1,0 +1,98 @@
+{
+  "header": {
+    "schema_id": "75fccb2b2f8f",
+    "version": 1,
+    "run_timestamp": "20260928_112438862464",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 7,
+    "drawing_title": "SECTION A-A",
+    "classification": {
+      "project_type": "building (reinforced concrete structure, likely commercial/residential development)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "slab",
+        "voided_slab",
+        "rebar",
+        "reinforcement"
+      ],
+      "confidence": "high",
+      "notes": "Section A-A through a biaxial voided (bubble-deck / hollow-core) slab showing circular void formers and multiple rebar mark callouts (Y32-100, 4 Y12, Y12-125, Y20-125, Y16-125, Y25-100). Overall slab thickness and void spacing along the run are not dimensioned numerically in the legible portion, and the slab's plan length is not shown on this section, so quantities are limited to what the bar-mark callouts and visible geometry directly provide."
+    }
+  },
+  "schema_id": "75fccb2b2f8f",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:75fccb2b2f8f:v1",
+    "title": "Quantity takeoff schema 75fccb2b2f8f v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "main_bottom_bar_linear_density": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of main bottom bars (Y32-100) per metre run, derived from the bar-mark spacing callout.",
+            "x-unit": "bars/m",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_spacing"
+            ],
+            "x-formula": "1000 / main_bar_spacing"
+          },
+          "top_bar_linear_density": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of top/secondary bars (Y12-125) per metre run, derived from the bar-mark spacing callout.",
+            "x-unit": "bars/m",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_bar_spacing"
+            ],
+            "x-formula": "1000 / top_bar_spacing"
+          },
+          "edge_bar_linear_density": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of edge/end bars (Y20-125) per metre run, derived from the bar-mark spacing callout.",
+            "x-unit": "bars/m",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "edge_bar_spacing"
+            ],
+            "x-formula": "1000 / edge_bar_spacing"
+          },
+          "lacing_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of lacing/spacer bars (4 Y12) shown per void unit in the section callout.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "lacing_bar_count"
+            ],
+            "x-formula": "lacing_bar_count"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

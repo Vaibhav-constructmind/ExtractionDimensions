@@ -749,9 +749,22 @@ _QUANTITY_ITEM_SCHEMA = {
             "type": "array",
             "items": {"type": "string"},
             "description": (
-                "Logical input role names this formula needs, e.g. ['wall_length', 'wall_height', "
-                "'wall_thickness'] -- snake_case, generic enough to match the same role across "
-                "other drawings of this same classification, NOT this drawing's own dimension_ids."
+                "Logical input role names THIS formula needs, e.g. ['wall_length', 'wall_height', "
+                "'wall_thickness'] -- snake_case, scoped to this one drawing's own schema, NOT this "
+                "drawing's own dimension_ids."
+            ),
+        },
+        "input_units": {
+            "type": "object",
+            "description": (
+                "The unit (mm/cm/m) each depends_on role's value must be converted to before this "
+                "formula is evaluated, e.g. {'wall_length': 'm', 'wall_thickness': 'm', "
+                "'main_bar_diameter': 'mm'} -- state whatever unit YOUR formula's own convention "
+                "actually needs for each role (e.g. a rebar weight formula conventionally uses a "
+                "millimetre bar diameter together with a metre bar length in the same expression); "
+                "the value will be converted from whatever unit it was actually found in on the "
+                "drawing into the unit you state here, so the formula always sees consistent units "
+                "regardless of how the drawing itself is dimensioned."
             ),
         },
         "formula": {
@@ -799,48 +812,63 @@ CLASSIFICATION_SYSTEM_PROMPT = (
     "'rebar'], ['duct', 'diffuser'], ['road', 'pavement', 'curb']). Set confidence to 'low' if the "
     "drawing's subject is genuinely ambiguous (e.g. a fragment with no title or legible content) "
     "rather than guessing.\n\n"
-    "2. Propose a resource-planning quantity-takeoff schema for THIS classification: think like an "
-    "estimator building a bill of quantities for labor, materials, and equipment. For each quantity "
-    "genuinely derivable from a drawing of this kind (not necessarily from every instance -- other "
-    "drawings sharing this same discipline/drawing_type will reuse this same schema), propose:\n"
+    "2. Propose a resource-planning quantity-takeoff schema for THIS ONE DRAWING SPECIFICALLY: "
+    "think like an estimator building a bill of quantities for labor, materials, and equipment. "
+    "This schema is generated fresh for this drawing alone -- it is never shared, reused, or "
+    "extended from another drawing's schema, even one classified identically, because two "
+    "drawings with the same discipline/drawing_type can still show entirely different physical "
+    "subjects (e.g. a full wall section vs. a small local recess detail). Propose ONLY items "
+    "genuinely derivable from what THIS specific drawing itself shows -- an empty quantity_items "
+    "list is correct and expected when nothing meaningful can be derived (e.g. a key plan, a "
+    "legend, a fragment with no legible geometry, or a note-only sheet).\n\n"
+    "CRITICAL -- respect what this drawing's own drawing_type can physically show:\n"
+    "   - A section or elevation is a cut THROUGH a member -- it can show that member's height, "
+    "depth, and thickness (the dimensions visible in the cut plane), and it can show bar size/"
+    "spacing callouts, but it CANNOT show that member's own length along its run (how far a wall "
+    "or slab extends in plan) -- that is only visible in a plan view. Do not propose a role like "
+    "'wall_length' or 'slab_length' on a section/elevation drawing; if a quantity genuinely needs "
+    "a run length, either leave it out of quantity_items entirely, or note in the item's "
+    "description that it requires a companion plan view this drawing does not provide.\n"
+    "   - A rebar weight/length item needs the bar's own physical cut length as an input. A bar's "
+    "size and spacing ARE visible on a section (its bar-mark callout), but its cut length almost "
+    "never is -- do not propose a role for it unless this specific drawing actually shows a "
+    "dimensioned run the bar follows; otherwise omit the weight/length item and propose the "
+    "count/diameter/spacing items alone instead (those ARE directly readable from a bar-mark "
+    "callout).\n"
+    "For each item you do propose:\n"
     "   - name: a stable snake_case identifier, e.g. 'foundation_concrete_volume', "
     "'rebar_weight', 'formwork_area', 'duct_length'.\n"
     "   - unit, measurement_basis (count/length/area/volume/weight), resource_category "
     "(material/labor/equipment).\n"
-    "   - depends_on: the generic, reusable input roles the formula needs, NOT specific numbers or "
-    "this drawing's own dimension IDs -- these roles get matched automatically to each drawing's own "
-    "extracted dimensions later, by a downstream matcher that only understands a few specific naming "
-    "patterns, so you MUST pick role names from these patterns rather than free-form phrasing:\n"
-    "       * A role ending in '_length'/'_width'/'_span'/'_run' is matched against a HORIZONTAL "
-    "dimension; a role ending in '_height'/'_depth'/'_thickness'/'_rise' is matched against a "
-    "VERTICAL one -- always end a geometric role with one of these words so it can be matched by "
-    "orientation even when no other text lines up (e.g. 'footing_width', 'wall_height', "
-    "'slab_thickness', not 'footing_size' or 'wall_dimension').\n"
-    "       * For rebar/bar-mark callouts specifically (e.g. a label like 'Y32-100' or '12 Y25'), "
-    "use role names ending in exactly '_bar_diameter', '_bar_spacing', '_bar_count', or "
-    "'_bar_length' (e.g. 'main_bar_diameter', 'stirrup_bar_spacing') -- the matcher parses these "
-    "specific sub-values directly out of a bar-mark callout's own text, so do NOT invent a role "
-    "like 'rebar_size' or 'bar_info' that bundles diameter+spacing together; split them into "
-    "separate roles instead.\n"
-    "       * Where this project's own dimension vocabulary already has a matching category -- "
-    "wall_thickness, floor_to_floor, guardrail_height, tread_going, stair_rise -- reuse that exact "
-    "word inside your role name (e.g. 'wall_thickness', not 'wall_thick') so an exact-type match is "
-    "possible.\n"
+    "   - depends_on: the input roles this formula needs, NOT specific numbers or this drawing's "
+    "own dimension IDs -- clear, descriptive snake_case names (e.g. 'footing_width', "
+    "'wall_height', 'slab_thickness'). For rebar/bar-mark callouts specifically (e.g. a label "
+    "like 'Y32-100' or '12 Y25'), use role names ending in exactly '_bar_diameter', "
+    "'_bar_spacing', '_bar_count', or '_bar_length' (e.g. 'main_bar_diameter', "
+    "'stirrup_bar_spacing') -- a downstream reader parses these specific sub-values directly out "
+    "of a bar-mark callout's own text, so do NOT invent a role like 'rebar_size' or 'bar_info' "
+    "that bundles diameter+spacing together; split them into separate roles instead. Where this "
+    "project's own dimension vocabulary already has a matching category -- wall_thickness, "
+    "floor_to_floor, guardrail_height, tread_going, stair_rise -- reuse that exact word inside "
+    "your role name.\n"
+    "   - input_units: for every role in depends_on, state the unit (mm/cm/m) YOUR formula's own "
+    "convention needs it in -- e.g. a rebar weight formula conventionally mixes a millimetre bar "
+    "diameter with a metre bar length in one expression, so state 'main_bar_diameter': 'mm' and "
+    "'main_bar_length': 'm' explicitly rather than assuming one unit for everything. Whatever unit "
+    "you state here is what the value will be converted to before your formula runs, regardless of "
+    "what unit this drawing happens to be dimensioned in.\n"
     "   - formula: plain arithmetic over those role names only (+ - * / ** and parentheses) -- e.g. "
     "'footing_length * footing_width * footing_depth'. Never write a computed number as the "
     "formula's result; you are proposing HOW to compute it, not computing it. A formula may ONLY "
     "reference `depends_on` roles that are themselves matchable to something drawn/labeled/"
-    "dimensioned on a drawing of this kind (a length, count, weight-per-length, etc.) -- NEVER "
-    "reference an external reference constant that no drawing could ever show, such as a labor "
-    "productivity rate, an equipment output rate, or a material unit-weight factor (e.g. "
+    "dimensioned on THIS drawing (a length, count, weight-per-length, etc.) -- NEVER reference an "
+    "external reference constant that no drawing could ever show, such as a labor productivity "
+    "rate, an equipment output rate, or a material unit-weight factor (e.g. "
     "'placement_rate_per_hour', 'pump_rate_per_hour', 'labor_hours_per_kg', "
     "'rebar_unit_weight_factor'). If a genuinely useful quantity (like installation labor-hours) "
     "would require such a constant, leave it out entirely rather than proposing an item that can "
     "never compute -- propose the underlying material quantity itself instead (e.g. "
-    "'rebar_weight' in kg, not 'rebar_installation_labor' in hours).\n"
-    "Only propose items that are genuinely derivable from the kind of geometry/dimensions a "
-    "drawing like this would show -- an empty quantity_items list is correct and expected for a "
-    "drawing with no meaningful takeoff (e.g. a key plan, a legend, a note-only sheet).\n\n"
+    "'rebar_weight' in kg, not 'rebar_installation_labor' in hours).\n\n"
     "Respond with ONLY a single raw JSON object -- no markdown code fences, no explanation before "
     "or after it -- with exactly two top-level keys, in this exact shape:\n"
     "{\n"
@@ -855,7 +883,9 @@ CLASSIFICATION_SYSTEM_PROMPT = (
     '      "name": "<snake_case string>", "description": "<string or null>", "unit": "<string>",\n'
     f'      "measurement_basis": "<one of {MEASUREMENT_BASES}>",\n'
     f'      "resource_category": "<one of {RESOURCE_CATEGORIES}>",\n'
-    '      "depends_on": ["<role_name>", "..."], "formula": "<arithmetic expression string>"\n'
+    '      "depends_on": ["<role_name>", "..."],\n'
+    '      "input_units": {"<role_name>": "<mm|cm|m>", "...": "..."},\n'
+    '      "formula": "<arithmetic expression string>"\n'
     "    }\n"
     "  ]\n"
     "}\n"
@@ -889,6 +919,9 @@ def _validate_classification(raw: object) -> dict:
             raise ValueError(f"quantity_item missing required fields {missing}: {item!r}")
         if not isinstance(item.get("depends_on"), list):
             raise ValueError(f"quantity_item.depends_on must be an array, got: {item.get('depends_on')!r}")
+        input_units = item.get("input_units", {})
+        if not isinstance(input_units, dict):
+            raise ValueError(f"quantity_item.input_units must be an object, got: {input_units!r}")
 
     return raw
 

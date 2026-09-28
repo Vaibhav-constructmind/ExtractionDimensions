@@ -1,0 +1,70 @@
+{
+  "header": {
+    "schema_id": "02152d40848e",
+    "version": 1,
+    "run_timestamp": "20260928_112438862464",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 5,
+    "drawing_title": "unclear",
+    "classification": {
+      "project_type": null,
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "wall",
+        "slab",
+        "rebar"
+      ],
+      "confidence": "medium",
+      "notes": "Reinforced concrete wall/slab junction section showing bar mark callouts (Y25-100, Y25-125) with wall thickness and step dimensions (1200, 700, 600). No plan view present, so run lengths are not derivable."
+    }
+  },
+  "schema_id": "02152d40848e",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:02152d40848e:v1",
+    "title": "Quantity takeoff schema 02152d40848e v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "vertical_wall_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of vertical wall reinforcement bars per callout Y25-100/Y25-125 based on spacing over wall run (requires plan length not shown here)",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "vertical_bar_diameter",
+              "vertical_bar_spacing"
+            ],
+            "x-formula": "vertical_bar_diameter / vertical_bar_diameter"
+          },
+          "wall_thickness_dimension": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Wall/slab thickness as dimensioned in section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_thickness"
+            ],
+            "x-formula": "wall_thickness"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

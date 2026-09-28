@@ -1,0 +1,103 @@
+{
+  "header": {
+    "schema_id": "567c96e8a06a",
+    "version": 1,
+    "run_timestamp": "20260928_112438862464",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 1,
+    "drawing_title": "SECTION 1-1",
+    "classification": {
+      "project_type": "water/wastewater treatment structure (reinforced concrete tank or reservoir)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "concrete_wall",
+        "base_slab",
+        "rebar",
+        "construction_joint",
+        "interior_web_wall"
+      ],
+      "confidence": "medium",
+      "notes": "Labeled 'SECTION 1-1' showing a large reinforced concrete structure (likely a tank/reservoir) with double-line walls, interior web/partition walls, base slab, construction joints (C.J.), and dense rebar bar-mark callouts (e.g. Y32-100, Y25-100, Y20-125, Y12-150/WEB). Some dimensions appear to represent vertical wall heights while others may represent horizontal spans between walls; exact orientation of each dimension string is ambiguous from OCR alone."
+    }
+  },
+  "schema_id": "567c96e8a06a",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:567c96e8a06a:v1",
+    "title": "Quantity takeoff schema 567c96e8a06a v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "main_wall_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of main vertical/horizontal reinforcing bars (Y32-100) along the visible wall height in this section",
+            "x-unit": "bars",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_wall_bar_spacing",
+              "wall_height"
+            ],
+            "x-formula": "(wall_height * 1000 / main_wall_bar_spacing) + 1"
+          },
+          "secondary_wall_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of secondary reinforcing bars (Y25-100) along the visible wall height in this section",
+            "x-unit": "bars",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "secondary_wall_bar_spacing",
+              "wall_height"
+            ],
+            "x-formula": "(wall_height * 1000 / secondary_wall_bar_spacing) + 1"
+          },
+          "tertiary_wall_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of tertiary reinforcing bars (Y20-125) along the visible wall height in this section",
+            "x-unit": "bars",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tertiary_wall_bar_spacing",
+              "wall_height"
+            ],
+            "x-formula": "(wall_height * 1000 / tertiary_wall_bar_spacing) + 1"
+          },
+          "web_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of web/interior partition reinforcing bars (Y12-150/WEB) along the visible wall height in this section",
+            "x-unit": "bars",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing",
+              "wall_height"
+            ],
+            "x-formula": "(wall_height * 1000 / web_bar_spacing) + 1"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}
