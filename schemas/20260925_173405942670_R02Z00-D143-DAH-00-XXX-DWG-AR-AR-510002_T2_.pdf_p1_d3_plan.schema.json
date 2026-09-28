@@ -1,0 +1,413 @@
+{
+  "header": {
+    "schema_id": "59a1e01f36f8",
+    "version": 3,
+    "run_timestamp": "20260925_173405942670",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+    "page": 1,
+    "drawing_index": 3,
+    "drawing_title": "STAIR-07-INTERMEDIATE LANDING-01",
+    "classification": {
+      "project_type": "commercial building",
+      "discipline": "architectural",
+      "drawing_type": "plan",
+      "building_elements": [
+        "stair",
+        "landing",
+        "stair enclosure/shaft wall",
+        "treads",
+        "egress stair"
+      ],
+      "confidence": "high",
+      "notes": "Plan view of an egress stair (Stair 07) showing two flights of 14 treads at 290mm each, intermediate landing, shaft walls with hatching, and FFL elevations at top and bottom landings."
+    }
+  },
+  "schema_id": "59a1e01f36f8",
+  "version": 3,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:59a1e01f36f8:v3",
+    "title": "Quantity takeoff schema 59a1e01f36f8 v3",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "stair_flight_riser_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_riser_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_count"
+            ],
+            "x-formula": "riser_count"
+          },
+          "stair_flight_run_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_run_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_run"
+            ],
+            "x-formula": "stair_run"
+          },
+          "stair_flight_width": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_width",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_width"
+            ],
+            "x-formula": "stair_width"
+          },
+          "stair_nosing_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_nosing_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_width",
+              "riser_count"
+            ],
+            "x-formula": "stair_width * riser_count"
+          },
+          "handrail_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "handrail_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "handrail_length"
+            ],
+            "x-formula": "handrail_length"
+          },
+          "handrail_height": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "handrail_height",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "handrail_height"
+            ],
+            "x-formula": "handrail_height"
+          },
+          "landing_floor_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "landing_floor_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width"
+            ],
+            "x-formula": "landing_length * landing_width"
+          },
+          "floor_drain_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "floor_drain_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "floor_drain_count"
+            ],
+            "x-formula": "floor_drain_count"
+          },
+          "trench_drain_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "trench_drain_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "trench_drain_length"
+            ],
+            "x-formula": "trench_drain_length"
+          },
+          "stair_enclosure_wall_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_enclosure_wall_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length"
+            ],
+            "x-formula": "wall_length"
+          },
+          "stair_enclosure_wall_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_enclosure_wall_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height"
+            ],
+            "x-formula": "wall_length * wall_height"
+          },
+          "stair_tread_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_tread_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_tread_count_per_flight"
+            ],
+            "x-formula": "stair_tread_count_per_flight"
+          },
+          "stair_flight_total_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_total_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_flight_run_length",
+              "stair_flight_count"
+            ],
+            "x-formula": "stair_flight_run_length * stair_flight_count"
+          },
+          "stair_landing_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_landing_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width"
+            ],
+            "x-formula": "landing_length * landing_width"
+          },
+          "stair_landing_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_landing_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width",
+              "landing_thickness"
+            ],
+            "x-formula": "landing_length * landing_width * landing_thickness"
+          },
+          "stair_flight_width_total": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_width_total",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_flight_width"
+            ],
+            "x-formula": "stair_flight_width"
+          },
+          "handrail_post_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "handrail_post_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "handrail_length",
+              "handrail_post_spacing"
+            ],
+            "x-formula": "handrail_length / handrail_post_spacing"
+          },
+          "stair_total_rise": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_total_rise",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_rise",
+              "stair_tread_count_per_flight"
+            ],
+            "x-formula": "stair_rise * stair_tread_count_per_flight"
+          },
+          "stair_flight_tread_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_tread_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tread_count_per_flight",
+              "flight_count"
+            ],
+            "x-formula": "tread_count_per_flight * flight_count"
+          },
+          "stair_tread_going_total_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_tread_going_total_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tread_count_per_flight",
+              "flight_count",
+              "tread_going"
+            ],
+            "x-formula": "tread_count_per_flight * flight_count * tread_going"
+          },
+          "stair_enclosure_wall_thickness_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_enclosure_wall_thickness_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_enclosure_perimeter_length",
+              "floor_to_floor_height",
+              "wall_thickness"
+            ],
+            "x-formula": "stair_enclosure_perimeter_length * floor_to_floor_height * wall_thickness"
+          },
+          "landing_slab_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "landing_slab_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width"
+            ],
+            "x-formula": "landing_length * landing_width"
+          },
+          "landing_slab_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "landing_slab_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width",
+              "landing_slab_thickness"
+            ],
+            "x-formula": "landing_length * landing_width * landing_slab_thickness"
+          },
+          "stair_shaft_floor_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_shaft_floor_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_shaft_length",
+              "stair_shaft_width"
+            ],
+            "x-formula": "stair_shaft_length * stair_shaft_width"
+          },
+          "stair_flight_total_rise": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_total_rise",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tread_count_per_flight",
+              "flight_count",
+              "stair_rise"
+            ],
+            "x-formula": "tread_count_per_flight * flight_count * stair_rise"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

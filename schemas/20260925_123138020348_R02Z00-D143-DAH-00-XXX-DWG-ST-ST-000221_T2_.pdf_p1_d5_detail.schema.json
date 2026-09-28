@@ -1,0 +1,149 @@
+{
+  "header": {
+    "schema_id": "ceff1a326533",
+    "version": 1,
+    "run_timestamp": "20260925_123138020348",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221[T2].pdf",
+    "page": 1,
+    "drawing_index": 5,
+    "drawing_title": "unclear",
+    "classification": {
+      "project_type": "commercial/institutional building (reinforced concrete structure)",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "slab",
+        "wall",
+        "rebar",
+        "reinforcement layout"
+      ],
+      "confidence": "medium",
+      "notes": "Fragment shows a rebar layout detail with bar marks 'Y16-150' (16mm diameter bars at 150mm spacing) annotated at a slab/wall junction, likely part of a reinforced concrete slab or wall reinforcement detail. No overall dimensions or full section context visible, so exact element type (slab vs wall vs beam) is inferred from bar pattern and dot symbols representing rebar cross-sections."
+    }
+  },
+  "schema_id": "ceff1a326533",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:ceff1a326533:v1",
+    "title": "Quantity takeoff schema ceff1a326533 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "rebar_length_main": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_length_main",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bar_spacing",
+              "element_span_length",
+              "number_of_bars"
+            ],
+            "x-formula": "number_of_bars * element_span_length"
+          },
+          "rebar_weight_main": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_weight_main",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "rebar_length_main",
+              "bar_unit_weight"
+            ],
+            "x-formula": "rebar_length_main * bar_unit_weight"
+          },
+          "number_of_bars": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "number_of_bars",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "element_width",
+              "bar_spacing"
+            ],
+            "x-formula": "element_width / bar_spacing"
+          },
+          "concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "element_length",
+              "element_width",
+              "element_thickness"
+            ],
+            "x-formula": "element_length * element_width * element_thickness"
+          },
+          "formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "element_length",
+              "element_thickness"
+            ],
+            "x-formula": "element_length * element_thickness"
+          },
+          "rebar_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "rebar_weight_main",
+              "labor_productivity_rate"
+            ],
+            "x-formula": "rebar_weight_main / labor_productivity_rate"
+          },
+          "rebar_cutting_bending_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_cutting_bending_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "number_of_bars",
+              "bending_rate_per_bar"
+            ],
+            "x-formula": "number_of_bars * bending_rate_per_bar"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

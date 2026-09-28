@@ -1,0 +1,324 @@
+{
+  "header": {
+    "schema_id": "bc52f28c766a",
+    "version": 4,
+    "run_timestamp": "20260928_094040423745",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+    "page": 1,
+    "drawing_index": 4,
+    "drawing_title": "STAIR-07-BG1-TUNNEL PLAN",
+    "classification": {
+      "project_type": "tunnel/infrastructure egress stair",
+      "discipline": "architectural",
+      "drawing_type": "plan",
+      "building_elements": [
+        "stair",
+        "handrail",
+        "tread",
+        "nosing",
+        "stair enclosure wall"
+      ],
+      "confidence": "high",
+      "notes": "Plan view of egress stair (STAIR-07-BG1-TUNNEL) showing tread layout, handrail detail references, and nosing detail callouts."
+    }
+  },
+  "schema_id": "bc52f28c766a",
+  "version": 4,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:bc52f28c766a:v4",
+    "title": "Quantity takeoff schema bc52f28c766a v4",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "stair_riser_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total number of risers across both flights at this landing",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_count"
+            ],
+            "x-formula": "riser_count"
+          },
+          "stair_flight_rise": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total vertical rise of a flight based on riser count and riser height",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_count",
+              "stair_rise"
+            ],
+            "x-formula": "riser_count * stair_rise"
+          },
+          "landing_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Plan area of the intermediate landing slab",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width"
+            ],
+            "x-formula": "landing_length * landing_width"
+          },
+          "handrail_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Length of steel handrail along the stair run",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_run"
+            ],
+            "x-formula": "stair_run"
+          },
+          "stair_flight_width": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Clear width of the stair flight, useful for tread/nosing quantity takeoff",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_width"
+            ],
+            "x-formula": "stair_width"
+          },
+          "granite_nosing_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of granite nosing strips, approximated by stair width times number of risers/treads",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_count",
+              "stair_width"
+            ],
+            "x-formula": "riser_count * stair_width"
+          },
+          "trench_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Length of stainless steel trench drain",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "trench_length"
+            ],
+            "x-formula": "trench_length"
+          },
+          "floor_drain_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of floor drains shown in the detail",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "floor_drain_count"
+            ],
+            "x-formula": "floor_drain_count"
+          },
+          "stair_flight_run_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Horizontal run length of stair flight",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_run"
+            ],
+            "x-formula": "stair_run"
+          },
+          "tread_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of treads per flight",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tread_bar_count"
+            ],
+            "x-formula": "tread_bar_count"
+          },
+          "stair_width": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Clear width of stair flight",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_width"
+            ],
+            "x-formula": "stair_width"
+          },
+          "stair_enclosure_wall_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Area of stair enclosure walls based on height and perimeter length",
+            "x-unit": "sqm",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "enclosure_wall_length",
+              "enclosure_wall_height"
+            ],
+            "x-formula": "enclosure_wall_length * enclosure_wall_height"
+          },
+          "flight_run_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Horizontal run length of a stair flight based on tread going and count",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tread_going",
+              "tread_count"
+            ],
+            "x-formula": "tread_going * tread_count"
+          },
+          "flight_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Plan projected area of a stair flight (run x width) for finish/material takeoff",
+            "x-unit": "mm2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tread_going",
+              "tread_count",
+              "stair_width"
+            ],
+            "x-formula": "tread_going * tread_count * stair_width"
+          },
+          "landing_slab_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Concrete volume of the intermediate landing slab",
+            "x-unit": "mm3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width",
+              "landing_thickness"
+            ],
+            "x-formula": "landing_length * landing_width * landing_thickness"
+          },
+          "stair_core_wall_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Vertical wall area of the stair enclosure core, based on perimeter of landing footprint and floor-to-floor height",
+            "x-unit": "mm2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width",
+              "floor_to_floor"
+            ],
+            "x-formula": "2 * (landing_length + landing_width) * floor_to_floor"
+          },
+          "stair_core_wall_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Volume of stair enclosure walls based on perimeter, height and wall thickness",
+            "x-unit": "mm3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width",
+              "floor_to_floor",
+              "wall_thickness"
+            ],
+            "x-formula": "2 * (landing_length + landing_width) * floor_to_floor * wall_thickness"
+          },
+          "stair_tread_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of stair treads shown in plan",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tread_count"
+            ],
+            "x-formula": "tread_count"
+          },
+          "stair_landing_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Area of intermediate stair landing",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width"
+            ],
+            "x-formula": "landing_length * landing_width"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

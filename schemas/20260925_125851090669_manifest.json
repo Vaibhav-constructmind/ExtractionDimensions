@@ -1,0 +1,26 @@
+{
+  "run_timestamp": "20260925_125851090669",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D1",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000200[T3].pdf",
+      "page": 1,
+      "drawing_index": 1,
+      "drawing_title": "LIST OF DRAWINGS",
+      "classification": {
+        "project_type": "tunnel/civil infrastructure",
+        "discipline": "structural",
+        "drawing_type": "schedule",
+        "building_elements": [],
+        "confidence": "high",
+        "notes": "This is a drawing index/list-of-drawings sheet (title block schedule) for the King Abdulaziz West Tunnel structural drawing set. It contains no dimensioned geometry, only titles, sheet numbers, scale, and revision columns; hence no quantity takeoff items can be derived from it."
+      },
+      "schema_id": null,
+      "schema_version": null,
+      "schema_file": null,
+      "reused_existing_schema": false,
+      "error": null
+    }
+  ]
+}

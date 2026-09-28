@@ -1,0 +1,182 @@
+{
+  "run_timestamp": "20260925_120514453595",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D1",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 1,
+      "drawing_title": "SECTION 1-1",
+      "classification": {
+        "project_type": "water/wastewater treatment structure (reinforced concrete tank or basin)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "foundation slab",
+          "base slab",
+          "wall",
+          "rebar reinforcement",
+          "construction joint",
+          "waterstop"
+        ],
+        "confidence": "medium",
+        "notes": "Drawing shows Section 1-1 through what appears to be a rectangular concrete tank/basin structure with base slab, perimeter and internal walls, top slab/beams, rebar callouts (Y-bar diameter-spacing notation), and construction joints (C.J.). Likely part of a water/wastewater treatment plant or reservoir given the double-cell layout with construction joints and dense rebar schedule. No title block or plan reference visible to confirm exact facility type."
+      },
+      "schema_id": "944c5348c865",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_120514453595_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d1_section.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "unclear",
+      "classification": {
+        "project_type": "commercial/residential building",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "beam",
+          "rebar",
+          "reinforcement",
+          "stirrups"
+        ],
+        "confidence": "medium",
+        "notes": "This appears to be a structural detail elevation of a reinforced concrete beam spanning between columns, showing longitudinal bars (4 Y25 top and bottom), stirrups (Y16-150), and bottom bars (12 Y32). The keyplan on the right indicates location within overall building plan but is not itself a takeoff item."
+      },
+      "schema_id": "3db41f03a04a",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_120514453595_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d3_detail.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "ADDITIONAL REINFORCEMENT AROUND THE OPENING AT THE INNER WALL AT STA: 0+314",
+      "classification": {
+        "project_type": "tunnel",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "tunnel inner wall",
+          "opening",
+          "reinforcement",
+          "additional rebar around opening"
+        ],
+        "confidence": "high",
+        "notes": "Drawing shows additional reinforcement detail around an opening in the inner wall of a tunnel at station 0+314, with two cross-sections (1'-1' and 2'-2') showing concrete member dimensions (800x600, 600x600) and rebar callouts (12 Y32 main bars, Y16-150 stirrups/links, Y25-125 additional reinforcement)."
+      },
+      "schema_id": "944c5348c865",
+      "schema_version": 2,
+      "schema_file": "schemas\\20260925_120514453595_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d4_section.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "RECESS IN THE OUTER WALLS OF THE TUNNEL AT SECTION 2",
+      "classification": {
+        "project_type": "tunnel",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "tunnel wall",
+          "recess",
+          "rebar",
+          "concrete wall"
+        ],
+        "confidence": "medium",
+        "notes": "Detail section showing reinforcement layout (Y-bars) at a recess in the outer wall of a tunnel. Scale 1:25. Dimensions given for recess depth (2000mm) and width (1300mm), with bar spacing/sizes labeled (Y25-125, Y32-100, Y25-100 ADD, Y12-150x500). Overall wall thickness and extents are cut off/not fully shown, limiting some quantity derivations to per-meter or per-section basis."
+      },
+      "schema_id": "3db41f03a04a",
+      "schema_version": 2,
+      "schema_file": "schemas\\20260925_120514453595_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d5_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D6",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 6,
+      "drawing_title": "RECESS AT SECTION 3'-3'",
+      "classification": {
+        "project_type": "commercial/industrial building (concrete slab structure)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "concrete slab",
+          "recess/step in slab",
+          "reinforcement bars"
+        ],
+        "confidence": "medium",
+        "notes": "Detail section showing a recessed slab area with reinforcement callouts (Y25-100, Y25-125 bar marks) at 1:25 scale. No plan extents given, so quantities are per linear meter of section or per recess unless overall recess length/width is provided elsewhere."
+      },
+      "schema_id": "944c5348c865",
+      "schema_version": 3,
+      "schema_file": "schemas\\20260925_120514453595_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d6_section.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D7",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 7,
+      "drawing_title": "SECTION A-A",
+      "classification": {
+        "project_type": "commercial/holding company building (Rua Al Madinah Holding project)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "voided slab/box girder deck",
+          "post-tensioned or reinforced concrete deck section",
+          "rebar reinforcement",
+          "circular void formers"
+        ],
+        "confidence": "medium",
+        "notes": "Section A-A shows a hollow-core/voided concrete deck or beam element with circular voids, top and bottom reinforcement mats (Y16-125, Y20-125, Y12-125, Y32-100), diagonal web reinforcement (4 Y12, Y12-150/WEB), suggesting a bridge deck or large-span voided slab structure rather than a typical building slab. Exact structure type (bridge vs building transfer slab) is uncertain from this crop."
+      },
+      "schema_id": "944c5348c865",
+      "schema_version": 4,
+      "schema_file": "schemas\\20260925_120514453595_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d7_section.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D8",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 8,
+      "drawing_title": "SECTION B-B",
+      "classification": {
+        "project_type": "tunnel infrastructure (King Abdulaziz West Tunnel)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "tunnel slab",
+          "tunnel box girder/culvert",
+          "rebar reinforcement",
+          "web/wall panels"
+        ],
+        "confidence": "medium",
+        "notes": "This is a reinforced concrete cross-section (Section B-B) of a multi-cell tunnel/box culvert structure showing top and bottom slabs, vertical webs, circular voids (likely void formers for weight reduction), and detailed rebar callouts (Y-bar diameters and spacing). No overall length dimension is given directly in this section, so linear quantities depend on external/segment length inputs."
+      },
+      "schema_id": "944c5348c865",
+      "schema_version": 5,
+      "schema_file": "schemas\\20260925_120514453595_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d8_section.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    }
+  ]
+}

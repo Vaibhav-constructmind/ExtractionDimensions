@@ -1,0 +1,198 @@
+{
+  "run_timestamp": "20260925_173405942670",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D1",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+      "page": 1,
+      "drawing_index": 1,
+      "drawing_title": "STAIR-07-INTERMEDIATE LANDING-03",
+      "classification": {
+        "project_type": "commercial building",
+        "discipline": "architectural",
+        "drawing_type": "plan",
+        "building_elements": [
+          "stair",
+          "handrail",
+          "stair nosing",
+          "floor drain",
+          "trench drain",
+          "landing"
+        ],
+        "confidence": "high",
+        "notes": "Enlarged plan of an egress stair intermediate landing showing risers, stair flights, handrail, nosing details, floor drain, and trench drain callouts at scale 1:50."
+      },
+      "schema_id": "59a1e01f36f8",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_173405942670_R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002_T2_.pdf_p1_d1_plan.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D2",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+      "page": 1,
+      "drawing_index": 2,
+      "drawing_title": "STAIR-07-INTERMEDIATE LANDING-02",
+      "classification": {
+        "project_type": "commercial/institutional building",
+        "discipline": "architectural",
+        "drawing_type": "plan",
+        "building_elements": [
+          "stair",
+          "egress stair",
+          "landing",
+          "treads",
+          "handrail",
+          "stringer"
+        ],
+        "confidence": "high",
+        "notes": "Plan view of an intermediate landing for egress stair 07, showing two flights of 13 treads x 290mm each, tread numbering, FFL/TOC levels, and a steel handrail reference. Scale 1:50."
+      },
+      "schema_id": "59a1e01f36f8",
+      "schema_version": 2,
+      "schema_file": "schemas\\20260925_173405942670_R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002_T2_.pdf_p1_d2_plan.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "STAIR-07-INTERMEDIATE LANDING-01",
+      "classification": {
+        "project_type": "commercial building",
+        "discipline": "architectural",
+        "drawing_type": "plan",
+        "building_elements": [
+          "stair",
+          "landing",
+          "stair enclosure/shaft wall",
+          "treads",
+          "egress stair"
+        ],
+        "confidence": "high",
+        "notes": "Plan view of an egress stair (Stair 07) showing two flights of 14 treads at 290mm each, intermediate landing, shaft walls with hatching, and FFL elevations at top and bottom landings."
+      },
+      "schema_id": "59a1e01f36f8",
+      "schema_version": 3,
+      "schema_file": "schemas\\20260925_173405942670_R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002_T2_.pdf_p1_d3_plan.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "STAIR-07-BG1-TUNNEL PLAN",
+      "classification": {
+        "project_type": "tunnel/underground transit facility",
+        "discipline": "architectural",
+        "drawing_type": "plan",
+        "building_elements": [
+          "stair",
+          "handrail",
+          "egress stair",
+          "stair walls",
+          "nosing",
+          "treads"
+        ],
+        "confidence": "high",
+        "notes": "Plan view of egress stair 07 at basement level (BG1) in a tunnel structure, with tread counts, run dimensions, wall enclosure, and references to handrail and nosing details."
+      },
+      "schema_id": "59a1e01f36f8",
+      "schema_version": 4,
+      "schema_file": "schemas\\20260925_173405942670_R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002_T2_.pdf_p1_d4_plan.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "STAIR-07-G01-GRADE PLAN",
+      "classification": {
+        "project_type": "religious/institutional building (mosque)",
+        "discipline": "architectural",
+        "drawing_type": "plan",
+        "building_elements": [
+          "stair",
+          "stair nosing",
+          "floor drain",
+          "trench drain",
+          "grade plan",
+          "concrete finishes"
+        ],
+        "confidence": "medium",
+        "notes": "Grade-level plan showing exterior stair with 15 risers, granite nosing detail callout, floor drain and stainless steel trench drain locations, FFL/T.O.C spot elevations, and slope arrows. No section/rebar/structural details shown directly, only reference callouts to other detail sheets."
+      },
+      "schema_id": "59a1e01f36f8",
+      "schema_version": 5,
+      "schema_file": "schemas\\20260925_173405942670_R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002_T2_.pdf_p1_d5_plan.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D6",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+      "page": 1,
+      "drawing_index": 6,
+      "drawing_title": "STAIR DETAIL-07",
+      "classification": {
+        "project_type": "institutional/religious building (mosque-related complex)",
+        "discipline": "architectural",
+        "drawing_type": "section",
+        "building_elements": [
+          "stair",
+          "handrail",
+          "guardrail",
+          "stringer",
+          "granite cladding",
+          "stair nosing",
+          "aluminium decorative screen",
+          "concrete upstand",
+          "landing"
+        ],
+        "confidence": "high",
+        "notes": "This is an egress stair section detail (Stair Detail-07) showing multi-flight steel stair with risers, treads, landings, handrails, granite nosing/cladding, and concrete upstand with decorative screen at roof/parapet level."
+      },
+      "schema_id": "012f38622c62",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_173405942670_R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002_T2_.pdf_p1_d6_section.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D7",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+      "page": 1,
+      "drawing_index": 7,
+      "drawing_title": "3D_STAIR-07",
+      "classification": {
+        "project_type": "hotel building",
+        "discipline": "architectural",
+        "drawing_type": "isometric",
+        "building_elements": [
+          "stair",
+          "handrail",
+          "stair nosing",
+          "landing",
+          "stair enclosure/shaft wall",
+          "door",
+          "balustrade/screen"
+        ],
+        "confidence": "medium",
+        "notes": "3D isometric view (3D_STAIR-07) of a multi-story stair shaft in a hotel project, showing flights, landings, handrails, stair nosing, enclosure walls, a door, and a decorative screen at roof level. No explicit dimensions are labeled on this view, so quantities must be inferred from typical stair components; exact counts/dimensions would come from companion plans/sections."
+      },
+      "schema_id": "61d8e1c4199c",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_173405942670_R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002_T2_.pdf_p1_d7_isometric.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    }
+  ]
+}

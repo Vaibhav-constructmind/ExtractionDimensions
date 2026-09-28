@@ -1,0 +1,263 @@
+{
+  "header": {
+    "schema_id": "bb86514f7067",
+    "version": 1,
+    "run_timestamp": "20260925_164914593720",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+    "page": 1,
+    "drawing_index": 7,
+    "drawing_title": "3D_STAIR-07",
+    "classification": {
+      "project_type": "hotel building",
+      "discipline": "architectural",
+      "drawing_type": "isometric",
+      "building_elements": [
+        "stair",
+        "stringer",
+        "handrail",
+        "guardrail",
+        "landing",
+        "stair enclosure/shaft wall",
+        "door",
+        "decorative screen/facade panel",
+        "nosing"
+      ],
+      "confidence": "medium",
+      "notes": "3D isometric view labeled '3D_STAIR-07' showing a multi-story stair shaft with switchback stairs, landings, handrails, a door at the top level, and a decorative perforated screen facade at roof level. No explicit dimensions are legible in the OCR text, so quantities are inferred from typical stair/shaft geometry shown in such isometric details."
+    }
+  },
+  "schema_id": "bb86514f7067",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:bb86514f7067:v1",
+    "title": "Quantity takeoff schema bb86514f7067 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "stair_flight_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "number_of_flights_per_level",
+              "number_of_levels"
+            ],
+            "x-formula": "number_of_flights_per_level * number_of_levels"
+          },
+          "stair_step_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_step_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "steps_per_flight",
+              "stair_flight_count"
+            ],
+            "x-formula": "steps_per_flight * stair_flight_count"
+          },
+          "stair_stringer_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_stringer_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "flight_run_length",
+              "stair_flight_count",
+              "stringers_per_flight"
+            ],
+            "x-formula": "flight_run_length * stair_flight_count * stringers_per_flight"
+          },
+          "stair_tread_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_tread_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tread_width",
+              "tread_depth",
+              "stair_step_count"
+            ],
+            "x-formula": "tread_width * tread_depth * stair_step_count"
+          },
+          "handrail_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "handrail_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "flight_run_length",
+              "stair_flight_count",
+              "handrails_per_flight",
+              "landing_perimeter_length",
+              "number_of_landings"
+            ],
+            "x-formula": "(flight_run_length * stair_flight_count * handrails_per_flight) + (landing_perimeter_length * number_of_landings)"
+          },
+          "guardrail_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "guardrail_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "shaft_open_edge_length",
+              "number_of_levels"
+            ],
+            "x-formula": "shaft_open_edge_length * number_of_levels"
+          },
+          "landing_slab_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "landing_slab_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_width",
+              "landing_depth",
+              "number_of_landings"
+            ],
+            "x-formula": "landing_width * landing_depth * number_of_landings"
+          },
+          "shaft_wall_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "shaft_wall_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "shaft_perimeter_length",
+              "shaft_total_height"
+            ],
+            "x-formula": "shaft_perimeter_length * shaft_total_height"
+          },
+          "shaft_wall_finish_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "shaft_wall_finish_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "shaft_wall_area"
+            ],
+            "x-formula": "shaft_wall_area"
+          },
+          "nosing_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "nosing_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tread_width",
+              "stair_step_count"
+            ],
+            "x-formula": "tread_width * stair_step_count"
+          },
+          "decorative_screen_panel_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "decorative_screen_panel_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "screen_panel_width",
+              "screen_panel_height",
+              "screen_panel_count"
+            ],
+            "x-formula": "screen_panel_width * screen_panel_height * screen_panel_count"
+          },
+          "door_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "door_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "door_count_per_level",
+              "number_of_levels_with_door"
+            ],
+            "x-formula": "door_count_per_level * number_of_levels_with_door"
+          },
+          "stair_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "stair_flight_count",
+              "labor_hours_per_flight"
+            ],
+            "x-formula": "stair_flight_count * labor_hours_per_flight"
+          },
+          "handrail_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "handrail_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "handrail_length",
+              "labor_hours_per_meter_handrail"
+            ],
+            "x-formula": "handrail_length * labor_hours_per_meter_handrail"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

@@ -1,0 +1,335 @@
+{
+  "header": {
+    "schema_id": "3db41f03a04a",
+    "version": 2,
+    "run_timestamp": "20260925_120514453595",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 5,
+    "drawing_title": "RECESS IN THE OUTER WALLS OF THE TUNNEL AT SECTION 2",
+    "classification": {
+      "project_type": "tunnel",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "tunnel wall",
+        "recess",
+        "rebar",
+        "concrete wall"
+      ],
+      "confidence": "medium",
+      "notes": "Detail section showing reinforcement layout (Y-bars) at a recess in the outer wall of a tunnel. Scale 1:25. Dimensions given for recess depth (2000mm) and width (1300mm), with bar spacing/sizes labeled (Y25-125, Y32-100, Y25-100 ADD, Y12-150x500). Overall wall thickness and extents are cut off/not fully shown, limiting some quantity derivations to per-meter or per-section basis."
+    }
+  },
+  "schema_id": "3db41f03a04a",
+  "version": 2,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:3db41f03a04a:v2",
+    "title": "Quantity takeoff schema 3db41f03a04a v2",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "beam_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "beam_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "beam_length",
+              "beam_width",
+              "beam_depth"
+            ],
+            "x-formula": "beam_length * beam_width * beam_depth"
+          },
+          "beam_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "beam_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "beam_length",
+              "beam_depth",
+              "beam_side_count"
+            ],
+            "x-formula": "beam_length * beam_depth * beam_side_count"
+          },
+          "top_longitudinal_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "top_longitudinal_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_bar_count",
+              "top_bar_length",
+              "top_bar_unit_weight"
+            ],
+            "x-formula": "top_bar_count * top_bar_length * top_bar_unit_weight"
+          },
+          "bottom_longitudinal_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "bottom_longitudinal_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_bar_count",
+              "bottom_bar_length",
+              "bottom_bar_unit_weight"
+            ],
+            "x-formula": "bottom_bar_count * bottom_bar_length * bottom_bar_unit_weight"
+          },
+          "stirrup_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stirrup_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_count",
+              "stirrup_perimeter",
+              "stirrup_unit_weight"
+            ],
+            "x-formula": "stirrup_count * stirrup_perimeter * stirrup_unit_weight"
+          },
+          "stirrup_count_derived": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stirrup_count_derived",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "beam_length",
+              "stirrup_spacing"
+            ],
+            "x-formula": "beam_length / stirrup_spacing"
+          },
+          "total_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "total_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_longitudinal_rebar_weight",
+              "bottom_longitudinal_rebar_weight",
+              "stirrup_rebar_weight"
+            ],
+            "x-formula": "top_longitudinal_rebar_weight + bottom_longitudinal_rebar_weight + stirrup_rebar_weight"
+          },
+          "concrete_pour_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_pour_labor",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "beam_concrete_volume"
+            ],
+            "x-formula": "beam_concrete_volume"
+          },
+          "formwork_erection_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_erection_labor",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "beam_formwork_area"
+            ],
+            "x-formula": "beam_formwork_area"
+          },
+          "rebar_fixing_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_fixing_labor",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_rebar_weight"
+            ],
+            "x-formula": "total_rebar_weight"
+          },
+          "crane_hoisting_equipment_hours": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "crane_hoisting_equipment_hours",
+            "x-unit": "hr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "beam_concrete_volume",
+              "crane_productivity_rate"
+            ],
+            "x-formula": "beam_concrete_volume / crane_productivity_rate"
+          },
+          "recess_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "recess_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_width",
+              "recess_depth",
+              "recess_length"
+            ],
+            "x-formula": "recess_width * recess_depth * recess_length"
+          },
+          "main_vertical_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_vertical_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_length",
+              "main_bar_count",
+              "main_bar_unit_weight"
+            ],
+            "x-formula": "main_bar_length * main_bar_count * main_bar_unit_weight"
+          },
+          "secondary_vertical_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "secondary_vertical_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "secondary_bar_length",
+              "secondary_bar_count",
+              "secondary_bar_unit_weight"
+            ],
+            "x-formula": "secondary_bar_length * secondary_bar_count * secondary_bar_unit_weight"
+          },
+          "additional_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "additional_bar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "add_bar_length",
+              "add_bar_count",
+              "add_bar_unit_weight"
+            ],
+            "x-formula": "add_bar_length * add_bar_count * add_bar_unit_weight"
+          },
+          "diagonal_link_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "diagonal_link_bar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "link_bar_length",
+              "link_bar_count",
+              "link_bar_unit_weight"
+            ],
+            "x-formula": "link_bar_length * link_bar_count * link_bar_unit_weight"
+          },
+          "rebar_count_vertical_bars": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_count_vertical_bars",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_perimeter_length",
+              "bar_spacing"
+            ],
+            "x-formula": "recess_perimeter_length / bar_spacing"
+          },
+          "formwork_area_recess": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area_recess",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_depth",
+              "recess_length",
+              "recess_width"
+            ],
+            "x-formula": "(recess_depth * recess_length) + (recess_width * recess_length) * 2"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "recess_concrete_volume"
+            ],
+            "x-formula": "recess_concrete_volume"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

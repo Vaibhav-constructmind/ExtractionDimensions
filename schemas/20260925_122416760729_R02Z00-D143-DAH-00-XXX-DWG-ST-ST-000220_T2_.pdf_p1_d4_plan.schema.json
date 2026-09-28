@@ -1,0 +1,212 @@
+{
+  "header": {
+    "schema_id": "74aa83c68c56",
+    "version": 1,
+    "run_timestamp": "20260925_122416760729",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000220[T2].pdf",
+    "page": 1,
+    "drawing_index": 4,
+    "drawing_title": "ROOF SLAB R.C. DETAILS",
+    "classification": {
+      "project_type": "commercial/institutional building",
+      "discipline": "structural",
+      "drawing_type": "plan",
+      "building_elements": [
+        "roof slab",
+        "reinforced concrete slab",
+        "rebar reinforcement",
+        "column head/drop panel"
+      ],
+      "confidence": "high",
+      "notes": "Plan view titled 'ROOF SLAB R.C. DETAILS' at scale 1:50, showing top (T) and bottom (B) reinforcement bar callouts (Y16-150, Y25) with section cut markers (1-1 through 4-4) indicating reinforcement layout for a reinforced concrete roof slab, including a column drop panel/capital area with additional 2x2 Y25 top-and-bottom bars."
+    }
+  },
+  "schema_id": "74aa83c68c56",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:74aa83c68c56:v1",
+    "title": "Quantity takeoff schema 74aa83c68c56 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "roof_slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "roof_slab_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width",
+              "slab_thickness"
+            ],
+            "x-formula": "slab_length * slab_width * slab_thickness"
+          },
+          "roof_slab_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "roof_slab_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width"
+            ],
+            "x-formula": "slab_length * slab_width"
+          },
+          "main_rebar_weight_top": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_rebar_weight_top",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bar_count_top",
+              "bar_length_top",
+              "bar_unit_weight_top"
+            ],
+            "x-formula": "bar_count_top * bar_length_top * bar_unit_weight_top"
+          },
+          "main_rebar_weight_bottom": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_rebar_weight_bottom",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bar_count_bottom",
+              "bar_length_bottom",
+              "bar_unit_weight_bottom"
+            ],
+            "x-formula": "bar_count_bottom * bar_length_bottom * bar_unit_weight_bottom"
+          },
+          "column_head_additional_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "column_head_additional_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_count",
+              "additional_bar_length",
+              "additional_bar_unit_weight"
+            ],
+            "x-formula": "additional_bar_count * additional_bar_length * additional_bar_unit_weight"
+          },
+          "total_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "total_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_rebar_weight_top",
+              "main_rebar_weight_bottom",
+              "column_head_additional_rebar_weight"
+            ],
+            "x-formula": "main_rebar_weight_top + main_rebar_weight_bottom + column_head_additional_rebar_weight"
+          },
+          "rebar_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_rebar_weight",
+              "rebar_labor_productivity_rate"
+            ],
+            "x-formula": "total_rebar_weight / rebar_labor_productivity_rate"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "roof_slab_concrete_volume",
+              "concrete_placement_productivity_rate"
+            ],
+            "x-formula": "roof_slab_concrete_volume / concrete_placement_productivity_rate"
+          },
+          "formwork_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "roof_slab_formwork_area",
+              "formwork_installation_productivity_rate"
+            ],
+            "x-formula": "roof_slab_formwork_area / formwork_installation_productivity_rate"
+          },
+          "concrete_pump_equipment_hours": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_pump_equipment_hours",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "roof_slab_concrete_volume",
+              "concrete_pump_output_rate"
+            ],
+            "x-formula": "roof_slab_concrete_volume / concrete_pump_output_rate"
+          },
+          "shoring_props_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "shoring_props_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "slab_area",
+              "props_per_area"
+            ],
+            "x-formula": "slab_area * props_per_area"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

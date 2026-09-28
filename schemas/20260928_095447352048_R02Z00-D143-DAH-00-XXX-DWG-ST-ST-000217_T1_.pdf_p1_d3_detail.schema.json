@@ -1,0 +1,86 @@
+{
+  "header": {
+    "schema_id": "ea67074150e6",
+    "version": 1,
+    "run_timestamp": "20260928_095447352048",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 3,
+    "drawing_title": null,
+    "classification": {
+      "project_type": null,
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "rebar",
+        "column",
+        "footing"
+      ],
+      "confidence": "low",
+      "notes": "Fragment showing a rectangular reinforced concrete element with rebar dots (bar layout) and a dimension of 800; insufficient context to determine exact element type (could be column, pier, or footing plan detail)."
+    }
+  },
+  "schema_id": "ea67074150e6",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:ea67074150e6:v1",
+    "title": "Quantity takeoff schema ea67074150e6 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "vertical_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of vertical/perimeter reinforcement bars shown as dots in the section/plan",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_count"
+            ],
+            "x-formula": "main_bar_count"
+          },
+          "main_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Weight of main reinforcement bars based on diameter and length",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_diameter",
+              "main_bar_count",
+              "main_bar_length"
+            ],
+            "x-formula": "main_bar_diameter * main_bar_diameter * 0.00617 * main_bar_count * main_bar_length"
+          },
+          "element_cross_section_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Cross-sectional area of the concrete element based on width and depth",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "element_width",
+              "element_depth"
+            ],
+            "x-formula": "element_width * element_depth"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

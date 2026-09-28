@@ -36,6 +36,7 @@ class Settings:
     foundry_claude_deployment: str
     render_dpi: int
     detail_render_dpi: int
+    schema_output_dir: str
 
 
 def missing_vars() -> list[str]:
@@ -72,4 +73,5 @@ def load_settings() -> Settings:
         ).strip(),
         render_dpi=render_dpi,
         detail_render_dpi=detail_render_dpi,
+        schema_output_dir=os.environ.get("SCHEMA_OUTPUT_DIR", "./schemas").strip() or "./schemas",
     )

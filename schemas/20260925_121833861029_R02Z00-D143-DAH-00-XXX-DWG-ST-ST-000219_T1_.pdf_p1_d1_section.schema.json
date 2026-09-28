@@ -1,0 +1,198 @@
+{
+  "header": {
+    "schema_id": "8e7463577403",
+    "version": 1,
+    "run_timestamp": "20260925_121833861029",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+    "page": 1,
+    "drawing_index": 1,
+    "drawing_title": "SECTION 5-5",
+    "classification": {
+      "project_type": "box culvert / underground concrete structure (e.g. tunnel, culvert, or tank)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "reinforced concrete wall",
+        "slab (top and bottom)",
+        "rebar reinforcement",
+        "stirrups",
+        "internal web/partition wall"
+      ],
+      "confidence": "medium",
+      "notes": "Titled 'SECTION 5-5' showing a rectangular double-cell concrete box structure with heavy reinforcement callouts (Y-bar sizes/spacings) for walls, slabs, and stirrups. Likely a culvert, underground tank, or tunnel box section given the double-cell symmetric layout and 'ALIGNMENT' note at top, but exact facility type is not fully certain from this crop alone."
+    }
+  },
+  "schema_id": "8e7463577403",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:8e7463577403:v1",
+    "title": "Quantity takeoff schema 8e7463577403 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "wall_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "wall_thickness"
+            ],
+            "x-formula": "wall_length * wall_height * wall_thickness"
+          },
+          "slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width",
+              "slab_thickness"
+            ],
+            "x-formula": "slab_length * slab_width * slab_thickness"
+          },
+          "web_wall_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "web_wall_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_wall_length",
+              "web_wall_height",
+              "web_wall_thickness"
+            ],
+            "x-formula": "web_wall_length * web_wall_height * web_wall_thickness"
+          },
+          "main_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "rebar_length",
+              "rebar_count",
+              "rebar_unit_weight_per_m"
+            ],
+            "x-formula": "rebar_length * rebar_count * rebar_unit_weight_per_m"
+          },
+          "stirrup_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stirrup_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_perimeter",
+              "stirrup_count",
+              "stirrup_unit_weight_per_m"
+            ],
+            "x-formula": "stirrup_perimeter * stirrup_count * stirrup_unit_weight_per_m"
+          },
+          "formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "form_face_length",
+              "form_face_height"
+            ],
+            "x-formula": "form_face_length * form_face_height"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_concrete_volume",
+              "labor_hours_per_m3"
+            ],
+            "x-formula": "total_concrete_volume * labor_hours_per_m3"
+          },
+          "rebar_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_rebar_weight",
+              "labor_hours_per_kg"
+            ],
+            "x-formula": "total_rebar_weight * labor_hours_per_kg"
+          },
+          "formwork_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_formwork_area",
+              "labor_hours_per_m2"
+            ],
+            "x-formula": "total_formwork_area * labor_hours_per_m2"
+          },
+          "concrete_pump_equipment_usage": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_pump_equipment_usage",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "total_concrete_volume",
+              "pump_output_rate_per_hr"
+            ],
+            "x-formula": "total_concrete_volume / pump_output_rate_per_hr"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

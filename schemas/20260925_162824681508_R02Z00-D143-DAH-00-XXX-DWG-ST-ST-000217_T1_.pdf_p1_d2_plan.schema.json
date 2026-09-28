@@ -1,0 +1,214 @@
+{
+  "header": {
+    "schema_id": "087445afe6c1",
+    "version": 1,
+    "run_timestamp": "20260925_162824681508",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 2,
+    "drawing_title": "unclear",
+    "classification": {
+      "project_type": "commercial/residential building (structural concrete works, tunnel/culvert section referenced by station)",
+      "discipline": "structural",
+      "drawing_type": "plan",
+      "building_elements": [
+        "slab",
+        "beam",
+        "reinforcement",
+        "rebar",
+        "opening/reinforcement detail"
+      ],
+      "confidence": "medium",
+      "notes": "Drawing shows a reinforced concrete slab/beam plan with rebar callouts (4 Y25, 12 Y32, Y16-150), diagonal bar layout indicating a slab panel with diagonal reinforcement at an opening, and dimensions in mm. Keyplan indicates a site with station reference (STA: 0+314), suggesting a linear/infrastructure project (e.g., tunnel or culvert wall) but element details resemble typical RC slab/wall reinforcement plan."
+    }
+  },
+  "schema_id": "087445afe6c1",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:087445afe6c1:v1",
+    "title": "Quantity takeoff schema 087445afe6c1 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "main_rebar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_rebar_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bar_count",
+              "bar_length"
+            ],
+            "x-formula": "bar_count * bar_length"
+          },
+          "main_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bar_count",
+              "bar_length",
+              "unit_weight_per_m"
+            ],
+            "x-formula": "bar_count * bar_length * unit_weight_per_m"
+          },
+          "distribution_rebar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "distribution_rebar_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "distribution_bar_spacing",
+              "panel_width",
+              "panel_length"
+            ],
+            "x-formula": "(panel_width / distribution_bar_spacing) * panel_length"
+          },
+          "distribution_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "distribution_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "distribution_bar_spacing",
+              "panel_width",
+              "panel_length",
+              "unit_weight_per_m"
+            ],
+            "x-formula": "(panel_width / distribution_bar_spacing) * panel_length * unit_weight_per_m"
+          },
+          "diagonal_rebar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "diagonal_rebar_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "diagonal_bar_count",
+              "diagonal_bar_length"
+            ],
+            "x-formula": "diagonal_bar_count * diagonal_bar_length"
+          },
+          "diagonal_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "diagonal_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "diagonal_bar_count",
+              "diagonal_bar_length",
+              "unit_weight_per_m"
+            ],
+            "x-formula": "diagonal_bar_count * diagonal_bar_length * unit_weight_per_m"
+          },
+          "slab_panel_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_panel_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "panel_length",
+              "panel_width",
+              "slab_thickness"
+            ],
+            "x-formula": "panel_length * panel_width * slab_thickness"
+          },
+          "formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "panel_perimeter_length",
+              "slab_thickness"
+            ],
+            "x-formula": "panel_perimeter_length * slab_thickness"
+          },
+          "rebar_fixing_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_fixing_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_rebar_weight",
+              "labor_hours_per_kg"
+            ],
+            "x-formula": "total_rebar_weight * labor_hours_per_kg"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "slab_panel_concrete_volume",
+              "labor_hours_per_m3"
+            ],
+            "x-formula": "slab_panel_concrete_volume * labor_hours_per_m3"
+          },
+          "concrete_pump_equipment_hours": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_pump_equipment_hours",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "slab_panel_concrete_volume",
+              "pump_output_rate"
+            ],
+            "x-formula": "slab_panel_concrete_volume / pump_output_rate"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

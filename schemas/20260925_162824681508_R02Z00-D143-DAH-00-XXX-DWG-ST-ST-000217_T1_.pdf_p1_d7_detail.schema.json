@@ -1,0 +1,163 @@
+{
+  "header": {
+    "schema_id": "2514f7e0a76a",
+    "version": 1,
+    "run_timestamp": "20260925_162824681508",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 7,
+    "drawing_title": "RECESS IN THE OUTER WALLS OF THE TUNNEL AT SECTION 2",
+    "classification": {
+      "project_type": "tunnel infrastructure",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "tunnel wall",
+        "recess",
+        "rebar",
+        "concrete section"
+      ],
+      "confidence": "medium",
+      "notes": "Drawing shows a structural detail of a recess in the outer wall of a tunnel at a given section, with rebar callouts (Y12-150/WEB, Y32-100, Y20-125) and a 1300mm dimension. Title block confirms tunnel/infrastructure design consultancy project. Limited visible geometry due to cropping, but rebar spacing and recess dimension are legible."
+    }
+  },
+  "schema_id": "2514f7e0a76a",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:2514f7e0a76a:v1",
+    "title": "Quantity takeoff schema 2514f7e0a76a v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "recess_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "recess_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_width",
+              "recess_height",
+              "recess_depth"
+            ],
+            "x-formula": "recess_width * recess_height * recess_depth"
+          },
+          "wall_rebar_weight_web": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_rebar_weight_web",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_rebar_length",
+              "web_rebar_count",
+              "web_rebar_unit_weight"
+            ],
+            "x-formula": "web_rebar_length * web_rebar_count * web_rebar_unit_weight"
+          },
+          "wall_rebar_weight_main": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_rebar_weight_main",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_rebar_length",
+              "main_rebar_count",
+              "main_rebar_unit_weight"
+            ],
+            "x-formula": "main_rebar_length * main_rebar_count * main_rebar_unit_weight"
+          },
+          "wall_rebar_weight_secondary": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_rebar_weight_secondary",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "secondary_rebar_length",
+              "secondary_rebar_count",
+              "secondary_rebar_unit_weight"
+            ],
+            "x-formula": "secondary_rebar_length * secondary_rebar_count * secondary_rebar_unit_weight"
+          },
+          "formwork_area_recess": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area_recess",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_perimeter",
+              "recess_depth"
+            ],
+            "x-formula": "recess_perimeter * recess_depth"
+          },
+          "rebar_fixing_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_fixing_labor",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_rebar_weight"
+            ],
+            "x-formula": "total_rebar_weight"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "recess_concrete_volume"
+            ],
+            "x-formula": "recess_concrete_volume"
+          },
+          "formwork_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_installation_labor",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "formwork_area_recess"
+            ],
+            "x-formula": "formwork_area_recess"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

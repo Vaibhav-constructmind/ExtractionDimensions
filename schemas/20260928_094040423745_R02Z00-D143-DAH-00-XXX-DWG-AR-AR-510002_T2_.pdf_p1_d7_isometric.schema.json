@@ -1,0 +1,174 @@
+{
+  "header": {
+    "schema_id": "51e7afd50c99",
+    "version": 1,
+    "run_timestamp": "20260928_094040423745",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+    "page": 1,
+    "drawing_index": 7,
+    "drawing_title": "3D_STAIR-07",
+    "classification": {
+      "project_type": "Hotel",
+      "discipline": "architectural",
+      "drawing_type": "isometric",
+      "building_elements": [
+        "stair",
+        "handrail",
+        "guardrail",
+        "stair shaft wall",
+        "door",
+        "landing"
+      ],
+      "confidence": "medium",
+      "notes": "3D isometric view of an exit stair tower (3D_STAIR-07) showing multiple stair flights, landings, guardrails, shaft walls, and a door at an upper landing. No explicit dimensions are legible in OCR, limiting precise quantity extraction."
+    }
+  },
+  "schema_id": "51e7afd50c99",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:51e7afd50c99:v1",
+    "title": "Quantity takeoff schema 51e7afd50c99 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "stair_flight_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of stair flights shown in the stair tower",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_flight_count"
+            ],
+            "x-formula": "stair_flight_count"
+          },
+          "stair_run_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Horizontal run length of a stair flight",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_run"
+            ],
+            "x-formula": "stair_run"
+          },
+          "stair_rise_height": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Vertical rise height per flight/level",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_rise"
+            ],
+            "x-formula": "stair_rise"
+          },
+          "guardrail_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of guardrail/handrail along stair flights and landings",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "guardrail_length"
+            ],
+            "x-formula": "guardrail_length"
+          },
+          "guardrail_height": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Height of guardrail/handrail",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "guardrail_height"
+            ],
+            "x-formula": "guardrail_height"
+          },
+          "landing_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Floor area of stair landing",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width"
+            ],
+            "x-formula": "landing_length * landing_width"
+          },
+          "stair_shaft_wall_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Surface area of stair shaft enclosure walls",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "shaft_wall_length",
+              "shaft_wall_height"
+            ],
+            "x-formula": "shaft_wall_length * shaft_wall_height"
+          },
+          "shaft_wall_thickness_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Volume of stair shaft wall based on thickness",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "shaft_wall_length",
+              "shaft_wall_height",
+              "wall_thickness"
+            ],
+            "x-formula": "shaft_wall_length * shaft_wall_height * wall_thickness"
+          },
+          "door_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of doors shown at stair landings",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "door_count"
+            ],
+            "x-formula": "door_count"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

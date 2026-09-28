@@ -1,0 +1,159 @@
+{
+  "run_timestamp": "20260925_121210978983",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D1",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 1,
+      "drawing_title": "SECTION 3-3",
+      "classification": {
+        "project_type": "box culvert / underground structure (civil infrastructure)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "box culvert",
+          "reinforced concrete wall",
+          "slab",
+          "footing",
+          "haunch",
+          "rebar/reinforcement",
+          "stirrups"
+        ],
+        "confidence": "medium",
+        "notes": "Drawing labeled 'SECTION 3-3' shows a double-cell reinforced concrete box culvert/tunnel structure with top slab, walls, base slab, and footings with dense rebar callouts (Y32-125, Y25-125, Y20-125, Y12-150/WEB, stirrups). Alignment references (D, C) suggest this is a civil structure along a road/drainage alignment. No plan view context, so exact facility type (culvert vs underground tank vs tunnel) is inferred from geometry."
+      },
+      "schema_id": "472ba61b0dfa",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_121210978983_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218_T1_.pdf_p1_d1_section.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D2",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 2,
+      "drawing_title": "SECTION 4-4 & 4A-4A & 4B-4B",
+      "classification": {
+        "project_type": "commercial/industrial building (likely tank/reservoir or heavy structural facility)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "wall",
+          "footing/foundation",
+          "rebar",
+          "stirrups",
+          "concrete wall reinforcement"
+        ],
+        "confidence": "medium",
+        "notes": "Drawing shows a structural section (labeled SECTION 4-4 & 4A-4A & 4B-4B) with heavily reinforced concrete walls and footings, rebar callouts (Y32-125, Y25-125, Y20-125, Y12-150/WEB), and stirrup details (Y12-150x500). No plan view or full building context is provided, so exact facility type is uncertain, but the deep, symmetrical double-wall configuration with continuous footings suggests a tank, silo, or retaining structure."
+      },
+      "schema_id": "472ba61b0dfa",
+      "schema_version": 2,
+      "schema_file": "schemas\\20260925_121210978983_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218_T1_.pdf_p1_d2_section.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "RECESS IN THE OUTER WALLS OF THE TUNNEL EACH 50M AT SECTION 3, 4 & 5",
+      "classification": {
+        "project_type": "tunnel infrastructure",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "tunnel wall",
+          "wall recess",
+          "reinforcement",
+          "rebar"
+        ],
+        "confidence": "medium",
+        "notes": "This is a structural detail (scale 1:25) showing a vertical section through the outer wall of a tunnel with a recess feature repeated every 50m at sections 3, 4 & 5. Rebar callouts (Y25-125, Y32-125, Y12-150x500) indicate reinforcement layout, with dimensions for recess depth (2000mm), width offsets (600mm each side), and wall thickness (1200mm). No plan view or full wall length is shown, limiting some quantity derivations to per-unit or per-recess basis."
+      },
+      "schema_id": "344f29ca11a3",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_121210978983_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218_T1_.pdf_p1_d3_detail.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "RECESS AT SECTION 1'-1'",
+      "classification": {
+        "project_type": "bridge / concrete slab structure (voided slab deck)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "concrete slab",
+          "voided slab / biaxial void deck",
+          "rebar reinforcement",
+          "recess detail"
+        ],
+        "confidence": "medium",
+        "notes": "Two structural cross-sections: an upper 'recess at section' detail showing a stepped concrete section with rebar callouts (Y32-125, Y25-125 etc.), and a lower detail of a voided (bubble/cobiax-type) slab with circular void formers, top/bottom mats, and shear/lacer bars. No overall plan dimensions or lengths given, only rebar spacing callouts and bar sizes; scale noted as 1/25. This appears to be a structural rebar detail section rather than a full plan, so quantity takeoff is limited mainly to reinforcement per unit length/area and concrete volume per unit length, using generic assumed section dimensions since explicit overall width/depth/height dimensions are not legible in this crop."
+      },
+      "schema_id": "472ba61b0dfa",
+      "schema_version": 3,
+      "schema_file": "schemas\\20260925_121210978983_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218_T1_.pdf_p1_d4_section.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "SECTION C-C",
+      "classification": {
+        "project_type": "tunnel / infrastructure",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "tunnel lining",
+          "reinforced concrete",
+          "rebar"
+        ],
+        "confidence": "medium",
+        "notes": "Fragment shows a section (SECTION C-C) with rebar callouts (Y12-125, Y32-125, Y20-125) indicating reinforced concrete tunnel cross section details. Most graphic geometry is cropped out, only labels/callouts and title block visible, so dimensions are not fully legible; project title confirms tunnel structural RC details."
+      },
+      "schema_id": "472ba61b0dfa",
+      "schema_version": 4,
+      "schema_file": "schemas\\20260925_121210978983_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218_T1_.pdf_p1_d5_section.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D6",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 6,
+      "drawing_title": "SECTION D-D",
+      "classification": {
+        "project_type": "tunnel",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "tunnel lining",
+          "reinforced concrete slab/wall",
+          "rebar reinforcement",
+          "stirrups/links"
+        ],
+        "confidence": "medium",
+        "notes": "Cross section of a reinforced concrete tunnel structure (King Abdulaziz West Tunnel) showing longitudinal bar layers (Y20-125, Y25-125) and transverse links (2x4 Y16 TYP.) with circular voids (possibly duct openings or lightweight void formers). Section is a repeating typical bay module cut with break lines, so overall length must come from other plan/elevation drawings."
+      },
+      "schema_id": "472ba61b0dfa",
+      "schema_version": 5,
+      "schema_file": "schemas\\20260925_121210978983_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218_T1_.pdf_p1_d6_section.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    }
+  ]
+}

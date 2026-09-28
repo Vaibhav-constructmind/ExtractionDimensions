@@ -1,0 +1,163 @@
+{
+  "header": {
+    "schema_id": "92ae62a71849",
+    "version": 1,
+    "run_timestamp": "20260928_094040423745",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+    "page": 1,
+    "drawing_index": 6,
+    "drawing_title": "STAIR DETAIL-07",
+    "classification": {
+      "project_type": "religious/institutional building (mosque-related facility)",
+      "discipline": "architectural",
+      "drawing_type": "section",
+      "building_elements": [
+        "stair",
+        "handrail",
+        "guardrail",
+        "riser",
+        "tread",
+        "nosing",
+        "granite cladding",
+        "decorative screen",
+        "egress stair"
+      ],
+      "confidence": "high",
+      "notes": "Section detail of a multi-story egress stair (Stair Detail-07) showing risers, floor-to-floor heights, handrail references, granite cladding, and decorative screen at roof level."
+    }
+  },
+  "schema_id": "92ae62a71849",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:92ae62a71849:v1",
+    "title": "Quantity takeoff schema 92ae62a71849 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "stair_flight_riser_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total number of risers across all flights in the stair section",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_count"
+            ],
+            "x-formula": "riser_count"
+          },
+          "stair_total_rise_height": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total vertical rise of the stair from lowest to highest floor level",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_rise"
+            ],
+            "x-formula": "stair_rise"
+          },
+          "handrail_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of steel handrail along stair flights, estimated from flight run and rise using Pythagorean approximation",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "flight_run",
+              "flight_rise"
+            ],
+            "x-formula": "(flight_run**2 + flight_rise**2)**0.5"
+          },
+          "guardrail_height_check": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Guardrail/handrail height for compliance and quantity verification",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "guardrail_height"
+            ],
+            "x-formula": "guardrail_height"
+          },
+          "stair_enclosure_wall_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Area of stair enclosure wall based on height and width",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_height",
+              "wall_width"
+            ],
+            "x-formula": "wall_height * wall_width"
+          },
+          "granite_cladding_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Area of granite cladding at stair enclosure/upstand based on cladding height and length",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "cladding_length",
+              "cladding_height"
+            ],
+            "x-formula": "cladding_length * cladding_height"
+          },
+          "decorative_screen_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Area of aluminium decorative screen panel",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "screen_length",
+              "screen_height"
+            ],
+            "x-formula": "screen_length * screen_height"
+          },
+          "floor_to_floor_height": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Vertical floor-to-floor height per stair level, used for volume/area quantity derivations",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "floor_to_floor"
+            ],
+            "x-formula": "floor_to_floor"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

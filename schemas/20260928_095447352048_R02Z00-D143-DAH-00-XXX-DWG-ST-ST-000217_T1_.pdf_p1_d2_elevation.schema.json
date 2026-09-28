@@ -1,0 +1,119 @@
+{
+  "header": {
+    "schema_id": "9651da59cbe2",
+    "version": 1,
+    "run_timestamp": "20260928_095447352048",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 2,
+    "drawing_title": "unclear",
+    "classification": {
+      "project_type": "civil infrastructure (roadway/tunnel or retaining structure - station-referenced)",
+      "discipline": "structural",
+      "drawing_type": "elevation",
+      "building_elements": [
+        "beam",
+        "wall panel",
+        "reinforcement",
+        "stirrup",
+        "opening"
+      ],
+      "confidence": "medium",
+      "notes": "Elevation view of a reinforced concrete beam/wall panel between two braced openings, with bar-mark callouts (4 Y25, 12 Y32, Y16-150) and panel dimensions (3000, 1500). Note referencing 'STA: 0+314' and additional reinforcement around an opening at an inner wall suggests this is part of a linear civil structure such as a tunnel, culvert, or retaining wall along a station alignment."
+    }
+  },
+  "schema_id": "9651da59cbe2",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:9651da59cbe2:v1",
+    "title": "Quantity takeoff schema 9651da59cbe2 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "main_bar_total_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of main longitudinal reinforcement bars (12 Y32) across the panel",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_count",
+              "main_bar_length"
+            ],
+            "x-formula": "main_bar_count * main_bar_length"
+          },
+          "face_bar_total_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of face/top-bottom reinforcement bars (4 Y25) across the panel",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "face_bar_count",
+              "face_bar_length"
+            ],
+            "x-formula": "face_bar_count * face_bar_length"
+          },
+          "stirrup_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of stirrups (Y16-150) required based on panel span and spacing",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "panel_length",
+              "stirrup_bar_spacing"
+            ],
+            "x-formula": "panel_length / stirrup_bar_spacing + 1"
+          },
+          "stirrup_bar_total_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of stirrup reinforcement bars derived from stirrup count and panel depth",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_count",
+              "panel_height"
+            ],
+            "x-formula": "stirrup_bar_count * panel_height * 2"
+          },
+          "panel_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Concrete volume of the beam/wall panel section (excluding opening) based on panel length, height and assumed thickness",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "panel_length",
+              "panel_height",
+              "panel_thickness"
+            ],
+            "x-formula": "panel_length * panel_height * panel_thickness"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

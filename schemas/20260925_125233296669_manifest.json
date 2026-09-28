@@ -1,0 +1,178 @@
+{
+  "run_timestamp": "20260925_125233296669",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D1",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225[T1].pdf",
+      "page": 1,
+      "drawing_index": 1,
+      "drawing_title": "EXPANSION JOINT DETAIL AT THE CONNECTION WITH MIP TUNNEL (RAFT)",
+      "classification": {
+        "project_type": "tunnel/underground infrastructure",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "expansion joint",
+          "raft/foundation",
+          "waterstop",
+          "waterproofing membrane",
+          "dowel bars",
+          "rebar",
+          "blinding concrete",
+          "wearing course"
+        ],
+        "confidence": "high",
+        "notes": "This is a detail drawing showing the expansion joint connection between a raft foundation and an adjacent tunnel (M.I.P. tunnel to K.A.A. tunnel), including waterproofing membranes, waterstops, joint filler, stainless steel dowel bars, and raft reinforcement. Since it's N.T.S. (not to scale) with only a few labeled dimensions (500mm joint width, 300mm dowel spacing references, 25mm, 20mm E.J., 50mm screed, 100mm blinding), quantities are limited but some linear/area/volume takeoffs per unit length of joint are derivable."
+      },
+      "schema_id": "bdd302f78535",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_125233296669_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225_T1_.pdf_p1_d1_detail.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D2",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225[T1].pdf",
+      "page": 1,
+      "drawing_index": 2,
+      "drawing_title": "EXPANSION JOINT DETAIL AT THE CONNECTION WITH MIP TUNNEL (EXTERNAL WALL)",
+      "classification": {
+        "project_type": "tunnel infrastructure",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "expansion joint",
+          "tunnel wall",
+          "waterstop",
+          "dowel bars",
+          "wall reinforcement",
+          "waterproofing membrane",
+          "joint filler",
+          "joint cover sheet"
+        ],
+        "confidence": "high",
+        "notes": "Detail section showing expansion joint connection between two tunnel structures (K.A.A.R. tunnel side and M.I.P. tunnel side external wall), including reinforcement callouts, waterstops, dowel bars, and joint accessories. Not to scale detail with dimensions for wall thickness, dowel bar spacing/length, and joint widths."
+      },
+      "schema_id": "bdd302f78535",
+      "schema_version": 2,
+      "schema_file": "schemas\\20260925_125233296669_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225_T1_.pdf_p1_d2_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225[T1].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "EXPANSION JOINT DETAIL AT THE CONNECTION WITH MIP TUNNEL (TOP SLAB)",
+      "classification": {
+        "project_type": "tunnel/underground infrastructure",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "tunnel slab",
+          "expansion joint",
+          "waterstop",
+          "waterproofing membrane",
+          "dowel bars",
+          "slab reinforcement",
+          "screed"
+        ],
+        "confidence": "high",
+        "notes": "Detail drawing showing expansion joint connection between M.I.P. tunnel and K.A.A.R. tunnel at top slab, including waterproofing, waterstops, dowel bars, and reinforcement. Not to scale, includes keyplan and general notes."
+      },
+      "schema_id": "bdd302f78535",
+      "schema_version": 3,
+      "schema_file": "schemas\\20260925_125233296669_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225_T1_.pdf_p1_d3_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225[T1].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "EXPANSION JOINT DETAIL AT THE CONNECTION WITH EXISTING BASEMENT OF MASJID EL NABAWI (RAFT)",
+      "classification": {
+        "project_type": "religious/institutional building (Masjid El Nabawi basement/raft expansion)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "raft foundation",
+          "expansion joint",
+          "waterproofing membrane",
+          "waterstop",
+          "rebar",
+          "joint filler",
+          "blinding concrete"
+        ],
+        "confidence": "high",
+        "notes": "Detail section showing expansion joint connection between existing basement raft and new raft, with reinforcement, waterproofing membrane, waterstop, joint filler, and blinding concrete callouts and dimensions."
+      },
+      "schema_id": "bdd302f78535",
+      "schema_version": 4,
+      "schema_file": "schemas\\20260925_125233296669_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225_T1_.pdf_p1_d4_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225[T1].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "EXPANSION JOINT DETAIL AT THE CONNECTION WITH EXISTING BASEMENT OF MASJID EL NABAWI (EXTERNAL WALL)",
+      "classification": {
+        "project_type": "basement/tunnel structure (Masjid El Nabawi expansion)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "expansion joint",
+          "waterstop",
+          "waterproofing membrane",
+          "wall reinforcement",
+          "dowel bars",
+          "raft/foundation",
+          "blinding concrete",
+          "joint filler",
+          "grout injection hose"
+        ],
+        "confidence": "high",
+        "notes": "Detail section showing expansion joint connection between new tunnel wall/raft and existing basement wall, with reinforcement bar callouts, waterstops, membranes, and dowel bars."
+      },
+      "schema_id": "bdd302f78535",
+      "schema_version": 5,
+      "schema_file": "schemas\\20260925_125233296669_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225_T1_.pdf_p1_d5_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D6",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225[T1].pdf",
+      "page": 1,
+      "drawing_index": 6,
+      "drawing_title": "EXPANSION JOINT DETAIL AT THE CONNECTION WITH EXISTING BASEMENT OF MASJID EL NABAWI (TOP SLAB)",
+      "classification": {
+        "project_type": "tunnel (infrastructure)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "expansion joint",
+          "waterstop",
+          "waterproofing membrane",
+          "slab reinforcement",
+          "dowel bars",
+          "joint filler",
+          "screed protection"
+        ],
+        "confidence": "high",
+        "notes": "This is a structural detail drawing showing the expansion joint connection between a tunnel structure and an existing basement slab (Masjid El Nabawi). It includes reinforcement callouts, waterstop/waterproofing details, dowel bars, and joint filler materials at the top slab connection."
+      },
+      "schema_id": "bdd302f78535",
+      "schema_version": 6,
+      "schema_file": "schemas\\20260925_125233296669_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225_T1_.pdf_p1_d6_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,523 @@
+{
+  "header": {
+    "schema_id": "a9799bd84e76",
+    "version": 5,
+    "run_timestamp": "20260925_124635843365",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223[T3].pdf",
+    "page": 1,
+    "drawing_index": 7,
+    "drawing_title": "unclear",
+    "classification": {
+      "project_type": "commercial/civil building (concrete structure with waterproofing details)",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "R.C. wall",
+        "construction joint",
+        "waterproofing (PVC waterstop)"
+      ],
+      "confidence": "medium",
+      "notes": "This is a fragment of a detail drawing showing a construction joint condition in an R.C. wall with PVC waterproofing/waterstop, internal and external face callouts. No overall dimensions or wall length/height/thickness are legible in this crop, limiting quantifiable takeoff to linear items like joint length and waterstop length if such dimensions were provided elsewhere on the sheet."
+    }
+  },
+  "schema_id": "a9799bd84e76",
+  "version": 5,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:a9799bd84e76:v5",
+    "title": "Quantity takeoff schema a9799bd84e76 v5",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "dowel_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "dowel_bar_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "dowel_spacing"
+            ],
+            "x-formula": "joint_length / dowel_spacing"
+          },
+          "dowel_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "dowel_bar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "dowel_bar_count",
+              "dowel_bar_length",
+              "dowel_bar_unit_weight"
+            ],
+            "x-formula": "dowel_bar_count * dowel_bar_length * dowel_bar_unit_weight"
+          },
+          "external_waterstop_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "external_waterstop_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length"
+            ],
+            "x-formula": "joint_length"
+          },
+          "internal_waterstop_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "internal_waterstop_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length"
+            ],
+            "x-formula": "joint_length"
+          },
+          "pvc_waterproofing_membrane_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "pvc_waterproofing_membrane_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "membrane_width"
+            ],
+            "x-formula": "joint_length * membrane_width"
+          },
+          "joint_filler_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "joint_filler_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "joint_width",
+              "joint_filler_depth"
+            ],
+            "x-formula": "joint_length * joint_width * joint_filler_depth"
+          },
+          "compressible_material_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "compressible_material_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "compressible_material_width",
+              "compressible_material_thickness"
+            ],
+            "x-formula": "joint_length * compressible_material_width * compressible_material_thickness"
+          },
+          "screed_protection_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "screed_protection_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "screed_width",
+              "screed_thickness"
+            ],
+            "x-formula": "joint_length * screed_width * screed_thickness"
+          },
+          "joint_rubber_cover_sheet_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "joint_rubber_cover_sheet_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "cover_sheet_width"
+            ],
+            "x-formula": "joint_length * cover_sheet_width"
+          },
+          "depending_material_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "depending_material_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length"
+            ],
+            "x-formula": "joint_length"
+          },
+          "slab_reinforcement_weight_top": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_reinforcement_weight_top",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width",
+              "top_bar_spacing",
+              "top_bar_unit_weight"
+            ],
+            "x-formula": "(slab_length / top_bar_spacing) * slab_width * top_bar_unit_weight"
+          },
+          "slab_reinforcement_weight_bottom": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_reinforcement_weight_bottom",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width",
+              "bottom_bar_spacing",
+              "bottom_bar_unit_weight"
+            ],
+            "x-formula": "(slab_length / bottom_bar_spacing) * slab_width * bottom_bar_unit_weight"
+          },
+          "waterstop_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "waterstop_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "length",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "joint_length",
+              "waterstop_install_rate"
+            ],
+            "x-formula": "joint_length * waterstop_install_rate"
+          },
+          "dowel_bar_drilling_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "dowel_bar_drilling_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "dowel_bar_count",
+              "dowel_drilling_rate"
+            ],
+            "x-formula": "dowel_bar_count * dowel_drilling_rate"
+          },
+          "expansion_joint_cutting_equipment": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "expansion_joint_cutting_equipment",
+            "x-unit": "hr",
+            "x-measurement-basis": "length",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "joint_length",
+              "joint_cutting_rate"
+            ],
+            "x-formula": "joint_length * joint_cutting_rate"
+          },
+          "blinding_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "blinding_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "raft_area",
+              "blinding_concrete_thickness"
+            ],
+            "x-formula": "raft_area * blinding_concrete_thickness"
+          },
+          "raft_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "raft_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "raft_area",
+              "raft_thickness"
+            ],
+            "x-formula": "raft_area * raft_thickness"
+          },
+          "construction_joint_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "construction_joint_labor",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "construction_joint_length"
+            ],
+            "x-formula": "construction_joint_length"
+          },
+          "waterproofing_membrane_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "waterproofing_membrane_installation_labor",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "raft_area"
+            ],
+            "x-formula": "raft_area"
+          },
+          "waterstop_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "waterstop_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length"
+            ],
+            "x-formula": "joint_length"
+          },
+          "waterproofing_membrane_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "waterproofing_membrane_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "membrane_width"
+            ],
+            "x-formula": "joint_length * membrane_width"
+          },
+          "screed_protection_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "screed_protection_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "screed_width"
+            ],
+            "x-formula": "joint_length * screed_width"
+          },
+          "expansion_joint_filler_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "expansion_joint_filler_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "joint_width",
+              "joint_depth"
+            ],
+            "x-formula": "joint_length * joint_width * joint_depth"
+          },
+          "construction_joint_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "construction_joint_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "construction_joint_run_length"
+            ],
+            "x-formula": "construction_joint_run_length"
+          },
+          "membrane_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "membrane_installation_labor",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "joint_length",
+              "membrane_width"
+            ],
+            "x-formula": "joint_length * membrane_width"
+          },
+          "screed_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "screed_placement_labor",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "joint_length",
+              "screed_width",
+              "screed_thickness"
+            ],
+            "x-formula": "joint_length * screed_width * screed_thickness"
+          },
+          "waterstop_material_quantity": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "waterstop_material_quantity",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "construction_joint_length",
+              "waterstop_count_per_joint"
+            ],
+            "x-formula": "construction_joint_length * waterstop_count_per_joint"
+          },
+          "construction_joint_sealant_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "construction_joint_sealant_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "construction_joint_length"
+            ],
+            "x-formula": "construction_joint_length"
+          },
+          "rc_wall_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rc_wall_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "wall_thickness"
+            ],
+            "x-formula": "wall_length * wall_height * wall_thickness"
+          },
+          "pvc_waterstop_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "pvc_waterstop_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "waterstop_run_length"
+            ],
+            "x-formula": "waterstop_run_length"
+          },
+          "rc_wall_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rc_wall_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "wall_faces"
+            ],
+            "x-formula": "wall_length * wall_height * wall_faces"
+          },
+          "construction_joint_sealant_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "construction_joint_sealant_labor",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "construction_joint_length"
+            ],
+            "x-formula": "construction_joint_length"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

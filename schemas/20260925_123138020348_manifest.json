@@ -1,0 +1,157 @@
+{
+  "run_timestamp": "20260925_123138020348",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221[T2].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "SECTION 3-3",
+      "classification": {
+        "project_type": "tunnel / underground structure (civil infrastructure)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "tunnel wall",
+          "slab",
+          "rebar",
+          "construction joint",
+          "reinforced concrete structure"
+        ],
+        "confidence": "high",
+        "notes": "Section 3-3 at 1:50 scale showing reinforced concrete tunnel/structure walls and slabs with rebar callouts (Y-bar diameter-spacing notation e.g. Y16-150, Y20-150, Y12-125), construction joints (C.J.), and reference to tunnel reinforcement/tunnel R.C. details on adjoining sheets. No overall dimensions are given (dimensions are in rebar spacing callouts only), but the element layout supports a structural concrete/rebar takeoff schema."
+      },
+      "schema_id": "f487fde47cdb",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_123138020348_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221_T2_.pdf_p1_d3_section.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221[T2].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "ROOF SLAB R.C. DETAILS",
+      "classification": {
+        "project_type": "commercial/institutional building",
+        "discipline": "structural",
+        "drawing_type": "plan",
+        "building_elements": [
+          "roof slab",
+          "reinforced concrete slab",
+          "rebar reinforcement",
+          "slab openings",
+          "section markers"
+        ],
+        "confidence": "medium",
+        "notes": "This is a reinforced concrete roof slab reinforcement layout plan showing top and bottom rebar (Y16-150) with additional reinforcement bands (2x2 Y25-T&B) around openings/columns, and section cut markers (1-4). No slab thickness or overall plan dimensions are legible from OCR, limiting some quantity derivations to typical/assumed inputs."
+      },
+      "schema_id": "e8de039edbcf",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_123138020348_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221_T2_.pdf_p1_d4_plan.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221[T2].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "unclear",
+      "classification": {
+        "project_type": "commercial/institutional building (reinforced concrete structure)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "slab",
+          "wall",
+          "rebar",
+          "reinforcement layout"
+        ],
+        "confidence": "medium",
+        "notes": "Fragment shows a rebar layout detail with bar marks 'Y16-150' (16mm diameter bars at 150mm spacing) annotated at a slab/wall junction, likely part of a reinforced concrete slab or wall reinforcement detail. No overall dimensions or full section context visible, so exact element type (slab vs wall vs beam) is inferred from bar pattern and dot symbols representing rebar cross-sections."
+      },
+      "schema_id": "ceff1a326533",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_123138020348_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221_T2_.pdf_p1_d5_detail.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D6",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221[T2].pdf",
+      "page": 1,
+      "drawing_index": 6,
+      "drawing_title": "SECTION 5-5",
+      "classification": {
+        "project_type": "water/wastewater treatment structure (reinforced concrete box culvert or tank/chamber)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "reinforced concrete wall",
+          "rebar reinforcement",
+          "box culvert/chamber",
+          "footing/base slab"
+        ],
+        "confidence": "medium",
+        "notes": "Section 5-5 shows a rectangular reinforced concrete box/chamber cross-section with double-layer rebar (Y16 and Y20 bars at 150mm spacing) in walls and a base slab. No overall dimensions (wall thickness, height, width) are legible in the OCR text, so exact geometry must be inferred from other sheets; schema is proposed generically for this section type."
+      },
+      "schema_id": "f487fde47cdb",
+      "schema_version": 2,
+      "schema_file": "schemas\\20260925_123138020348_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221_T2_.pdf_p1_d6_section.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D7",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221[T2].pdf",
+      "page": 1,
+      "drawing_index": 7,
+      "drawing_title": "RFT. AROUND OPENING",
+      "classification": {
+        "project_type": "commercial/residential building (general structural concrete works)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "slab/wall opening",
+          "reinforcement",
+          "rebar trimming bars"
+        ],
+        "confidence": "medium",
+        "notes": "Detail shows reinforcement arrangement around a rectangular opening in a concrete slab or wall, with additional trim bars (2 x 2 Y25) called out at each side of the opening. No overall dimensions of the opening or bar lengths are given, limiting exact quantity takeoff to formula-based estimates dependent on opening size, which must be sourced from a plan drawing."
+      },
+      "schema_id": "ceff1a326533",
+      "schema_version": 2,
+      "schema_file": "schemas\\20260925_123138020348_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221_T2_.pdf_p1_d7_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D8",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221[T2].pdf",
+      "page": 1,
+      "drawing_index": 8,
+      "drawing_title": "RFT AROUND SHAFT OPENING",
+      "classification": {
+        "project_type": "tunnel infrastructure (egress stairs)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "shaft opening",
+          "reinforced concrete slab/wall",
+          "reinforcement bars (rebar)",
+          "opening trimmer bars"
+        ],
+        "confidence": "medium",
+        "notes": "Detail shows reinforcement layout (2 X 6 Y25 bars) around a shaft opening for egress stairs in a tunnel structure. Only a partial detail view is visible with limited dimensions; title block confirms it's an RC detail sheet for King Abdulaziz West Tunnel egress stairs."
+      },
+      "schema_id": "ceff1a326533",
+      "schema_version": 3,
+      "schema_file": "schemas\\20260925_123138020348_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221_T2_.pdf_p1_d8_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    }
+  ]
+}

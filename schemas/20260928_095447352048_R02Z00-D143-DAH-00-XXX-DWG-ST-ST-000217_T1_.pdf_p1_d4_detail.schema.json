@@ -1,0 +1,165 @@
+{
+  "header": {
+    "schema_id": "ea67074150e6",
+    "version": 2,
+    "run_timestamp": "20260928_095447352048",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 4,
+    "drawing_title": "SECTION 1'-1'",
+    "classification": {
+      "project_type": "culvert/retaining wall (civil infrastructure)",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "wall opening reinforcement",
+        "column/pier section",
+        "rebar",
+        "stirrup/tie"
+      ],
+      "confidence": "medium",
+      "notes": "Two reinforced concrete cross-section details (Section 1'-1' and Section 2'-2') showing additional reinforcement around an opening in an inner wall at a stationed location, likely part of a culvert or box structure. Only cross-sectional dimensions (600mm, 800mm) and bar callouts (12 Y32, 4 Y25, Y16-150) are given; no member height/length is shown on this sheet."
+    }
+  },
+  "schema_id": "ea67074150e6",
+  "version": 2,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:ea67074150e6:v2",
+    "title": "Quantity takeoff schema ea67074150e6 v2",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "vertical_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of vertical/perimeter reinforcement bars shown as dots in the section/plan",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_count"
+            ],
+            "x-formula": "main_bar_count"
+          },
+          "main_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Weight of main reinforcement bars based on diameter and length",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_diameter",
+              "main_bar_count",
+              "main_bar_length"
+            ],
+            "x-formula": "main_bar_diameter * main_bar_diameter * 0.00617 * main_bar_count * main_bar_length"
+          },
+          "element_cross_section_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Cross-sectional area of the concrete element based on width and depth",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "element_width",
+              "element_depth"
+            ],
+            "x-formula": "element_width * element_depth"
+          },
+          "member_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Concrete volume of the reinforced member (column/pier/wall segment) based on cross-section dimensions and member height/length",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "section_width",
+              "section_depth",
+              "member_height"
+            ],
+            "x-formula": "section_width * section_depth * member_height"
+          },
+          "member_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Formwork surface area for the member's perimeter faces",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "section_width",
+              "section_depth",
+              "member_height"
+            ],
+            "x-formula": "2 * (section_width + section_depth) * member_height"
+          },
+          "main_bar_total_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of main longitudinal reinforcement bars",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_count",
+              "member_height"
+            ],
+            "x-formula": "main_bar_count * member_height"
+          },
+          "stirrup_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of stirrup/tie bars along the member height based on spacing",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "member_height",
+              "stirrup_bar_spacing"
+            ],
+            "x-formula": "member_height / stirrup_bar_spacing + 1"
+          },
+          "stirrup_bar_total_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of stirrup/tie bars based on perimeter of section and count of stirrups",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_count",
+              "section_width",
+              "section_depth"
+            ],
+            "x-formula": "stirrup_bar_count * 2 * (section_width + section_depth)"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "run_timestamp": "20260925_122416760729",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000220[T2].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "SECTION 3-3",
+      "classification": {
+        "project_type": "tunnel/underground structure (retaining wall or shaft adjacent to tunnel)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "reinforced concrete wall",
+          "slab",
+          "rebar",
+          "construction joint",
+          "tunnel structure"
+        ],
+        "confidence": "medium",
+        "notes": "Section 3-3 shows a multi-level reinforced concrete wall/shaft structure with horizontal slabs at three levels, tied to an adjacent tunnel structure ('TUNNEL REINFORCEMENT', 'REFER TO TUNNEL R.C. DETAILS'). Rebar callouts (Y16-150, Y20-150, Y12-125, 2Y12-150) indicate bar type, diameter and spacing but no overall wall/slab dimensions are given (no length/height/thickness dimensions visible), limiting quantifiable volume takeoff without additional dimensional drawings."
+      },
+      "schema_id": "86ef3b76dbf6",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_122416760729_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000220_T2_.pdf_p1_d3_section.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000220[T2].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "ROOF SLAB R.C. DETAILS",
+      "classification": {
+        "project_type": "commercial/institutional building",
+        "discipline": "structural",
+        "drawing_type": "plan",
+        "building_elements": [
+          "roof slab",
+          "reinforced concrete slab",
+          "rebar reinforcement",
+          "column head/drop panel"
+        ],
+        "confidence": "high",
+        "notes": "Plan view titled 'ROOF SLAB R.C. DETAILS' at scale 1:50, showing top (T) and bottom (B) reinforcement bar callouts (Y16-150, Y25) with section cut markers (1-1 through 4-4) indicating reinforcement layout for a reinforced concrete roof slab, including a column drop panel/capital area with additional 2x2 Y25 top-and-bottom bars."
+      },
+      "schema_id": "74aa83c68c56",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_122416760729_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000220_T2_.pdf_p1_d4_plan.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000220[T2].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "SECTION 4-4",
+      "classification": {
+        "project_type": "commercial/industrial building (concrete structure with box/tank-like element)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "concrete wall",
+          "rebar reinforcement",
+          "box culvert/tank or shaft wall section"
+        ],
+        "confidence": "medium",
+        "notes": "This is a reinforced concrete section (SECTION 4-4) showing a rectangular box/wall structure with double-layer rebar (Y16 at 150mm spacing) on all faces. Likely a tank, box culvert, shaft, or similar concrete containment structure. No overall dimensions are given, only rebar callouts (Y16-150, 2 Y16-150), so actual quantities cannot be computed without additional dimensioned drawings, but the schema below defines what would be derivable given wall dimensions."
+      },
+      "schema_id": "86ef3b76dbf6",
+      "schema_version": 2,
+      "schema_file": "schemas\\20260925_122416760729_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000220_T2_.pdf_p1_d5_section.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D7",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000220[T2].pdf",
+      "page": 1,
+      "drawing_index": 7,
+      "drawing_title": "RFT. AROUND OPENING",
+      "classification": {
+        "project_type": "commercial/residential building (general construction)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "wall opening",
+          "reinforcement bars",
+          "trimmer bars around opening"
+        ],
+        "confidence": "medium",
+        "notes": "Detail shows reinforcement bar arrangement (2 X 2 Y25 bars) around a rectangular opening in a concrete wall/slab, repeated twice on the sheet. No overall dimensions of the opening or wall are given, so quantities are schematic and depend on typical/standard opening sizes and bar development lengths."
+      },
+      "schema_id": "99c9a0a64030",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_122416760729_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000220_T2_.pdf_p1_d7_detail.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "header": {
+    "schema_id": "55b5e1655a3e",
+    "version": 1,
+    "run_timestamp": "20260925_164914593720",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+    "page": 1,
+    "drawing_index": 1,
+    "drawing_title": "STAIR-07-INTERMEDIATE LANDING-03",
+    "classification": {
+      "project_type": "commercial/institutional building",
+      "discipline": "architectural",
+      "drawing_type": "plan",
+      "building_elements": [
+        "stair",
+        "handrail",
+        "stair nosing",
+        "floor drain",
+        "trench drain",
+        "landing",
+        "egress stair"
+      ],
+      "confidence": "high",
+      "notes": "Enlarged architectural plan of an egress stair (Stair-07) intermediate landing at 1:50 scale, showing risers, stair flights, handrail references, granite nosing detail, floor drain and stainless steel trench detail callouts, and FFL/TOC elevations."
+    }
+  },
+  "schema_id": "55b5e1655a3e",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:55b5e1655a3e:v1",
+    "title": "Quantity takeoff schema 55b5e1655a3e v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "stair_riser_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_riser_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_count_per_flight",
+              "number_of_flights"
+            ],
+            "x-formula": "riser_count_per_flight * number_of_flights"
+          },
+          "stair_flight_run_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_run_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_count_per_flight",
+              "tread_depth"
+            ],
+            "x-formula": "riser_count_per_flight * tread_depth"
+          },
+          "stair_flight_width": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_width",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "flight_width"
+            ],
+            "x-formula": "flight_width"
+          },
+          "stair_tread_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_tread_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_count_per_flight",
+              "tread_depth",
+              "flight_width"
+            ],
+            "x-formula": "riser_count_per_flight * tread_depth * flight_width"
+          },
+          "granite_stair_nosing_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "granite_stair_nosing_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_count_per_flight",
+              "number_of_flights",
+              "flight_width"
+            ],
+            "x-formula": "riser_count_per_flight * number_of_flights * flight_width"
+          },
+          "steel_handrail_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "steel_handrail_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "handrail_run_length",
+              "number_of_handrail_runs"
+            ],
+            "x-formula": "handrail_run_length * number_of_handrail_runs"
+          },
+          "landing_floor_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "landing_floor_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width"
+            ],
+            "x-formula": "landing_length * landing_width"
+          },
+          "stair_enclosure_wall_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_enclosure_wall_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "enclosure_perimeter_length",
+              "floor_to_floor_height"
+            ],
+            "x-formula": "enclosure_perimeter_length * floor_to_floor_height"
+          },
+          "floor_drain_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "floor_drain_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "floor_drain_units"
+            ],
+            "x-formula": "floor_drain_units"
+          },
+          "stainless_steel_trench_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stainless_steel_trench_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "trench_length"
+            ],
+            "x-formula": "trench_length"
+          },
+          "pressure_relief_damper_opening_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "pressure_relief_damper_opening_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_width",
+              "opening_height"
+            ],
+            "x-formula": "opening_width * opening_height"
+          },
+          "stair_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "riser_count_per_flight",
+              "number_of_flights",
+              "labor_hours_per_riser"
+            ],
+            "x-formula": "riser_count_per_flight * number_of_flights * labor_hours_per_riser"
+          },
+          "handrail_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "handrail_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "length",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "handrail_run_length",
+              "number_of_handrail_runs",
+              "labor_hours_per_meter_handrail"
+            ],
+            "x-formula": "handrail_run_length * number_of_handrail_runs * labor_hours_per_meter_handrail"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

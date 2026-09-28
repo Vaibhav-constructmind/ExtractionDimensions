@@ -31,6 +31,19 @@ st.caption(
 )
 
 
+def _load_manifest(manifest_path: str | None) -> dict | None:
+    """Read back this run's schema manifest (written by SchemaRegistry) so
+    the UI can show per-drawing schema/reuse/failure detail without
+    duplicating that bookkeeping in the pydantic result itself."""
+    if not manifest_path:
+        return None
+    try:
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except OSError:
+        return None
+
+
 def render_result(result: ExtractionResult, key_prefix: str) -> None:
     """Render one file's extraction result: metrics, download, suspect-drawing
     checks, and the per-drawing expanders. `key_prefix` keeps widget keys
@@ -50,6 +63,24 @@ def render_result(result: ExtractionResult, key_prefix: str) -> None:
         mime="application/json",
         key=f"{key_prefix}-download-full",
     )
+
+    manifest = _load_manifest(result.schema_manifest_path)
+    manifest_by_drawing = (
+        {row["drawing_id"]: row for row in manifest["drawings"]} if manifest else {}
+    )
+
+    if result.schema_output_dir:
+        with st.expander("🗂️ Takeoff schemas written this run", expanded=False):
+            st.caption(f"Schema folder: `{result.schema_output_dir}`")
+            if result.schema_files_written:
+                st.markdown("**New schema files written this run:**")
+                for path in result.schema_files_written:
+                    st.markdown(f"- `{path}`")
+            else:
+                st.caption("No new schema files this run (every drawing either had no dynamic "
+                           "takeoff, or reused an already-written schema).")
+            if result.schema_manifest_path:
+                st.caption(f"Manifest: `{result.schema_manifest_path}`")
 
     # Surface the same suspect-drawing checks the pipeline logs, right in the
     # UI: a duplicate title on the same page, or a drawing with nothing
@@ -92,15 +123,19 @@ def render_result(result: ExtractionResult, key_prefix: str) -> None:
                 f"**{d.drawing_id}** has no dimensions or elevation datums at all — could be a "
                 "title block/legend/keyplan mistakenly segmented as its own drawing."
             )
-        if d.quantity_takeoff:
-            risers = d.quantity_takeoff.num_risers_total.value if d.quantity_takeoff.num_risers_total else None
-            treads = d.quantity_takeoff.num_treads_total.value if d.quantity_takeoff.num_treads_total else None
-            if risers is not None and treads is not None and risers != treads:
-                suspect_notes.append(
-                    f"**{d.drawing_id}** reports `num_risers_total` = {risers:g} but "
-                    f"`num_treads_total` = {treads:g} — these should be the same count for the "
-                    "same flights; worth a manual check."
-                )
+        if d.classification and d.classification.confidence == "low":
+            suspect_notes.append(
+                f"**{d.drawing_id}** classification is low-confidence "
+                f"(discipline={d.classification.discipline or '?'}, "
+                f"drawing_type={d.classification.drawing_type or '?'})"
+                + (f" — {d.classification.notes}" if d.classification.notes else "")
+                + " — worth a manual check before trusting its takeoff schema."
+            )
+        manifest_row = manifest_by_drawing.get(d.drawing_id)
+        if manifest_row and manifest_row.get("error"):
+            suspect_notes.append(
+                f"**{d.drawing_id}** takeoff-schema generation failed: {manifest_row['error']}"
+            )
     if suspect_notes:
         with st.expander(f"⚠️ {len(suspect_notes)} drawing(s) flagged for a manual check", expanded=True):
             for note in suspect_notes:
@@ -222,80 +257,59 @@ def render_result(result: ExtractionResult, key_prefix: str) -> None:
                     hide_index=True,
                 )
 
-            if drawing.quantity_takeoff:
-                takeoff_rows = [
-                    {
-                        "Quantity": field_name,
-                        "Value": field.value if field.value is not None else "",
-                        "Unit": field.unit or "",
-                        "Method": field.method or "",
-                        "Confidence": field.confidence or "",
-                        "Notes": field.notes or "",
-                    }
-                    for field_name in drawing.quantity_takeoff.model_fields
-                    if field_name != "single_step_concrete"
-                    and (field := getattr(drawing.quantity_takeoff, field_name)) is not None
-                ]
-                if takeoff_rows:
-                    st.markdown("**Quantity takeoff**")
-                    st.dataframe(takeoff_rows, use_container_width=True, hide_index=True)
-
-                single_step = drawing.quantity_takeoff.single_step_concrete
-                if single_step:
-                    st.markdown("**Single stair-step concrete volume**")
-                    st.caption(f"Formula: {single_step.formula} = {single_step.volume.value:.8f} m³")
-                    st.dataframe(
-                        [
-                            {
-                                "Input": label,
-                                "Value": measured.value,
-                                "Unit": measured.unit,
-                                "Source dimension": source or "",
-                            }
-                            for label, measured, source in [
-                                ("Tread depth", single_step.tread_depth, single_step.tread_depth_source),
-                                ("Riser height", single_step.riser_height, single_step.riser_height_source),
-                                ("Stair width", single_step.stair_width, single_step.stair_width_source),
-                                ("Volume", single_step.volume, None),
-                            ]
-                        ],
-                        use_container_width=True,
-                        hide_index=True,
-                    )
-
-            stair_takeoff = drawing.stair_quantity_takeoff
-            if stair_takeoff:
-                st.markdown(f"**Stair concrete takeoff ({stair_takeoff.stair_group_id})**")
+            if drawing.classification:
+                c = drawing.classification
+                st.markdown("**Classification**")
                 st.caption(
-                    f"This drawing's own flights · "
-                    f"total {stair_takeoff.num_steps_total.value:g} steps · "
-                    f"total volume {stair_takeoff.total_volume.value:.6f} m³"
+                    " · ".join(
+                        f"**{label}:** {value}" for label, value in [
+                            ("Project type", c.project_type), ("Discipline", c.discipline),
+                            ("Drawing type", c.drawing_type),
+                            ("Elements", ", ".join(c.building_elements) if c.building_elements else None),
+                            ("Confidence", c.confidence),
+                        ] if value
+                    )
                 )
+                if c.confidence == "low" and c.notes:
+                    st.caption(f"↳ {c.notes}")
+
+            manifest_row = manifest_by_drawing.get(drawing.drawing_id)
+            if manifest_row and manifest_row.get("schema_file"):
+                schema_payload = None
+                try:
+                    with open(manifest_row["schema_file"], "r", encoding="utf-8") as f:
+                        schema_payload = json.load(f)
+                except OSError:
+                    pass
+                label = (
+                    f"**Generated takeoff schema** `{manifest_row['schema_id']}` "
+                    f"v{manifest_row['schema_version']}"
+                    + (" (reused from another drawing)" if manifest_row.get("reused_existing_schema") else "")
+                )
+                st.markdown(label)
+                if schema_payload:
+                    with st.expander("View JSON Schema"):
+                        st.json(schema_payload["json_schema"])
+
+            if drawing.dynamic_takeoff:
+                st.markdown("**Dynamic quantity takeoff**")
                 st.dataframe(
                     [
                         {
-                            "Flight": f.flight_label,
-                            "Steps": f.num_steps.value,
-                            "Tread depth": f"{f.tread_depth.value:g}{f.tread_depth.unit}",
-                            "Riser height": f"{f.riser_height.value:g}{f.riser_height.unit}",
-                            "Stair width": f"{f.stair_width.value:g}{f.stair_width.unit}",
-                            "Volume/step (m³)": f"{f.volume_per_step.value:.8f}",
-                            "Total volume (m³)": f"{f.total_volume.value:.6f}",
-                            "Formula": f.formula_total,
+                            "Quantity": q.name,
+                            "Value": q.value.value if q.value else "",
+                            "Unit": q.unit,
+                            "Basis": q.measurement_basis,
+                            "Resource": q.resource_category,
+                            "Formula": q.formula,
+                            "Sources": ", ".join(q.sources) if q.sources else "",
+                            "Reason (if null)": q.reason or "",
                         }
-                        for f in stair_takeoff.flights
+                        for q in drawing.dynamic_takeoff.quantities
                     ],
                     use_container_width=True,
                     hide_index=True,
                 )
-                if stair_takeoff.incomplete_flights:
-                    st.caption(
-                        "⚠️ Not computed (missing tread, riser, or width match on this drawing): "
-                        + "; ".join(
-                            f"{inc.num_steps} steps ({inc.reason})"
-                            for inc in stair_takeoff.incomplete_flights
-                        )
-                    )
 
             st.download_button(
                 f"Download {drawing.drawing_id} (JSON)",

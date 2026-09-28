@@ -1,0 +1,219 @@
+{
+  "header": {
+    "schema_id": "344f29ca11a3",
+    "version": 1,
+    "run_timestamp": "20260925_121210978983",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+    "page": 1,
+    "drawing_index": 3,
+    "drawing_title": "RECESS IN THE OUTER WALLS OF THE TUNNEL EACH 50M AT SECTION 3, 4 & 5",
+    "classification": {
+      "project_type": "tunnel infrastructure",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "tunnel wall",
+        "wall recess",
+        "reinforcement",
+        "rebar"
+      ],
+      "confidence": "medium",
+      "notes": "This is a structural detail (scale 1:25) showing a vertical section through the outer wall of a tunnel with a recess feature repeated every 50m at sections 3, 4 & 5. Rebar callouts (Y25-125, Y32-125, Y12-150x500) indicate reinforcement layout, with dimensions for recess depth (2000mm), width offsets (600mm each side), and wall thickness (1200mm). No plan view or full wall length is shown, limiting some quantity derivations to per-unit or per-recess basis."
+    }
+  },
+  "schema_id": "344f29ca11a3",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:344f29ca11a3:v1",
+    "title": "Quantity takeoff schema 344f29ca11a3 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "wall_recess_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_recess_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_width",
+              "recess_depth",
+              "wall_thickness"
+            ],
+            "x-formula": "recess_width * recess_depth * wall_thickness"
+          },
+          "wall_vertical_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_vertical_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "vertical_bar_diameter",
+              "vertical_bar_spacing",
+              "wall_height",
+              "wall_length",
+              "rebar_unit_weight_factor"
+            ],
+            "x-formula": "(wall_length / vertical_bar_spacing) * wall_height * vertical_bar_diameter * vertical_bar_diameter * rebar_unit_weight_factor"
+          },
+          "wall_horizontal_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_horizontal_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "horizontal_bar_diameter",
+              "horizontal_bar_spacing",
+              "wall_height",
+              "wall_length",
+              "rebar_unit_weight_factor"
+            ],
+            "x-formula": "(wall_height / horizontal_bar_spacing) * wall_length * horizontal_bar_diameter * horizontal_bar_diameter * rebar_unit_weight_factor"
+          },
+          "recess_additional_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "recess_additional_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_diameter",
+              "additional_bar_count",
+              "additional_bar_length",
+              "rebar_unit_weight_factor"
+            ],
+            "x-formula": "additional_bar_count * additional_bar_length * additional_bar_diameter * additional_bar_diameter * rebar_unit_weight_factor"
+          },
+          "recess_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "recess_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_width",
+              "recess_depth",
+              "recess_perimeter_faces"
+            ],
+            "x-formula": "recess_width * recess_depth * recess_perimeter_faces"
+          },
+          "wall_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "wall_thickness"
+            ],
+            "x-formula": "wall_length * wall_height * wall_thickness"
+          },
+          "wall_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "formwork_face_count"
+            ],
+            "x-formula": "wall_length * wall_height * formwork_face_count"
+          },
+          "rebar_fixing_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_fixing_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_rebar_weight",
+              "rebar_fixing_productivity_rate"
+            ],
+            "x-formula": "total_rebar_weight / rebar_fixing_productivity_rate"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_concrete_volume",
+              "concrete_placement_productivity_rate"
+            ],
+            "x-formula": "total_concrete_volume / concrete_placement_productivity_rate"
+          },
+          "formwork_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_formwork_area",
+              "formwork_installation_productivity_rate"
+            ],
+            "x-formula": "total_formwork_area / formwork_installation_productivity_rate"
+          },
+          "concrete_pump_equipment_usage": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_pump_equipment_usage",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "total_concrete_volume",
+              "concrete_pump_output_rate"
+            ],
+            "x-formula": "total_concrete_volume / concrete_pump_output_rate"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

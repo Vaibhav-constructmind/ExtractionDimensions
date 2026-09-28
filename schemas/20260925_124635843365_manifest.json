@@ -1,0 +1,189 @@
+{
+  "run_timestamp": "20260925_124635843365",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223[T3].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "EXPANSION JOINT DETAIL FOR TUNNEL TOP SLAB",
+      "classification": {
+        "project_type": "tunnel/underground infrastructure",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "tunnel top slab",
+          "expansion joint",
+          "waterstop",
+          "waterproofing membrane",
+          "slab reinforcement",
+          "dowel bars"
+        ],
+        "confidence": "high",
+        "notes": "Detail titled 'EXPANSION JOINT DETAIL FOR TUNNEL TOP SLAB', N.T.S. (not to scale), showing slab reinforcement callouts (Y25-125, Y16-200, Y20-125), stainless steel dowel bars, waterstops, waterproofing membrane, joint filler, and compressible material at an expansion joint in a tunnel top slab. Since drawing is N.T.S., quantities must be derived per unit length of joint / per bar spacing rather than from scaled dimensions."
+      },
+      "schema_id": "a9799bd84e76",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260925_124635843365_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223_T3_.pdf_p1_d3_detail.schema.json",
+      "reused_existing_schema": false,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223[T3].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "CONSTRUCTION JOINT DETAIL FOR RAFT",
+      "classification": {
+        "project_type": "commercial/industrial building (foundation works)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "raft foundation",
+          "construction joint",
+          "waterstop",
+          "waterproofing membrane",
+          "blinding concrete",
+          "screed protection"
+        ],
+        "confidence": "high",
+        "notes": "Detail drawing (N.T.S.) showing a construction joint condition within an R.C. raft foundation, including external water stop, PVC waterproofing membrane, blinding concrete layer, and screed protection. No overall plan dimensions given, so quantities are expressed per linear meter of joint or per unit area of raft as generic unit-rate items."
+      },
+      "schema_id": "a9799bd84e76",
+      "schema_version": 2,
+      "schema_file": "schemas\\20260925_124635843365_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223_T3_.pdf_p1_d4_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223[T3].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "EXPANSION JOINT DETAIL FOR TUNNEL RAFT",
+      "classification": {
+        "project_type": "tunnel (civil infrastructure)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "tunnel raft",
+          "tunnel wall",
+          "expansion joint",
+          "waterstop",
+          "waterproofing membrane",
+          "screed protection",
+          "construction joint"
+        ],
+        "confidence": "high",
+        "notes": "Detail sheet showing expansion joint construction at tunnel raft and tunnel wall, including PVC waterproofing membrane, internal/external waterstops, screed protection layer, and construction joint. No overall dimensions/lengths of raft or wall given, so quantities are expressed per linear meter of joint, typical for detail drawings used to build unit-rate based BOQs."
+      },
+      "schema_id": "a9799bd84e76",
+      "schema_version": 3,
+      "schema_file": "schemas\\20260925_124635843365_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223_T3_.pdf_p1_d5_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D6",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223[T3].pdf",
+      "page": 1,
+      "drawing_index": 6,
+      "drawing_title": "CONSTRUCTION JOINT DETAIL FOR WALL (PLAN)",
+      "classification": {
+        "project_type": "commercial/civil building with below-grade waterproofed RC walls",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "RC wall",
+          "construction joint",
+          "waterstop",
+          "waterproofing membrane"
+        ],
+        "confidence": "medium",
+        "notes": "Plan detail showing construction joint in reinforced concrete wall with internal/external waterstops and PVC waterproofing membrane, N.T.S. so no scaled dimensions provided beyond T/3 divisions of wall thickness."
+      },
+      "schema_id": "a9799bd84e76",
+      "schema_version": 4,
+      "schema_file": "schemas\\20260925_124635843365_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223_T3_.pdf_p1_d6_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D7",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223[T3].pdf",
+      "page": 1,
+      "drawing_index": 7,
+      "drawing_title": "unclear",
+      "classification": {
+        "project_type": "commercial/civil building (concrete structure with waterproofing details)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "R.C. wall",
+          "construction joint",
+          "waterproofing (PVC waterstop)"
+        ],
+        "confidence": "medium",
+        "notes": "This is a fragment of a detail drawing showing a construction joint condition in an R.C. wall with PVC waterproofing/waterstop, internal and external face callouts. No overall dimensions or wall length/height/thickness are legible in this crop, limiting quantifiable takeoff to linear items like joint length and waterstop length if such dimensions were provided elsewhere on the sheet."
+      },
+      "schema_id": "a9799bd84e76",
+      "schema_version": 5,
+      "schema_file": "schemas\\20260925_124635843365_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223_T3_.pdf_p1_d7_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D8",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223[T3].pdf",
+      "page": 1,
+      "drawing_index": 8,
+      "drawing_title": "WATERSTOP AT CONSTRUCTION JOINT",
+      "classification": {
+        "project_type": "civil/structural infrastructure (e.g. pavement, slab, or water-retaining structure with joints)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "construction joint",
+          "waterstop",
+          "expansion joint",
+          "dowel bar",
+          "joint filler"
+        ],
+        "confidence": "medium",
+        "notes": "Two NTS (not-to-scale) typical details showing a waterstop at a construction joint and a shear connector/dowel bar assembly at an expansion joint. No overall dimensions or run lengths are given, only component sizes and spacing (32mm dia dowel @ 500mm spacing, 20mm joint filler width), so quantities must be derived per linear meter of joint using standard spacing assumptions."
+      },
+      "schema_id": "a9799bd84e76",
+      "schema_version": 6,
+      "schema_file": "schemas\\20260925_124635843365_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223_T3_.pdf_p1_d8_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D12",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223[T3].pdf",
+      "page": 1,
+      "drawing_index": 12,
+      "drawing_title": "TYPECAL DETAIL FOR LIGHTING POLE FOUNDATION R.C.",
+      "classification": {
+        "project_type": "tunnel / road infrastructure",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "foundation",
+          "footing",
+          "pedestal",
+          "rebar",
+          "lighting pole base"
+        ],
+        "confidence": "medium",
+        "notes": "N.T.S. detail of a typical RC foundation for a lighting pole, part of miscellaneous structural details sheet for King Abdulaziz West Tunnel project. No explicit dimensions (length/width/depth) given other than rebar spacing callouts (Y12-150), so geometric quantities cannot be precisely computed without dimension extraction from a scaled or dimensioned version; schema below relies on generic dimension roles that would be populated from an accompanying dimensioned version of this detail or schedule."
+      },
+      "schema_id": "a9799bd84e76",
+      "schema_version": 7,
+      "schema_file": "schemas\\20260925_124635843365_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000223_T3_.pdf_p1_d12_detail.schema.json",
+      "reused_existing_schema": true,
+      "error": null
+    }
+  ]
+}

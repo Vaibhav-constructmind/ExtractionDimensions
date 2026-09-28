@@ -1,0 +1,119 @@
+{
+  "header": {
+    "schema_id": "99c9a0a64030",
+    "version": 1,
+    "run_timestamp": "20260925_122416760729",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000220[T2].pdf",
+    "page": 1,
+    "drawing_index": 7,
+    "drawing_title": "RFT. AROUND OPENING",
+    "classification": {
+      "project_type": "commercial/residential building (general construction)",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "wall opening",
+        "reinforcement bars",
+        "trimmer bars around opening"
+      ],
+      "confidence": "medium",
+      "notes": "Detail shows reinforcement bar arrangement (2 X 2 Y25 bars) around a rectangular opening in a concrete wall/slab, repeated twice on the sheet. No overall dimensions of the opening or wall are given, so quantities are schematic and depend on typical/standard opening sizes and bar development lengths."
+    }
+  },
+  "schema_id": "99c9a0a64030",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:99c9a0a64030:v1",
+    "title": "Quantity takeoff schema 99c9a0a64030 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "opening_trimmer_rebar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_trimmer_rebar_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_perimeter_length",
+              "bar_extension_length",
+              "number_of_bars_per_side"
+            ],
+            "x-formula": "(opening_perimeter_length + bar_extension_length) * number_of_bars_per_side"
+          },
+          "opening_trimmer_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_trimmer_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_trimmer_rebar_length",
+              "rebar_unit_weight"
+            ],
+            "x-formula": "opening_trimmer_rebar_length * rebar_unit_weight"
+          },
+          "opening_trimmer_rebar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_trimmer_rebar_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "number_of_openings",
+              "number_of_bars_per_side",
+              "sides_per_opening"
+            ],
+            "x-formula": "number_of_openings * number_of_bars_per_side * sides_per_opening"
+          },
+          "rebar_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "opening_trimmer_rebar_weight",
+              "labor_productivity_rate"
+            ],
+            "x-formula": "opening_trimmer_rebar_weight / labor_productivity_rate"
+          },
+          "opening_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_width",
+              "opening_height",
+              "number_of_openings"
+            ],
+            "x-formula": "opening_width * opening_height * number_of_openings"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

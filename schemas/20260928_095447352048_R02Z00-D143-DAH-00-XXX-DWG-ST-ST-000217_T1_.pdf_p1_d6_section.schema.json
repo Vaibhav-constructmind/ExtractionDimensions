@@ -1,0 +1,384 @@
+{
+  "header": {
+    "schema_id": "b2aba190d644",
+    "version": 3,
+    "run_timestamp": "20260928_095447352048",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 6,
+    "drawing_title": "unclear",
+    "classification": {
+      "project_type": "commercial/residential building (voided/biaxial slab construction)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "slab",
+        "reinforcement",
+        "rebar",
+        "voided slab",
+        "beam"
+      ],
+      "confidence": "medium",
+      "notes": "Section A-A shows a biaxial voided (bubble) slab/beam strip with multiple rebar callouts (Y32-100, Y25-125, Y20-125, Y16-125, Y12-125, Y12-150/WEB) indicating top, bottom, and web reinforcement around circular void formers. A secondary reinforcement elevation/detail with a 2000mm dimension appears at left, likely a wall or column strip. No overall slab length/thickness dimension is legible, limiting full quantity derivation."
+    }
+  },
+  "schema_id": "b2aba190d644",
+  "version": 3,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:b2aba190d644:v3",
+    "title": "Quantity takeoff schema b2aba190d644 v3",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "wall_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Volume of concrete in the perimeter/internal walls shown in section",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "wall_thickness"
+            ],
+            "x-formula": "wall_length * wall_height * wall_thickness"
+          },
+          "slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Volume of concrete in the base slab",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width",
+              "slab_thickness"
+            ],
+            "x-formula": "slab_length * slab_width * slab_thickness"
+          },
+          "wall_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Formwork area for both faces of the wall",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height"
+            ],
+            "x-formula": "2 * wall_length * wall_height"
+          },
+          "vertical_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of vertical reinforcing bars along wall length based on bar spacing",
+            "x-unit": "bars",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "vertical_bar_spacing"
+            ],
+            "x-formula": "wall_length / vertical_bar_spacing"
+          },
+          "vertical_bar_total_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of vertical wall reinforcement",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "vertical_bar_count",
+              "wall_height"
+            ],
+            "x-formula": "vertical_bar_count * wall_height"
+          },
+          "horizontal_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of horizontal reinforcing bars up the wall height based on bar spacing",
+            "x-unit": "bars",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_height",
+              "horizontal_bar_spacing"
+            ],
+            "x-formula": "wall_height / horizontal_bar_spacing"
+          },
+          "horizontal_bar_total_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of horizontal wall reinforcement",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "horizontal_bar_count",
+              "wall_length"
+            ],
+            "x-formula": "horizontal_bar_count * wall_length"
+          },
+          "web_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of web (through-wall) reinforcing bars based on spacing over wall height",
+            "x-unit": "bars",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_height",
+              "web_bar_spacing"
+            ],
+            "x-formula": "wall_height / web_bar_spacing"
+          },
+          "web_bar_total_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of web reinforcement across wall thickness",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_count",
+              "wall_thickness"
+            ],
+            "x-formula": "web_bar_count * wall_thickness"
+          },
+          "recess_concrete_volume_deduction": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Volume of concrete deducted for the recess depression",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_length",
+              "recess_width",
+              "recess_depth"
+            ],
+            "x-formula": "recess_length * recess_width * recess_depth"
+          },
+          "top_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Weight of top reinforcement bars (Y25-100/125) running along the slab",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_bar_diameter",
+              "top_bar_spacing",
+              "top_bar_length",
+              "slab_width"
+            ],
+            "x-formula": "(slab_width / top_bar_spacing) * top_bar_length * (top_bar_diameter ** 2)"
+          },
+          "bottom_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Weight of bottom reinforcement bars (Y25-100/125) running along the slab",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_bar_diameter",
+              "bottom_bar_spacing",
+              "bottom_bar_length",
+              "slab_width"
+            ],
+            "x-formula": "(slab_width / bottom_bar_spacing) * bottom_bar_length * (bottom_bar_diameter ** 2)"
+          },
+          "vertical_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Weight of vertical reinforcement bars at the recess sides (Y25-100)",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "vertical_bar_diameter",
+              "vertical_bar_spacing",
+              "vertical_bar_height",
+              "recess_width"
+            ],
+            "x-formula": "(recess_width / vertical_bar_spacing) * vertical_bar_height * (vertical_bar_diameter ** 2)"
+          },
+          "formwork_area_recess": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Formwork area required for the recess side faces",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "recess_length",
+              "recess_depth"
+            ],
+            "x-formula": "recess_length * recess_depth * 2"
+          },
+          "top_main_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of top main reinforcement bars across the slab/beam span, derived from bar spacing callout (e.g. Y20-125)",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_span",
+              "top_main_bar_spacing"
+            ],
+            "x-formula": "(slab_span / top_main_bar_spacing) + 1"
+          },
+          "top_main_bar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of top main reinforcement bars",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_main_bar_count",
+              "slab_width"
+            ],
+            "x-formula": "top_main_bar_count * slab_width"
+          },
+          "bottom_main_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of bottom main reinforcement bars across the slab/beam span, derived from bar spacing callout (e.g. Y32-100)",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_span",
+              "bottom_main_bar_spacing"
+            ],
+            "x-formula": "(slab_span / bottom_main_bar_spacing) + 1"
+          },
+          "bottom_main_bar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of bottom main reinforcement bars",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_main_bar_count",
+              "slab_width"
+            ],
+            "x-formula": "bottom_main_bar_count * slab_width"
+          },
+          "web_bar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of web reinforcement bars",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_count",
+              "slab_thickness"
+            ],
+            "x-formula": "web_bar_count * slab_thickness"
+          },
+          "stirrup_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of stirrup/link bars around voids, derived from stirrup spacing callout",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_span",
+              "stirrup_bar_spacing"
+            ],
+            "x-formula": "(slab_span / stirrup_bar_spacing) + 1"
+          },
+          "stirrup_bar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Total length of stirrup/link bars, based on perimeter around slab section depth",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_count",
+              "slab_thickness",
+              "slab_width"
+            ],
+            "x-formula": "stirrup_bar_count * (2 * slab_thickness + 2 * slab_width)"
+          },
+          "slab_gross_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Gross concrete volume of the slab/beam strip before deducting void former volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_span",
+              "slab_width",
+              "slab_thickness"
+            ],
+            "x-formula": "slab_span * slab_width * slab_thickness"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

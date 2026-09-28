@@ -1,14 +1,14 @@
-"""Ties the whole pipeline together: PDF bytes in, ExtractionResult out."""
+﻿"""Ties the whole pipeline together: PDF bytes in, ExtractionResult out."""
 from __future__ import annotations
 
 import logging
 import re
 from collections import Counter
-from typing import Callable
+from datetime import datetime
 
 from pydantic import ValidationError
 
-from . import calculations, claude_extractor, doc_intelligence, render
+from . import claude_extractor, doc_intelligence, handlers, render
 from .doc_intelligence import OcrLine
 from .config import Settings
 from .schema import (
@@ -16,18 +16,15 @@ from .schema import (
     DetailCallout,
     Dimension,
     Drawing,
+    DrawingClassification,
     DrawingMetadata,
+    DynamicQuantityItemSpec,
     ElevationDatum,
     ExtractionResult,
-    FlightConcrete,
-    IncompleteFlight,
-    MeasuredValue,
-    QuantityField,
-    QuantityTakeoff,
-    SingleStepConcrete,
-    StairQuantityTakeoff,
+    SchemaHeader,
     StepFormula,
 )
+from .schema_registry import SchemaRegistry, SchemaValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -177,94 +174,6 @@ def _build_detail_callout(raw_callout: dict, drawing_id: str, callout_index: int
         return None
 
 
-def _find_single_step_concrete(dimensions: list[Dimension], drawing_id: str) -> SingleStepConcrete | None:
-    """Best-effort, deterministic (non-LLM) single-step concrete volume for
-    this drawing, built only from dimensions the model already extracted --
-    the volume calculation itself (pipeline.calculations) never touches the
-    model.
-
-    Tread depth and riser height are read from this drawing's own
-    tread_going / stair_rise dimensions' step_formula.riser_or_tread_dim --
-    an unambiguous signal, since those are the only dimension types that
-    carry a per-step figure.
-
-    Stair width is NOT auto-detected here: DIMENSION_TYPES has no dedicated
-    "stair_width" category, and a drawing typically has several generic
-    `type == "width"` dimensions (landing width, wall-to-wall width, etc.) --
-    guessing which one is the stair's own clear width would risk silently
-    picking the wrong dimension. TODO: once dimensions can be tagged/scored
-    as "this is the stair flight's own width" (or a dedicated stair_width
-    field exists), source it here and call
-    calculations.build_single_step_concrete(...) to complete this record.
-    Until then, this intentionally returns None rather than fabricate a
-    stair_width.
-    """
-    tread = next(
-        (
-            d for d in dimensions
-            if d.type == "tread_going" and d.step_formula and d.step_formula.riser_or_tread_dim
-        ),
-        None,
-    )
-    riser = next(
-        (
-            d for d in dimensions
-            if d.type == "stair_rise" and d.step_formula and d.step_formula.riser_or_tread_dim
-        ),
-        None,
-    )
-    if tread is None or riser is None:
-        return None
-
-    logger.debug(
-        "%s: found tread_going (%s) and stair_rise (%s) dimensions, but no reliable "
-        "stair_width source exists yet -- skipping single_step_concrete (see TODO in "
-        "_find_single_step_concrete)",
-        drawing_id, tread.dimension_id, riser.dimension_id,
-    )
-    return None
-
-
-def _build_quantity_field(raw_field: object) -> QuantityField | None:
-    if not isinstance(raw_field, dict):
-        return None
-    try:
-        return QuantityField(
-            value=raw_field.get("value"),
-            unit=raw_field.get("unit"),
-            method=raw_field.get("method"),
-            confidence=raw_field.get("confidence"),
-            notes=raw_field.get("notes"),
-        )
-    except ValidationError:
-        return None
-
-
-def _build_quantity_takeoff(
-    raw_takeoff: object, drawing_id: str, dimensions: list[Dimension]
-) -> QuantityTakeoff | None:
-    if raw_takeoff is None:
-        return None
-    if not isinstance(raw_takeoff, dict):
-        logger.warning("Skipping malformed quantity_takeoff on %s: %r", drawing_id, raw_takeoff)
-        return None
-    try:
-        # single_step_concrete is computed deterministically from `dimensions`
-        # (see _find_single_step_concrete), never from the model's raw
-        # quantity_takeoff output like every other field here.
-        return QuantityTakeoff(
-            single_step_concrete=_find_single_step_concrete(dimensions, drawing_id),
-            **{
-                field_name: _build_quantity_field(raw_takeoff.get(field_name))
-                for field_name in QuantityTakeoff.model_fields
-                if field_name != "single_step_concrete"
-            },
-        )
-    except ValidationError:
-        logger.warning("Skipping malformed quantity_takeoff on %s: %r", drawing_id, raw_takeoff)
-        return None
-
-
 def _build_bounding_box(raw_box: object, drawing_id: str) -> BoundingBox | None:
     if raw_box is None:
         return None
@@ -352,8 +261,8 @@ def _looks_like_cross_drawing_leak(callout: DetailCallout) -> bool:
 
 
 def _build_drawing_fields(raw_drawing: dict, drawing_id: str, page_number: int) -> dict:
-    """Build the dimensions/elevation_datums/metadata/quantity_takeoff/drawing_type
-    for one drawing out of one raw Claude tool-call entry. Shared between the
+    """Build the dimensions/elevation_datums/metadata/drawing_type for one
+    drawing out of one raw Claude tool-call entry. Shared between the
     full-page pass and the per-drawing high-res detail pass so both build
     these fields identically."""
     dimensions = [
@@ -391,15 +300,12 @@ def _build_drawing_fields(raw_drawing: dict, drawing_id: str, page_number: int) 
 
     metadata = _clear_title_if_borrowed_from_callout(metadata, detail_callouts, drawing_id)
 
-    quantity_takeoff = _build_quantity_takeoff(raw_drawing.get("quantity_takeoff"), drawing_id, dimensions)
-
     return {
         "drawing_type": raw_drawing.get("drawing_type", "other"),
         "drawing_metadata": metadata,
         "dimensions": dimensions,
         "elevation_datums": elevation_datums,
         "detail_callouts": detail_callouts,
-        "quantity_takeoff": quantity_takeoff,
     }
 
 
@@ -437,23 +343,19 @@ def _ocr_text_for_box(
     return "\n".join(matched)
 
 
-def _run_detail_pass(
+def _render_drawing_crop(
     pdf_bytes: bytes,
     page_number: int,
     bounding_box: BoundingBox,
-    ocr_text: str,
-    drawing_id: str,
     settings: Settings,
-) -> dict | None:
-    """Crop this drawing's bounding box out of the page, re-render it alone at
-    a much higher effective DPI, and re-extract from that crop alone.
-
-    Returns the merged raw-drawing dict to rebuild this Drawing's fields from,
-    or None if the detail pass failed or found nothing (caller should keep
-    the original full-page-pass results in that case).
-    """
+    drawing_id: str,
+) -> bytes | None:
+    """Crop this drawing's bounding box out of the page and re-render it
+    alone at a much higher effective DPI. Shared by the classification
+    stage and the detail pass so a drawing's crop is only rendered once
+    per run, not twice."""
     try:
-        crop_bytes = render.render_crop(
+        return render.render_crop(
             pdf_bytes,
             page_number,
             bounding_box.x0,
@@ -463,7 +365,35 @@ def _run_detail_pass(
             max_dpi=settings.detail_render_dpi,
         )
     except Exception:
-        logger.warning("Detail-pass crop render failed for %s; keeping full-page-pass results", drawing_id, exc_info=True)
+        logger.warning("Crop render failed for %s", drawing_id, exc_info=True)
+        return None
+
+
+def _run_detail_pass(
+    pdf_bytes: bytes,
+    page_number: int,
+    bounding_box: BoundingBox,
+    ocr_text: str,
+    drawing_id: str,
+    settings: Settings,
+    crop_bytes: bytes | None = None,
+    dynamic_properties: dict[str, dict] | None = None,
+) -> dict | None:
+    """Re-extract this drawing alone from its (already-cropped, high-DPI)
+    image. `crop_bytes` is normally supplied by the caller (rendered once
+    during the classification stage); this function only renders it itself
+    as a fallback if the caller didn't already have it. `dynamic_properties`,
+    when given, merges this drawing's proposed resource-planning input roles
+    into the tool schema for this call, so the model reports their values
+    directly alongside its dimensions (see claude_extractor.extract_page).
+
+    Returns the merged raw-drawing dict to rebuild this Drawing's fields from,
+    or None if the detail pass failed or found nothing (caller should keep
+    the original full-page-pass results in that case).
+    """
+    if crop_bytes is None:
+        crop_bytes = _render_drawing_crop(pdf_bytes, page_number, bounding_box, settings, drawing_id)
+    if crop_bytes is None:
         return None
 
     try:
@@ -472,6 +402,7 @@ def _run_detail_pass(
             ocr_text=ocr_text,
             page_number=page_number,
             settings=settings,
+            dynamic_properties=dynamic_properties,
         )
     except Exception:
         logger.warning("Detail-pass extraction failed for %s; keeping full-page-pass results", drawing_id, exc_info=True)
@@ -496,6 +427,10 @@ def _run_detail_pass(
     merged["dimensions"] = [d for raw in raw_detail_drawings for d in raw.get("dimensions", [])]
     merged["elevation_datums"] = [d for raw in raw_detail_drawings for d in raw.get("elevation_datums", [])]
     merged["detail_callouts"] = [d for raw in raw_detail_drawings for d in raw.get("detail_callouts", [])]
+    merged_quantities: dict = {}
+    for raw in raw_detail_drawings:
+        merged_quantities.update(raw.get("quantities") or {})
+    merged["quantities"] = merged_quantities
     return merged
 
 
@@ -742,477 +677,6 @@ def _reconcile_detail_callouts(page_drawings: list[Drawing]) -> None:
             d.detail_callouts = deduped
 
 
-_STAIR_GROUP_RE = re.compile(r"STAIR[^0-9]*?(\d{1,3})", re.IGNORECASE)
-
-
-def _stair_group_key(drawing_title: str | None) -> str | None:
-    """Extract a stair group identifier (e.g. 'STAIR-07') from a drawing's
-    title, however that title is phrased -- 'STAIR-07-INTERMEDIATE LANDING-
-    03', 'STAIR-07-BG1-TUNNEL PLAN', 'STAIR DETAIL-07', and '3D_STAIR-07' all
-    resolve to the same 'STAIR-07' group. Purely a text pattern (the stair
-    number nearest the word 'STAIR'), so it generalizes to any stair number,
-    not just this sheet's. Returns None for a title that doesn't mention a
-    stair number at all (e.g. a schedule/legend drawing) -- such drawings
-    simply don't participate in any stair group.
-    """
-    if not drawing_title:
-        return None
-    match = _STAIR_GROUP_RE.search(drawing_title)
-    return f"STAIR-{match.group(1)}" if match else None
-
-
-def _ordered_flight_readings(
-    drawing: Drawing, dimension_type: str
-) -> list[tuple[int, float, str, str | None]]:
-    """Every dimension of `dimension_type` (e.g. 'tread_going' or
-    'stair_rise') on THIS drawing that carries a usable step_formula, in the
-    order it appears in `drawing.dimensions` -- each kept as its own
-    distinct entry (count, riser_or_tread_dim, dimension_id, section_part),
-    never collapsed with another sharing the same step count. Two readings
-    with the same count on one drawing are two distinct physical flights
-    (e.g. a section showing three separate 14-riser flights), not repeats
-    of one -- so each gets its own downstream record, never an instance
-    count."""
-    readings: list[tuple[int, float, str, str | None]] = []
-    for dim in drawing.dimensions:
-        if dim.type != dimension_type or dim.step_formula is None:
-            continue
-        count = dim.step_formula.count
-        value = dim.step_formula.riser_or_tread_dim
-        if not count or not value or count <= 0 or value <= 0:
-            continue
-        readings.append((round(count), value, dim.dimension_id, dim.section_part))
-    return readings
-
-
-_RISER_TREAD_LABEL_RE = re.compile(r"(?:RISERS?|TREADS?)\s*[xX@]\s*(\d+(?:\.\d+)?)")
-
-
-def _pool_canonical_stair_value(
-    page_drawings: list[Drawing], stair_group_id: str, dimension_type: str
-) -> tuple[float, str, str] | None:
-    """Majority (most common) per-step value for `dimension_type`
-    ('stair_rise' or 'tread_going') across EVERY drawing on this page
-    belonging to `stair_group_id` -- riser height and tread going are
-    treated as properties of the STAIR as a whole, not of one drawing: a
-    real stair almost always uses a single uniform riser height and a
-    single uniform tread going throughout (a building-code requirement), so
-    pooling every view's reading and taking the majority is more reliable
-    than trusting any one drawing's own reading, which can be a misread
-    (e.g. a '280' that should have read '165') or a value borrowed from the
-    other side when only one of tread/riser was found on that drawing. An
-    isolated or conflicting reading is simply outvoted, never deleted --
-    it's not in this function's output, but it's still visible wherever the
-    dimension it came from is listed, so nothing is silently discarded.
-
-    Considers `step_formula.riser_or_tread_dim` first; when step_formula is
-    empty but the dimension's own `label_text` still spells out a clear
-    'N RISERS/TREADS x Xmm' pattern, that's accepted too -- a real
-    extraction gap where the model read the label correctly but left the
-    structured step_formula field blank. Returns None if nothing usable
-    was found anywhere in the group.
-    """
-    readings: list[tuple[float, str, str]] = []
-    for d in page_drawings:
-        if _stair_group_key(d.drawing_metadata.drawing_title) != stair_group_id:
-            continue
-        for dim in d.dimensions:
-            if dim.type != dimension_type:
-                continue
-            value: float | None = None
-            if dim.step_formula and dim.step_formula.riser_or_tread_dim:
-                value = dim.step_formula.riser_or_tread_dim
-            elif dim.label_text:
-                match = _RISER_TREAD_LABEL_RE.search(dim.label_text)
-                if match:
-                    value = float(match.group(1))
-            if value and value > 0:
-                readings.append((value, dim.unit or "mm", dim.dimension_id))
-
-    if not readings:
-        return None
-
-    chosen_value = calculations.select_mode_value([(v, 1.0) for v, _, _ in readings])
-    unit, source = next((u, s) for v, u, s in readings if v == chosen_value)
-    return chosen_value, unit, source
-
-
-_CONFIDENCE_RANK = {"high": 3, "medium": 2, "low": 1, None: 0}
-
-# No building code permits an egress stair flight narrower than this -- a
-# reading below it is essentially guaranteed to be some OTHER dimension (a
-# landing-nib gap, a nosing offset, a wall thickness) that got mistagged as
-# `width`/`stair_width`, not a genuine physical flight width. This is a
-# domain-knowledge sanity floor, not a sheet-specific value: it never varies
-# per project and it's only ever used to REJECT an implausible candidate,
-# never to select or prefer one specific plausible value over another.
-_MIN_PLAUSIBLE_STAIR_WIDTH_MM = 600.0
-
-
-def _ordered_stair_width_readings(
-    drawing: Drawing,
-) -> list[tuple[float, str, str, str | None, str | None]]:
-    """Every usable stair-width candidate on THIS drawing, in priority order,
-    as (value, unit, dimension_id, section_part, confidence).
-
-    Deliberately scoped to THIS ONE drawing only -- unlike riser height and
-    tread going (see _pool_canonical_stair_value), stair width is NEVER
-    pooled or majority-voted across a stair group's other drawings/views.
-    Different views of the same physical stair can legitimately show a
-    different clear width for a genuinely different condition -- e.g. a
-    typical intermediate-landing flight vs. a grade-level entry condition --
-    so forcing one view's width onto another would silently produce a wrong
-    volume for whichever view disagrees. Each drawing's own width reading
-    (or readings) is used exactly as found on it, full stop.
-
-    Orientation, not the `stair_width` vs `width` type tag, is the strongest
-    signal here: on every drawing where this project's data has had a
-    correct reading, the flight's clear width (spanning across the flight,
-    perpendicular to travel) was drawn as a VERTICAL dimension line -- and
-    every time a HORIZONTAL dimension got tagged `stair_width`, it turned out
-    to be something else entirely (a tread-run total, an overall wall-to-
-    wall span). So this checks, in order: (1) `stair_width`-typed AND
-    vertical, (2) `width`-typed AND vertical -- since the model sometimes
-    tags the correct reading under the wrong type but still draws/traces it
-    correctly as vertical, (3) `stair_width`-typed, any orientation, (4)
-    `width`-typed, any orientation. The first non-empty tier wins; later
-    tiers exist only for drawings with no vertical candidate at all.
-
-    Deliberately does NOT deduplicate or pick a "winner" between multiple
-    candidates in the same tier by magnitude -- per the updated extraction
-    protocol, the model is now asked to tag every plausible stair_width
-    candidate (not silently discard the one it doesn't prefer under a
-    different type), each with its own confidence. Picking between colliding
-    candidates for the same flight is the caller's job
-    (_compute_stair_quantity_takeoff_for_drawing), which has the flight-
-    position context to resolve it and can prefer the higher-confidence
-    reading when two candidates land on the same flight.
-
-    Readings implausibly narrow for any real stair flight
-    (< _MIN_PLAUSIBLE_STAIR_WIDTH_MM) are dropped everywhere -- they're
-    consistently a different, smaller dimension (e.g. a landing gap) mis-
-    tagged as width, and using one produces a confidently wrong volume that
-    is worse than reporting no takeoff for that flight at all.
-    """
-    def _collect(dim_type: str) -> tuple[
-        list[tuple[float, str, str, str | None, str | None]],
-        list[tuple[float, str, str, str | None, str | None]],
-    ]:
-        vertical: list[tuple[float, str, str, str | None, str | None]] = []
-        all_readings: list[tuple[float, str, str, str | None, str | None]] = []
-        for dim in drawing.dimensions:
-            if dim.type != dim_type or not dim.value or dim.value <= 0:
-                continue
-            if dim.value < _MIN_PLAUSIBLE_STAIR_WIDTH_MM:
-                continue
-            entry = (dim.value, dim.unit or "mm", dim.dimension_id, dim.section_part, dim.confidence)
-            all_readings.append(entry)
-            if dim.orientation == "vertical":
-                vertical.append(entry)
-        return vertical, all_readings
-
-    stair_width_vertical, stair_width_all = _collect("stair_width")
-    width_vertical, width_all = _collect("width")
-
-    return stair_width_vertical or width_vertical or stair_width_all or width_all
-
-
-_UPPER_KEYWORDS = ("upper", "top")
-_LOWER_KEYWORDS = ("lower", "bottom")
-
-
-def _flight_position_from_text(*section_parts: str | None) -> str | None:
-    """Look for an 'upper'/'top' or 'lower'/'bottom' keyword in whichever
-    section_part text is available (tread's, then riser's, then width's) to
-    label a flight by its actual physical position when the drawing's own
-    annotations say so, rather than always falling back to a bare ordinal
-    position. Returns None if none of the texts say either."""
-    for text in section_parts:
-        if not text:
-            continue
-        lowered = text.lower()
-        if any(kw in lowered for kw in _UPPER_KEYWORDS):
-            return "upper_flight"
-        if any(kw in lowered for kw in _LOWER_KEYWORDS):
-            return "lower_flight"
-    return None
-
-
-_FlightReading = tuple[int, float, str, str | None]
-
-
-def _pair_flights_in_drawing(
-    drawing: Drawing,
-) -> tuple[list[tuple[_FlightReading, _FlightReading, str]], list[IncompleteFlight]]:
-    """Pair THIS drawing's own tread_going and stair_rise readings into
-    physical flights -- never matched against a different drawing's
-    readings. Each tread reading is greedily matched to the first not-yet-
-    used riser reading sharing its exact step count, so two same-count
-    readings on one drawing become two separate pairs, not one collapsed
-    entry.
-
-    Whatever's left over after exact matching is resolved in priority order:
-    1. The single unambiguous 1:1 leftover (one tread-only count, one
-       riser-only count) is almost certainly a tread/riser count
-       disagreement for the same physical flight -- paired with the riser
-       count winning, per the stated rule.
-    2. Any remaining tread-only or riser-only reading is SELF-PAIRED: per
-       the project's rule that tread depth and riser height are assumed
-       equal when only one of them was found on this drawing, that one
-       reading is used for BOTH sides rather than left uncalculated. This
-       is what lets a plan-only or section-only drawing (the common case in
-       this document family) still produce a flight.
-
-    `incomplete_flights` is returned for schema/signature stability, but
-    tread/riser leftovers no longer land there -- only a missing stair_width
-    (checked later, in _compute_stair_quantity_takeoff_for_drawing) does.
-
-    Returns (pairs, incomplete) where each pair is
-    (tread_reading, riser_reading, num_steps_method).
-    """
-    treads = _ordered_flight_readings(drawing, "tread_going")
-    risers = _ordered_flight_readings(drawing, "stair_rise")
-
-    used_riser_idx: set[int] = set()
-    tread_only: list[_FlightReading] = []
-    pairs: list[tuple[_FlightReading, _FlightReading, str]] = []
-
-    for t in treads:
-        match_idx = next(
-            (i for i, r in enumerate(risers) if i not in used_riser_idx and r[0] == t[0]),
-            None,
-        )
-        if match_idx is not None:
-            used_riser_idx.add(match_idx)
-            pairs.append((t, risers[match_idx], f"tread count and riser count agree ({t[0]} steps)"))
-        else:
-            tread_only.append(t)
-
-    riser_only = [r for i, r in enumerate(risers) if i not in used_riser_idx]
-
-    if len(tread_only) == 1 and len(riser_only) == 1:
-        t, r = tread_only[0], riser_only[0]
-        pairs.append((
-            t, r,
-            f"tread count ({t[0]}) disagreed with riser count ({r[0]}) for what appears "
-            "to be the same flight; riser count used",
-        ))
-    else:
-        for t in tread_only:
-            pairs.append((
-                t, t,
-                f"riser height not found on this drawing for this flight ({t[0]} steps) -- "
-                f"tread depth ({t[1]:g}) used for riser height too, per the project's "
-                "tread/riser-equal-when-one-missing rule",
-            ))
-        for r in riser_only:
-            pairs.append((
-                r, r,
-                f"tread depth not found on this drawing for this flight ({r[0]} steps) -- "
-                f"riser height ({r[1]:g}) used for tread depth too, per the project's "
-                "tread/riser-equal-when-one-missing rule",
-            ))
-
-    return pairs, []
-
-
-def _compute_stair_quantity_takeoff_for_drawing(
-    drawing: Drawing,
-    stair_group_id: str,
-    canonical_riser: tuple[float, str, str] | None,
-    canonical_tread: tuple[float, str, str] | None,
-) -> StairQuantityTakeoff | None:
-    """Identify THIS drawing's own stair flights (which physical flights
-    exist on it, and their step counts) from this drawing's own dimensions
-    alone -- but use the STAIR-WIDE canonical riser height / tread going
-    (majority across the whole group, see _pool_canonical_stair_value) for
-    the actual volume calculation, rather than this one drawing's own
-    possibly-noisy reading. Falls back to this flight's own paired reading
-    only when the group has no canonical value for that side at all (e.g.
-    no drawing anywhere in the group has a usable stair_rise dimension).
-
-    Stair WIDTH is the one exception to this group-wide canonicalization:
-    it's read from THIS drawing alone (see _ordered_stair_width_readings)
-    and never pooled/majority-voted across the group, since different views
-    of the same physical stair can legitimately show a different clear
-    width for a different condition (e.g. a grade-level entry vs. a typical
-    intermediate landing) -- riser height and tread going are architectural
-    constants for a whole stair, but width is a per-view/per-condition
-    measurement.
-
-    Returns None if this drawing doesn't belong to a recognizable stair, or
-    if not a single flight could be fully resolved on it.
-    """
-    pairs, incomplete = _pair_flights_in_drawing(drawing)
-    if not pairs:
-        return None
-
-    widths = _ordered_stair_width_readings(drawing)
-    if not widths:
-        return None  # nothing computable without a stair_width on this drawing
-
-    # A single width reading on the drawing is treated as shared across every
-    # flight (the common case: one clear width for the whole stair). With two
-    # or more readings, a width whose own section_part names a physical
-    # position ("upper flight" / "lower flight") is matched to the flight
-    # sharing that same position -- this is what lets a single drawing with
-    # two stacked flights (e.g. an intermediate-landing plan) carry two
-    # genuinely different widths, one per flight, instead of both being
-    # forced to share whichever width happens to be first/positionally
-    # aligned. When two or more candidates land on the SAME position (the
-    # model is now asked to tag every plausible candidate rather than
-    # silently discard one -- see _ordered_stair_width_readings), the
-    # higher-confidence one wins rather than whichever happened to be read
-    # first; the loser is kept in the positional pool as a fallback rather
-    # than discarded outright. Any width without a resolvable position is
-    # assigned positionally, in appearance order, to whichever flights are
-    # left after position-matched ones are taken -- any flight beyond the
-    # number of width readings available is recorded as incomplete rather
-    # than reusing an unrelated flight's width.
-    width_by_position: dict[str, tuple[float, str, str, str | None, str | None]] = {}
-    positional_widths: list[tuple[float, str, str, str | None, str | None]] = []
-    for w in widths:
-        position = _flight_position_from_text(w[3])
-        if position is None:
-            positional_widths.append(w)
-            continue
-        existing = width_by_position.get(position)
-        if existing is None:
-            width_by_position[position] = w
-        elif _CONFIDENCE_RANK.get(w[4], 0) > _CONFIDENCE_RANK.get(existing[4], 0):
-            width_by_position[position] = w
-            positional_widths.append(existing)
-        else:
-            positional_widths.append(w)
-
-    resolved: list[tuple[_FlightReading, _FlightReading, tuple[float, str, str, str | None, str | None], str]] = []
-    positional_cursor = 0
-    for index, (tread, riser, method) in enumerate(pairs):
-        if len(widths) == 1:
-            width_entry = widths[0]
-        else:
-            flight_position = _flight_position_from_text(tread[3], riser[3])
-            width_entry = width_by_position.get(flight_position) if flight_position else None
-            if width_entry is None:
-                width_entry = positional_widths[positional_cursor] if positional_cursor < len(positional_widths) else None
-                if width_entry is not None:
-                    positional_cursor += 1
-        if width_entry is None:
-            incomplete.append(IncompleteFlight(
-                num_steps=riser[0],
-                reason=(
-                    f"tread ({tread[2]}) and riser ({riser[2]}) matched at {riser[0]} steps, "
-                    "but no stair_width reading is available for this flight's position on this drawing"
-                ),
-            ))
-            continue
-        resolved.append((tread, riser, width_entry, method))
-
-    if not resolved:
-        return None
-
-    total_resolved = len(resolved)
-    flights: list[FlightConcrete] = []
-    for index, (tread, riser, width_entry, method) in enumerate(resolved):
-        count, tread_value, tread_source, tread_section_part = tread
-        _, riser_value, riser_source, riser_section_part = riser
-        width_value, unit, width_source, width_section_part, _width_confidence = width_entry
-
-        # Stair-wide canonical riser/tread values (majority across the whole
-        # group) take priority over this one flight's own paired reading --
-        # falls back to the flight's own value only when the group has no
-        # canonical value for that side at all.
-        if canonical_riser is not None:
-            riser_value, _, riser_source = canonical_riser
-        if canonical_tread is not None:
-            tread_value, _, tread_source = canonical_tread
-
-        label = _flight_position_from_text(tread_section_part, riser_section_part, width_section_part)
-        if label is None:
-            if total_resolved == 2:
-                label = "upper_flight" if index == 0 else "lower_flight"
-            elif total_resolved == 1:
-                label = "flight"
-            else:
-                label = f"flight_{index + 1}"
-
-        flights.append(
-            calculations.build_flight_concrete(
-                flight_label=label,
-                tread_depth=tread_value,
-                riser_height=riser_value,
-                stair_width=width_value,
-                num_steps=count,
-                unit=unit,
-                tread_depth_source=tread_source,
-                riser_height_source=riser_source,
-                stair_width_source=width_source,
-                num_steps_source=riser_source,
-                num_steps_method=method,
-            )
-        )
-
-    num_steps_total = sum(f.num_steps.value for f in flights)
-    total_volume = sum(f.total_volume.value for f in flights)
-    tread_depth_representative = _select_mode_for_flights(flights, lambda f: f.tread_depth.value)
-    riser_height_representative = _select_mode_for_flights(flights, lambda f: f.riser_height.value)
-    stair_width_representative = _select_mode_for_flights(flights, lambda f: f.stair_width.value)
-    unit = flights[0].tread_depth.unit
-
-    return StairQuantityTakeoff(
-        stair_group_id=stair_group_id,
-        source_drawings=[drawing.drawing_id],
-        flights=flights,
-        incomplete_flights=incomplete,
-        tread_depth_representative=MeasuredValue(value=tread_depth_representative, unit=unit),
-        riser_height_representative=MeasuredValue(value=riser_height_representative, unit=unit),
-        riser_height_method=(
-            "stair-wide canonical value: majority across every riser/tread reading in this "
-            "stair's whole group of drawings (see _pool_canonical_stair_value), not just this "
-            "drawing -- falls back to a mode across this drawing's own flights only if the "
-            "group has no canonical value for that side at all"
-            if (canonical_riser is not None or canonical_tread is not None)
-            else "mode across this drawing's own resolved flights, weighted by each flight's step count"
-        ),
-        stair_width_representative=MeasuredValue(value=stair_width_representative, unit=unit),
-        num_steps_total=MeasuredValue(value=num_steps_total, unit="count"),
-        total_volume=MeasuredValue(value=total_volume, unit="m3"),
-    )
-
-
-def _select_mode_for_flights(flights: list[FlightConcrete], getter: Callable[[FlightConcrete], float]) -> float:
-    """Pick a single representative value across a drawing's own resolved
-    flights, weighting each flight's value by its own step count."""
-    return calculations.select_mode_value([(getter(f), f.num_steps.value) for f in flights])
-
-
-def _assign_stair_quantity_takeoffs(page_drawings: list[Drawing]) -> None:
-    """For each stair group on this page, compute the canonical riser
-    height and tread going ONCE (majority across every drawing in that
-    group -- see _pool_canonical_stair_value), then compute each drawing's
-    own flights (which physical flights exist on it, and their step counts
-    -- never pooled or copied from a sibling drawing) using those canonical
-    values for the actual dimensions."""
-    canonical_cache: dict[str, tuple[tuple | None, tuple | None]] = {}
-
-    for d in page_drawings:
-        stair_group_id = _stair_group_key(d.drawing_metadata.drawing_title)
-        if stair_group_id is None:
-            d.stair_quantity_takeoff = None
-            continue
-
-        if stair_group_id not in canonical_cache:
-            canonical_cache[stair_group_id] = (
-                _pool_canonical_stair_value(page_drawings, stair_group_id, "stair_rise"),
-                _pool_canonical_stair_value(page_drawings, stair_group_id, "tread_going"),
-            )
-        canonical_riser, canonical_tread = canonical_cache[stair_group_id]
-
-        d.stair_quantity_takeoff = _compute_stair_quantity_takeoff_for_drawing(
-            d, stair_group_id, canonical_riser, canonical_tread
-        )
-
-
 def _warn_on_suspect_drawings(drawings: list[Drawing]) -> None:
     """Best-effort consistency check over the finished result: flag drawings
     on the same page that share a title, and drawings with no dimensions or
@@ -1271,22 +735,15 @@ def _warn_on_suspect_drawings(drawings: list[Drawing]) -> None:
                     d.drawing_id,
                 )
 
-            # Verify this drawing's own riser count and tread count agree --
-            # per the stated rule, a drawing's number of risers and number of
-            # treads should be the same; a mismatch here means the model's
-            # own num_risers_total/num_treads_total reasoning disagreed with
-            # itself (e.g. one used a "risers-1" convention, the other counted
-            # labeled treads directly), which is worth a manual check.
-            takeoff = d.quantity_takeoff
-            if takeoff is not None:
-                risers = takeoff.num_risers_total.value if takeoff.num_risers_total else None
-                treads = takeoff.num_treads_total.value if takeoff.num_treads_total else None
-                if risers is not None and treads is not None and risers != treads:
-                    logger.warning(
-                        "%s: num_risers_total (%s) does not equal num_treads_total (%s) -- "
-                        "these should be the same count for the same flights; worth a manual check",
-                        d.drawing_id, risers, treads,
-                    )
+            # A low-confidence classification means the takeoff schema
+            # generated for this drawing (and everything computed from it)
+            # is built on a shaky premise -- worth a manual check.
+            if d.classification is not None and d.classification.confidence == "low":
+                logger.warning(
+                    "%s: classification is low-confidence (discipline=%r, drawing_type=%r) -- "
+                    "worth a manual check before trusting its takeoff schema",
+                    d.drawing_id, d.classification.discipline, d.classification.drawing_type,
+                )
 
         # Positional check: on a page of stacked/columned drawings, a
         # recurring failure is a drawing reporting the title_callout_number
@@ -1308,6 +765,112 @@ def _warn_on_suspect_drawings(drawings: list[Drawing]) -> None:
                 )
 
 
+def _parse_classification_result(raw: dict) -> tuple[DrawingClassification, list[DynamicQuantityItemSpec]]:
+    """Turn claude_extractor.classify_drawing's raw dict into the typed
+    classification plus the proposed (not-yet-computed) quantity items.
+    Malformed items are dropped with a warning rather than failing the
+    whole drawing -- classification/schema generation is best-effort and
+    must never block dimension extraction."""
+    raw_classification = raw.get("classification") or {}
+    try:
+        classification = DrawingClassification(**raw_classification)
+    except ValidationError:
+        logger.warning("Malformed classification, treating as unclassified: %r", raw_classification)
+        classification = DrawingClassification(drawing_type="other", confidence="low")
+
+    items: list[DynamicQuantityItemSpec] = []
+    for raw_item in raw.get("quantity_items", []):
+        try:
+            items.append(DynamicQuantityItemSpec(**raw_item))
+        except ValidationError:
+            logger.warning("Skipping malformed quantity_item: %r", raw_item)
+
+    return classification, items
+
+
+def _build_dynamic_properties(items: list[DynamicQuantityItemSpec]) -> dict[str, dict]:
+    """Turn a drawing's proposed quantity items into the `quantities` tool-
+    schema properties merged into its detail pass (see
+    claude_extractor._tool_schema_with_dynamic_properties) -- one property
+    per distinct `depends_on` role across all proposed items, asking the
+    model to report that role's value directly rather than leaving it to be
+    guessed from dimension text after the fact."""
+    properties: dict[str, dict] = {}
+    for item in items:
+        for role in item.depends_on:
+            properties.setdefault(
+                role,
+                {
+                    "type": ["number", "null"],
+                    "description": f"Value for input role '{role}' (used by quantity item '{item.name}')",
+                },
+            )
+    return properties
+
+
+def _clean_reported_quantities(raw_quantities: object) -> dict[str, float]:
+    """Keep only the roles the model actually reported a real number for
+    out of a raw `quantities` dict -- drops missing/null/non-numeric
+    entries rather than passing them through as if they were 0."""
+    if not isinstance(raw_quantities, dict):
+        return {}
+    return {
+        role: float(value)
+        for role, value in raw_quantities.items()
+        if isinstance(value, (int, float)) and not isinstance(value, bool)
+    }
+
+
+def _assign_dynamic_takeoffs(
+    page_drawings: list[Drawing],
+    classifications: dict[str, DrawingClassification],
+    proposed_items: dict[str, list[DynamicQuantityItemSpec]],
+    reported_quantities: dict[str, dict[str, float]],
+    registry: SchemaRegistry,
+    filename: str,
+) -> None:
+    """For every drawing on this page, get-or-create its takeoff schema in
+    the registry, persist it if this is a new/extended version, and compute
+    its dynamic quantities. `reported_quantities` is whatever this drawing's
+    own detail-pass extraction reported directly under its merged
+    `quantities` object (see claude_extractor._tool_schema_with_dynamic_properties)
+    -- handlers.compute_dynamic_takeoff prefers these over its own
+    dimension-text role-matching heuristics."""
+    for index, drawing in enumerate(page_drawings, start=1):
+        classification = classifications.get(drawing.drawing_id)
+        drawing.classification = classification
+        if classification is None:
+            continue
+
+        items = proposed_items.get(drawing.drawing_id, [])
+        header = SchemaHeader(
+            schema_id="",  # filled in after get_or_create
+            version=0,
+            run_timestamp=registry.run_timestamp,
+            source_pdf=filename,
+            page=drawing.page_number,
+            drawing_index=index,
+            drawing_title=drawing.drawing_metadata.drawing_title,
+            classification=classification,
+        )
+
+        if not items:
+            registry.record_drawing(drawing.drawing_id, header, None, False, error=None)
+            continue
+
+        try:
+            entry, reused = registry.get_or_create(classification, items)
+            header = header.model_copy(update={"schema_id": entry.schema_id, "version": entry.version})
+            registry.write_schema_file_if_needed(entry, header)
+            registry.record_drawing(drawing.drawing_id, header, entry, reused)
+            drawing.dynamic_takeoff = handlers.compute_dynamic_takeoff(
+                drawing, entry, reported_quantities.get(drawing.drawing_id)
+            )
+        except SchemaValidationError as exc:
+            logger.warning("%s: generated takeoff schema failed validation: %s", drawing.drawing_id, exc)
+            registry.record_drawing(drawing.drawing_id, header, None, False, error=str(exc))
+
+
 def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> ExtractionResult:
     # 1. OCR / layout via Document Intelligence.
     analysis = doc_intelligence.analyze_pdf(pdf_bytes, settings)
@@ -1317,6 +880,12 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
 
     # 2. Render each page to an image for vision input.
     page_images = render.render_pages(pdf_bytes, dpi=settings.render_dpi)
+
+    # Microsecond suffix (not just second-resolution) so two runs kicked off
+    # in quick succession never collide on the same filename and silently
+    # overwrite each other's schemas.
+    run_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S%f")
+    registry = SchemaRegistry(settings.schema_output_dir, run_timestamp)
 
     drawings: list[Drawing] = []
 
@@ -1359,17 +928,61 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
             boxes_by_id = _clamp_overlapping_boxes(boxes_by_id)
         page_bounding_boxes = [boxes_by_id.get(drawing_id) for drawing_id in page_drawing_ids]
 
+        # 3.5. Classification + dynamic takeoff-schema proposal, per drawing
+        #      crop -- after segmentation/box refinement, before the detail
+        #      pass, so the detail pass's own crop render can be reused
+        #      here rather than rendered twice. Best-effort: a classify
+        #      failure never blocks dimension extraction for this drawing.
+        crop_bytes_by_id: dict[str, bytes] = {}
+        classifications_by_id: dict[str, DrawingClassification] = {}
+        proposed_items_by_id: dict[str, list[DynamicQuantityItemSpec]] = {}
+        dynamic_properties_by_id: dict[str, dict] = {}
+        for drawing_index, drawing_id in enumerate(page_drawing_ids):
+            bounding_box = page_bounding_boxes[drawing_index]
+            if bounding_box is None:
+                continue
+            sibling_boxes = [
+                b for i, b in enumerate(page_bounding_boxes)
+                if i != drawing_index and b is not None
+            ]
+            scoped_ocr_text = (
+                _ocr_text_for_box(page_ocr_lines, bounding_box, sibling_boxes)
+                if page_ocr_lines else page_ocr_text
+            )
+            print("Scoped ocr text",scoped_ocr_text)
+            crop_bytes = _render_drawing_crop(pdf_bytes, page_number, bounding_box, settings, drawing_id)
+            if crop_bytes is None:
+                continue
+            crop_bytes_by_id[drawing_id] = crop_bytes
+            try:
+                raw_classification = claude_extractor.classify_drawing(
+                    image_bytes=crop_bytes, ocr_text=scoped_ocr_text, page_number=page_number, settings=settings,
+                )
+            except Exception:
+                logger.warning("Classification failed for %s", drawing_id, exc_info=True)
+                continue
+            classification, items = _parse_classification_result(raw_classification)
+            classifications_by_id[drawing_id] = classification
+            proposed_items_by_id[drawing_id] = items
+            dynamic_properties_by_id[drawing_id] = _build_dynamic_properties(items)
+
+        reported_quantities_by_id: dict[str, dict[str, float]] = {}
         for drawing_index, raw_drawing in enumerate(raw_drawings):
             drawing_id = page_drawing_ids[drawing_index]
 
             fields = _build_drawing_fields(raw_drawing, drawing_id, page_number)
+            reported_quantities_by_id[drawing_id] = _clean_reported_quantities(raw_drawing.get("quantities"))
             bounding_box = page_bounding_boxes[drawing_index]
             detail_pass_applied = False
 
             # 4. Detail pass: re-render just this drawing's bounding box at a
             #    much higher effective DPI and re-extract from that crop
             #    alone, so small dimension text that was unreadable in the
-            #    full-page pass gets another, much sharper look.
+            #    full-page pass gets another, much sharper look. Its tool
+            #    schema is merged with this drawing's own proposed
+            #    resource-planning roles (if classification succeeded), so
+            #    it can report their values directly (see
+            #    claude_extractor.extract_page's dynamic_properties).
             if bounding_box is not None:
                 sibling_boxes = [
                     b for i, b in enumerate(page_bounding_boxes)
@@ -1379,11 +992,15 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
                     _ocr_text_for_box(page_ocr_lines, bounding_box, sibling_boxes)
                     if page_ocr_lines else page_ocr_text
                 )
+                print("scoped ocr text detail pass",scoped_ocr_text)
                 raw_detail = _run_detail_pass(
-                    pdf_bytes, page_number, bounding_box, scoped_ocr_text, drawing_id, settings
+                    pdf_bytes, page_number, bounding_box, scoped_ocr_text, drawing_id, settings,
+                    crop_bytes=crop_bytes_by_id.get(drawing_id),
+                    dynamic_properties=dynamic_properties_by_id.get(drawing_id),
                 )
                 if raw_detail is not None:
                     fields = _build_drawing_fields(raw_detail, drawing_id, page_number)
+                    reported_quantities_by_id[drawing_id] = _clean_reported_quantities(raw_detail.get("quantities"))
                     detail_pass_applied = True
 
             # 5. Cross-check the title-callout number against OCR: a short,
@@ -1423,49 +1040,43 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
         #    the minority almost certainly misread it (see _reconcile_detail_callouts).
         _reconcile_detail_callouts(drawings[page_start:])
 
-        # 7. Compute each drawing's own stair concrete-volume takeoff from
-        #    its own tread/riser/stair-width dimensions alone (never pooled
-        #    or copied across drawings in the same stair group).
-        _assign_stair_quantity_takeoffs(drawings[page_start:])
+        # 7. Every drawing's dynamic quantity takeoff: get-or-create its
+        #    schema in the run's registry, persist it, and compute its
+        #    quantities -- preferring values the model reported directly
+        #    for its own proposed input roles, falling back to dimension-
+        #    text role-matching for anything it didn't report.
+        _assign_dynamic_takeoffs(
+            drawings[page_start:], classifications_by_id, proposed_items_by_id,
+            reported_quantities_by_id, registry, filename,
+        )
 
     _warn_on_suspect_drawings(drawings)
+
+    schema_manifest_path = registry.write_manifest()
 
     return ExtractionResult(
         source_file=filename,
         total_pages=total_pages,
         total_drawings=len(drawings),
         drawings=drawings,
+        schema_output_dir=str(registry.output_dir),
+        schema_manifest_path=schema_manifest_path,
+        schema_files_written=registry.written_files,
     )
 
 
-def _drawing_number_from_id(drawing_id: str) -> str:
-    """'P1-D6' -> 'D6' -- the drawing-number suffix used in the dynamic
-    total_volume field name below."""
-    return drawing_id.rsplit("-", 1)[-1] if "-" in drawing_id else drawing_id
-
-
 def to_export_dict(drawing: Drawing) -> dict:
-    """`drawing.model_dump()`, but with `stair_quantity_takeoff.total_volume`
-    renamed to `total_volume_<N>_steps_<drawing_number>` (e.g.
-    'total_volume_74_steps_D6'), per spec. `StairQuantityTakeoff.total_volume`
-    stays a plain, fixed pydantic field everywhere else in the codebase (so
-    existing model_fields-based code -- and the model itself -- is
-    unaffected); only this export boundary renames the key, right before it
-    becomes JSON."""
-    data = drawing.model_dump()
-    takeoff = data.get("stair_quantity_takeoff")
-    if takeoff:
-        num_steps = int(round(takeoff["num_steps_total"]["value"]))
-        drawing_number = _drawing_number_from_id(drawing.drawing_id)
-        key = f"total_volume_{num_steps}_steps_{drawing_number}"
-        takeoff[key] = takeoff.pop("total_volume")
-    return data
+    """`drawing.model_dump()` -- kept as the one canonical way to serialize
+    a Drawing to JSON (used by app.py's download buttons), so a future
+    export-time transform has one place to live rather than being added
+    ad hoc wherever a drawing gets serialized."""
+    return drawing.model_dump()
 
 
 def to_export_dict_result(result: ExtractionResult) -> dict:
-    """`result.model_dump()`, with each drawing's `stair_quantity_takeoff`
-    renamed via `to_export_dict` -- use this (not `result.model_dump()`
-    directly) whenever exporting the full result to JSON."""
+    """`result.model_dump()`, via `to_export_dict` for each drawing -- use
+    this (not `result.model_dump()` directly) whenever exporting the full
+    result to JSON."""
     data = result.model_dump()
     data["drawings"] = [to_export_dict(d) for d in result.drawings]
     return data

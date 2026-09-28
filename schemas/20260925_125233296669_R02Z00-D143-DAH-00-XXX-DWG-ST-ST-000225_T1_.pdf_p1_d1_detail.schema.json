@@ -1,0 +1,262 @@
+{
+  "header": {
+    "schema_id": "bdd302f78535",
+    "version": 1,
+    "run_timestamp": "20260925_125233296669",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000225[T1].pdf",
+    "page": 1,
+    "drawing_index": 1,
+    "drawing_title": "EXPANSION JOINT DETAIL AT THE CONNECTION WITH MIP TUNNEL (RAFT)",
+    "classification": {
+      "project_type": "tunnel/underground infrastructure",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "expansion joint",
+        "raft/foundation",
+        "waterstop",
+        "waterproofing membrane",
+        "dowel bars",
+        "rebar",
+        "blinding concrete",
+        "wearing course"
+      ],
+      "confidence": "high",
+      "notes": "This is a detail drawing showing the expansion joint connection between a raft foundation and an adjacent tunnel (M.I.P. tunnel to K.A.A. tunnel), including waterproofing membranes, waterstops, joint filler, stainless steel dowel bars, and raft reinforcement. Since it's N.T.S. (not to scale) with only a few labeled dimensions (500mm joint width, 300mm dowel spacing references, 25mm, 20mm E.J., 50mm screed, 100mm blinding), quantities are limited but some linear/area/volume takeoffs per unit length of joint are derivable."
+    }
+  },
+  "schema_id": "bdd302f78535",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:bdd302f78535:v1",
+    "title": "Quantity takeoff schema bdd302f78535 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "expansion_joint_sealant_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "expansion_joint_sealant_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "joint_width",
+              "joint_depth"
+            ],
+            "x-formula": "joint_length * joint_width * joint_depth"
+          },
+          "wearing_course_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wearing_course_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "wearing_course_width"
+            ],
+            "x-formula": "joint_length * wearing_course_width"
+          },
+          "waterproofing_membrane_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "waterproofing_membrane_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "membrane_width"
+            ],
+            "x-formula": "joint_length * membrane_width"
+          },
+          "stainless_steel_dowel_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stainless_steel_dowel_bar_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "dowel_spacing"
+            ],
+            "x-formula": "joint_length / dowel_spacing"
+          },
+          "stainless_steel_dowel_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stainless_steel_dowel_bar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "dowel_bar_count",
+              "dowel_bar_length",
+              "dowel_bar_unit_weight"
+            ],
+            "x-formula": "dowel_bar_count * dowel_bar_length * dowel_bar_unit_weight"
+          },
+          "waterstop_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "waterstop_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "waterstop_count_per_section"
+            ],
+            "x-formula": "joint_length * waterstop_count_per_section"
+          },
+          "raft_reinforcement_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "raft_reinforcement_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "rebar_spacing",
+              "rebar_unit_weight",
+              "rebar_length_per_bar"
+            ],
+            "x-formula": "(joint_length / rebar_spacing) * rebar_length_per_bar * rebar_unit_weight"
+          },
+          "blinding_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "blinding_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "blinding_width",
+              "blinding_thickness"
+            ],
+            "x-formula": "joint_length * blinding_width * blinding_thickness"
+          },
+          "joint_filler_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "joint_filler_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "joint_filler_width",
+              "joint_filler_thickness"
+            ],
+            "x-formula": "joint_length * joint_filler_width * joint_filler_thickness"
+          },
+          "compressible_material_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "compressible_material_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "compressible_material_width",
+              "compressible_material_thickness"
+            ],
+            "x-formula": "joint_length * compressible_material_width * compressible_material_thickness"
+          },
+          "grout_injection_hose_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "grout_injection_hose_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length"
+            ],
+            "x-formula": "joint_length"
+          },
+          "screed_protection_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "screed_protection_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "screed_width"
+            ],
+            "x-formula": "joint_length * screed_width"
+          },
+          "mass_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "mass_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length",
+              "mass_concrete_width",
+              "mass_concrete_depth"
+            ],
+            "x-formula": "joint_length * mass_concrete_width * mass_concrete_depth"
+          },
+          "expansion_joint_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "expansion_joint_installation_labor",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "joint_length"
+            ],
+            "x-formula": "joint_length"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

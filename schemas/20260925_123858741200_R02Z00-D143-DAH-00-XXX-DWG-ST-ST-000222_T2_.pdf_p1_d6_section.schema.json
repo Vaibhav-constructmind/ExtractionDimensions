@@ -1,0 +1,259 @@
+{
+  "header": {
+    "schema_id": "7615c0152b31",
+    "version": 2,
+    "run_timestamp": "20260925_123858741200",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000222[T2].pdf",
+    "page": 1,
+    "drawing_index": 6,
+    "drawing_title": "SECTION 4-4",
+    "classification": {
+      "project_type": "civil/structural concrete structure (e.g. tank, culvert, or box structure)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "concrete box section",
+        "walls",
+        "rebar reinforcement",
+        "openings/box-outs"
+      ],
+      "confidence": "medium",
+      "notes": "Section 4-4 showing a rectangular concrete box/duct with reinforced walls (double and single layer Y16-150 bars) and two rectangular openings at top and bottom corners, likely part of a culvert, tank, or duct structure. No overall dimensions are given, so quantities rely on generic geometric roles to be matched with extracted dimensions elsewhere on the sheet."
+    }
+  },
+  "schema_id": "7615c0152b31",
+  "version": 2,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:7615c0152b31:v2",
+    "title": "Quantity takeoff schema 7615c0152b31 v2",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "wall_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "wall_thickness"
+            ],
+            "x-formula": "wall_length * wall_height * wall_thickness"
+          },
+          "wall_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height"
+            ],
+            "x-formula": "wall_length * wall_height"
+          },
+          "vertical_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "vertical_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "vertical_bar_length",
+              "vertical_bar_spacing",
+              "wall_length",
+              "vertical_bar_unit_weight"
+            ],
+            "x-formula": "(wall_length / vertical_bar_spacing) * vertical_bar_length * vertical_bar_unit_weight"
+          },
+          "horizontal_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "horizontal_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "horizontal_bar_length",
+              "horizontal_bar_spacing",
+              "wall_height",
+              "horizontal_bar_unit_weight"
+            ],
+            "x-formula": "(wall_height / horizontal_bar_spacing) * horizontal_bar_length * horizontal_bar_unit_weight"
+          },
+          "total_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "total_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "vertical_rebar_weight",
+              "horizontal_rebar_weight"
+            ],
+            "x-formula": "vertical_rebar_weight + horizontal_rebar_weight"
+          },
+          "rebar_count_vertical_bars": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_count_vertical_bars",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "vertical_bar_spacing"
+            ],
+            "x-formula": "wall_length / vertical_bar_spacing"
+          },
+          "rebar_count_horizontal_bars": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_count_horizontal_bars",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_height",
+              "horizontal_bar_spacing"
+            ],
+            "x-formula": "wall_height / horizontal_bar_spacing"
+          },
+          "construction_joint_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "construction_joint_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "joint_length_per_segment",
+              "number_of_joints"
+            ],
+            "x-formula": "joint_length_per_segment * number_of_joints"
+          },
+          "waterstop_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "waterstop_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "joint_length_per_segment",
+              "number_of_joints"
+            ],
+            "x-formula": "joint_length_per_segment * number_of_joints"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "wall_concrete_volume",
+              "placement_rate"
+            ],
+            "x-formula": "wall_concrete_volume / placement_rate"
+          },
+          "rebar_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_rebar_weight",
+              "rebar_installation_rate"
+            ],
+            "x-formula": "total_rebar_weight / rebar_installation_rate"
+          },
+          "formwork_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "wall_formwork_area",
+              "formwork_installation_rate"
+            ],
+            "x-formula": "wall_formwork_area / formwork_installation_rate"
+          },
+          "opening_boxout_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_boxout_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_width",
+              "opening_height",
+              "opening_depth",
+              "opening_count"
+            ],
+            "x-formula": "opening_width * opening_height * opening_depth * opening_count"
+          },
+          "concrete_pump_equipment_time": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_pump_equipment_time",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "wall_concrete_volume",
+              "pump_output_rate"
+            ],
+            "x-formula": "wall_concrete_volume / pump_output_rate"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

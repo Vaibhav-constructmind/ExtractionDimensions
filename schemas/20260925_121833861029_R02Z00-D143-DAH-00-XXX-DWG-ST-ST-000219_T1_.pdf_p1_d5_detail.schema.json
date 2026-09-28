@@ -1,0 +1,187 @@
+{
+  "header": {
+    "schema_id": "fd69bd814cc8",
+    "version": 1,
+    "run_timestamp": "20260925_121833861029",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+    "page": 1,
+    "drawing_index": 5,
+    "drawing_title": "TYPICAL R.C. DETAIL FOR THE RECESS OF FIRE HOSE CABINET EVERY 50M",
+    "classification": {
+      "project_type": "tunnel infrastructure",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "wall recess",
+        "fire hose cabinet niche",
+        "reinforced concrete wall",
+        "rebar reinforcement"
+      ],
+      "confidence": "high",
+      "notes": "Detail drawing showing a typical R.C. wall recess for fire hose cabinet installation within a tunnel wall, repeated every 50m along the tunnel. Shows rebar callouts (Y32, Y25, Y12 bars with spacing) and a 1200mm width dimension for the recess/wall segment."
+    }
+  },
+  "schema_id": "fd69bd814cc8",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:fd69bd814cc8:v1",
+    "title": "Quantity takeoff schema fd69bd814cc8 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "recess_wall_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "recess_wall_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_width",
+              "wall_thickness",
+              "wall_height"
+            ],
+            "x-formula": "wall_width * wall_thickness * wall_height"
+          },
+          "vertical_main_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "vertical_main_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_unit_weight",
+              "main_bar_spacing",
+              "wall_height",
+              "wall_width",
+              "main_bar_length"
+            ],
+            "x-formula": "(wall_width / main_bar_spacing) * main_bar_length * main_bar_unit_weight"
+          },
+          "horizontal_distribution_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "horizontal_distribution_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "dist_bar_unit_weight",
+              "dist_bar_spacing",
+              "wall_height",
+              "dist_bar_length"
+            ],
+            "x-formula": "(wall_height / dist_bar_spacing) * dist_bar_length * dist_bar_unit_weight"
+          },
+          "recess_edge_tie_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "recess_edge_tie_bar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tie_bar_count",
+              "tie_bar_length",
+              "tie_bar_unit_weight",
+              "number_of_recesses"
+            ],
+            "x-formula": "tie_bar_count * tie_bar_length * tie_bar_unit_weight * number_of_recesses"
+          },
+          "recess_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "recess_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "recess_perimeter_length",
+              "recess_depth",
+              "number_of_recesses"
+            ],
+            "x-formula": "recess_perimeter_length * recess_depth * number_of_recesses"
+          },
+          "wall_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "wall_height",
+              "wall_width",
+              "number_of_faces"
+            ],
+            "x-formula": "wall_height * wall_width * number_of_faces"
+          },
+          "rebar_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_installation_labor",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "vertical_main_rebar_weight",
+              "horizontal_distribution_rebar_weight",
+              "recess_edge_tie_bar_weight"
+            ],
+            "x-formula": "vertical_main_rebar_weight + horizontal_distribution_rebar_weight + recess_edge_tie_bar_weight"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "recess_wall_concrete_volume"
+            ],
+            "x-formula": "recess_wall_concrete_volume"
+          },
+          "recesses_per_tunnel_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "recesses_per_tunnel_length",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_tunnel_length",
+              "recess_spacing_interval"
+            ],
+            "x-formula": "total_tunnel_length / recess_spacing_interval"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

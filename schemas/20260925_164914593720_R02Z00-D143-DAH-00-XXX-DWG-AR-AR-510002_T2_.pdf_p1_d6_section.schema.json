@@ -1,0 +1,231 @@
+{
+  "header": {
+    "schema_id": "a9d79de54b34",
+    "version": 1,
+    "run_timestamp": "20260925_164914593720",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+    "page": 1,
+    "drawing_index": 6,
+    "drawing_title": "STAIR DETAIL-07",
+    "classification": {
+      "project_type": "religious/civic building (mosque-related complex)",
+      "discipline": "architectural",
+      "drawing_type": "section",
+      "building_elements": [
+        "stair",
+        "handrail",
+        "stair nosing",
+        "guardrail",
+        "granite cladding",
+        "decorative aluminum screen",
+        "concrete upstand",
+        "egress stair"
+      ],
+      "confidence": "high",
+      "notes": "This is a vertical section/detail through an egress stair (Stair Detail-07) showing multiple flights, floor levels (F.F.L.), riser counts, granite cladding, aluminum decorative screen, and steel handrail with cross references to nosing and handrail details."
+    }
+  },
+  "schema_id": "a9d79de54b34",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:a9d79de54b34:v1",
+    "title": "Quantity takeoff schema a9d79de54b34 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "stair_riser_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_riser_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "riser_count_per_flight"
+            ],
+            "x-formula": "riser_count_per_flight"
+          },
+          "stair_flight_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "flight_length",
+              "flight_width",
+              "flight_slab_thickness"
+            ],
+            "x-formula": "flight_length * flight_width * flight_slab_thickness"
+          },
+          "stair_tread_riser_count_total": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_tread_riser_count_total",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_count_per_flight",
+              "number_of_flights"
+            ],
+            "x-formula": "riser_count_per_flight * number_of_flights"
+          },
+          "stair_step_finish_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_step_finish_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "riser_height",
+              "tread_depth",
+              "stair_width",
+              "riser_count_total"
+            ],
+            "x-formula": "(riser_height + tread_depth) * stair_width * riser_count_total"
+          },
+          "handrail_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "handrail_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "flight_horizontal_length",
+              "number_of_flights",
+              "landing_length"
+            ],
+            "x-formula": "(flight_horizontal_length * number_of_flights) + landing_length"
+          },
+          "guardrail_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "guardrail_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "guardrail_run_length",
+              "number_of_levels"
+            ],
+            "x-formula": "guardrail_run_length * number_of_levels"
+          },
+          "granite_cladding_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "granite_cladding_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "cladding_length",
+              "cladding_height"
+            ],
+            "x-formula": "cladding_length * cladding_height"
+          },
+          "aluminum_decorative_screen_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "aluminum_decorative_screen_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "screen_length",
+              "screen_height"
+            ],
+            "x-formula": "screen_length * screen_height"
+          },
+          "concrete_upstand_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_upstand_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "upstand_length",
+              "upstand_width",
+              "upstand_height"
+            ],
+            "x-formula": "upstand_length * upstand_width * upstand_height"
+          },
+          "stair_wall_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_wall_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_enclosure_perimeter",
+              "floor_to_floor_height",
+              "number_of_levels"
+            ],
+            "x-formula": "stair_enclosure_perimeter * floor_to_floor_height * number_of_levels"
+          },
+          "floor_to_floor_height_total": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "floor_to_floor_height_total",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "floor_to_floor_height",
+              "number_of_levels"
+            ],
+            "x-formula": "floor_to_floor_height * number_of_levels"
+          },
+          "stair_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_installation_labor",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "number_of_flights",
+              "riser_count_per_flight"
+            ],
+            "x-formula": "number_of_flights * riser_count_per_flight"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

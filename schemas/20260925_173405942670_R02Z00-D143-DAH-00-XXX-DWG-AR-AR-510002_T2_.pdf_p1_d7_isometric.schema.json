@@ -1,0 +1,209 @@
+{
+  "header": {
+    "schema_id": "61d8e1c4199c",
+    "version": 1,
+    "run_timestamp": "20260925_173405942670",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-AR-AR-510002[T2].pdf",
+    "page": 1,
+    "drawing_index": 7,
+    "drawing_title": "3D_STAIR-07",
+    "classification": {
+      "project_type": "hotel building",
+      "discipline": "architectural",
+      "drawing_type": "isometric",
+      "building_elements": [
+        "stair",
+        "handrail",
+        "stair nosing",
+        "landing",
+        "stair enclosure/shaft wall",
+        "door",
+        "balustrade/screen"
+      ],
+      "confidence": "medium",
+      "notes": "3D isometric view (3D_STAIR-07) of a multi-story stair shaft in a hotel project, showing flights, landings, handrails, stair nosing, enclosure walls, a door, and a decorative screen at roof level. No explicit dimensions are labeled on this view, so quantities must be inferred from typical stair components; exact counts/dimensions would come from companion plans/sections."
+    }
+  },
+  "schema_id": "61d8e1c4199c",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:61d8e1c4199c:v1",
+    "title": "Quantity takeoff schema 61d8e1c4199c v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "stair_flight_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_flight_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_flight_count"
+            ],
+            "x-formula": "stair_flight_count"
+          },
+          "stair_tread_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_tread_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_tread_count"
+            ],
+            "x-formula": "stair_tread_count"
+          },
+          "stair_nosing_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_nosing_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_tread_count",
+              "tread_going"
+            ],
+            "x-formula": "stair_tread_count * tread_going"
+          },
+          "handrail_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "handrail_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_run",
+              "landing_length"
+            ],
+            "x-formula": "stair_run + landing_length"
+          },
+          "guardrail_height_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "guardrail_height_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stair_run",
+              "guardrail_height"
+            ],
+            "x-formula": "stair_run * guardrail_height"
+          },
+          "stair_enclosure_wall_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_enclosure_wall_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "floor_to_floor"
+            ],
+            "x-formula": "wall_length * floor_to_floor"
+          },
+          "stair_enclosure_wall_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stair_enclosure_wall_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "floor_to_floor",
+              "wall_thickness"
+            ],
+            "x-formula": "wall_length * floor_to_floor * wall_thickness"
+          },
+          "landing_slab_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "landing_slab_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width"
+            ],
+            "x-formula": "landing_length * landing_width"
+          },
+          "landing_slab_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "landing_slab_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "landing_length",
+              "landing_width",
+              "slab_thickness"
+            ],
+            "x-formula": "landing_length * landing_width * slab_thickness"
+          },
+          "decorative_screen_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "decorative_screen_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "screen_length",
+              "screen_height"
+            ],
+            "x-formula": "screen_length * screen_height"
+          },
+          "door_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "door_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "door_count"
+            ],
+            "x-formula": "door_count"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

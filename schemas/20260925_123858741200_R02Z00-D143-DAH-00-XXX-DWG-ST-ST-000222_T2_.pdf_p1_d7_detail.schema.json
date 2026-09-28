@@ -1,0 +1,102 @@
+{
+  "header": {
+    "schema_id": "1ab62c5981a2",
+    "version": 1,
+    "run_timestamp": "20260925_123858741200",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000222[T2].pdf",
+    "page": 1,
+    "drawing_index": 7,
+    "drawing_title": "RFT. AROUND OPENING",
+    "classification": {
+      "project_type": "commercial/industrial building (concrete structure)",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "opening reinforcement",
+        "wall/slab opening",
+        "rebar"
+      ],
+      "confidence": "medium",
+      "notes": "Detail shows reinforcement bars (2 x 2 Y25) placed diagonally around a rectangular opening in a concrete wall or slab. No overall wall/slab dimensions given, only bar callouts and opening shape; scale 1:25."
+    }
+  },
+  "schema_id": "1ab62c5981a2",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:1ab62c5981a2:v1",
+    "title": "Quantity takeoff schema 1ab62c5981a2 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "opening_diagonal_rebar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_diagonal_rebar_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "diagonal_bar_length_per_corner",
+              "bars_per_corner",
+              "number_of_corners"
+            ],
+            "x-formula": "diagonal_bar_length_per_corner * bars_per_corner * number_of_corners"
+          },
+          "opening_diagonal_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_diagonal_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_diagonal_rebar_length",
+              "rebar_unit_weight"
+            ],
+            "x-formula": "opening_diagonal_rebar_length * rebar_unit_weight"
+          },
+          "opening_diagonal_rebar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_diagonal_rebar_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bars_per_corner",
+              "number_of_corners"
+            ],
+            "x-formula": "bars_per_corner * number_of_corners"
+          },
+          "rebar_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "opening_diagonal_rebar_count",
+              "labor_hours_per_bar"
+            ],
+            "x-formula": "opening_diagonal_rebar_count * labor_hours_per_bar"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

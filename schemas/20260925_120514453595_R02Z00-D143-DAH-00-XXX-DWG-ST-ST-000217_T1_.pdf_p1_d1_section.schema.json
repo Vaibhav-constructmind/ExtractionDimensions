@@ -1,0 +1,230 @@
+{
+  "header": {
+    "schema_id": "944c5348c865",
+    "version": 1,
+    "run_timestamp": "20260925_120514453595",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 1,
+    "drawing_title": "SECTION 1-1",
+    "classification": {
+      "project_type": "water/wastewater treatment structure (reinforced concrete tank or basin)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "foundation slab",
+        "base slab",
+        "wall",
+        "rebar reinforcement",
+        "construction joint",
+        "waterstop"
+      ],
+      "confidence": "medium",
+      "notes": "Drawing shows Section 1-1 through what appears to be a rectangular concrete tank/basin structure with base slab, perimeter and internal walls, top slab/beams, rebar callouts (Y-bar diameter-spacing notation), and construction joints (C.J.). Likely part of a water/wastewater treatment plant or reservoir given the double-cell layout with construction joints and dense rebar schedule. No title block or plan reference visible to confirm exact facility type."
+    }
+  },
+  "schema_id": "944c5348c865",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:944c5348c865:v1",
+    "title": "Quantity takeoff schema 944c5348c865 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "base_slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "base_slab_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width",
+              "slab_thickness"
+            ],
+            "x-formula": "slab_length * slab_width * slab_thickness"
+          },
+          "wall_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "wall_thickness"
+            ],
+            "x-formula": "wall_length * wall_height * wall_thickness"
+          },
+          "top_slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "top_slab_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_slab_length",
+              "top_slab_width",
+              "top_slab_thickness"
+            ],
+            "x-formula": "top_slab_length * top_slab_width * top_slab_thickness"
+          },
+          "wall_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "wall_sides"
+            ],
+            "x-formula": "wall_length * wall_height * wall_sides"
+          },
+          "slab_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width"
+            ],
+            "x-formula": "slab_length * slab_width"
+          },
+          "wall_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_rebar_length",
+              "wall_rebar_count",
+              "wall_rebar_unit_weight"
+            ],
+            "x-formula": "wall_rebar_length * wall_rebar_count * wall_rebar_unit_weight"
+          },
+          "slab_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_rebar_length",
+              "slab_rebar_count",
+              "slab_rebar_unit_weight"
+            ],
+            "x-formula": "slab_rebar_length * slab_rebar_count * slab_rebar_unit_weight"
+          },
+          "construction_joint_waterstop_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "construction_joint_waterstop_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "construction_joint_count",
+              "joint_length_per_run"
+            ],
+            "x-formula": "construction_joint_count * joint_length_per_run"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_concrete_volume",
+              "placement_crew_output_rate"
+            ],
+            "x-formula": "total_concrete_volume / placement_crew_output_rate"
+          },
+          "formwork_erection_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_erection_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_formwork_area",
+              "formwork_crew_output_rate"
+            ],
+            "x-formula": "total_formwork_area / formwork_crew_output_rate"
+          },
+          "rebar_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_rebar_weight",
+              "rebar_crew_output_rate"
+            ],
+            "x-formula": "total_rebar_weight / rebar_crew_output_rate"
+          },
+          "concrete_pump_equipment_hours": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_pump_equipment_hours",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "total_concrete_volume",
+              "pump_output_rate"
+            ],
+            "x-formula": "total_concrete_volume / pump_output_rate"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

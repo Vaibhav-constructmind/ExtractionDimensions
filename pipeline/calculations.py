@@ -3,172 +3,137 @@ dimensions. Kept separate from orchestrator.py's extraction/correction logic
 since these are pure arithmetic over numbers the model already produced, not
 extraction post-processing.
 
-Covers: single-stair-step concrete volume, per-flight concrete volume (a
-flight = a run of steps sharing one tread depth and riser height), and the
-whole-stair total (the exact sum of each flight's own volume). Landing
-volume and total PROJECT concrete volume (across multiple stairs) are still
-deferred.
+Covers a generic, restricted-expression formula evaluator used for every
+drawing's dynamic quantity takeoff: the model may propose a formula and the
+raw inputs it needs, but every number in the output is computed here, never
+by the model.
 """
 from __future__ import annotations
 
-from .schema import FlightConcrete, MeasuredValue, SingleStepConcrete
+import ast
+import operator
 
-_UNIT_TO_METRES = {
-    "mm": 0.001,
-    "cm": 0.01,
-    "m": 1.0,
+from .schema import ComputedQuantity, DynamicQuantityItemSpec, MeasuredValue
+
+# --- Generic dynamic-schema formula evaluation -----------------------------
+#
+# A restricted arithmetic expression evaluator with NO `eval`/`exec` and no
+# access to Python builtins, names, attributes, calls, or subscripts -- only
+# numeric literals, the four arithmetic operators, exponentiation, unary
+# +/-, parentheses, and lookups of names supplied explicitly by the caller.
+# This is what lets the LLM safely *propose* a formula (e.g.
+# 'wall_length * wall_height * wall_thickness') without ever being trusted
+# to compute the actual number itself.
+
+_ALLOWED_BINOPS = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.truediv,
+    ast.Pow: operator.pow,
+    ast.FloorDiv: operator.floordiv,
+    ast.Mod: operator.mod,
+}
+_ALLOWED_UNARYOPS = {
+    ast.UAdd: operator.pos,
+    ast.USub: operator.neg,
 }
 
 
-def _to_metres(value: float, unit: str) -> float:
-    unit_norm = (unit or "").strip().lower()
-    if unit_norm not in _UNIT_TO_METRES:
-        raise ValueError(
-            f"Unsupported unit for stair-step calculation: {unit!r} "
-            f"(supported: {sorted(_UNIT_TO_METRES)})"
+class FormulaError(ValueError):
+    """Raised for an unparseable formula, a disallowed expression, or a
+    missing variable -- always a caller-visible error, never a silent 0."""
+
+
+def _eval_ast(node: ast.AST, variables: dict[str, float]) -> float:
+    if isinstance(node, ast.Expression):
+        return _eval_ast(node.body, variables)
+    if isinstance(node, ast.Constant):
+        if isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
+            return float(node.value)
+        raise FormulaError(f"Unsupported constant in formula: {node.value!r}")
+    if isinstance(node, ast.Name):
+        if node.id not in variables:
+            raise FormulaError(f"Unknown variable in formula: {node.id!r}")
+        return float(variables[node.id])
+    if isinstance(node, ast.BinOp) and type(node.op) in _ALLOWED_BINOPS:
+        left = _eval_ast(node.left, variables)
+        right = _eval_ast(node.right, variables)
+        return _ALLOWED_BINOPS[type(node.op)](left, right)
+    if isinstance(node, ast.UnaryOp) and type(node.op) in _ALLOWED_UNARYOPS:
+        return _ALLOWED_UNARYOPS[type(node.op)](_eval_ast(node.operand, variables))
+    raise FormulaError(f"Disallowed expression in formula: {ast.dump(node)}")
+
+
+def evaluate_formula(formula: str, variables: dict[str, float]) -> float:
+    """Safely evaluate a restricted arithmetic `formula` (no eval/exec, no
+    builtins, no attribute/subscript/call access -- literals, + - * / **
+    // %, unary +/-, parentheses, and the supplied `variables` only).
+
+    Raises FormulaError for anything outside that grammar, or for a
+    variable name the formula references that isn't in `variables`.
+    """
+    try:
+        tree = ast.parse(formula, mode="eval")
+    except SyntaxError as exc:
+        raise FormulaError(f"Formula is not a valid expression: {formula!r} ({exc})") from exc
+    return _eval_ast(tree, variables)
+
+
+def compute_dynamic_quantity(
+    item: DynamicQuantityItemSpec,
+    resolved_inputs: dict[str, tuple[float, str | None]],
+) -> ComputedQuantity:
+    """Compute one dynamic quantity item from its formula and already-
+    resolved inputs.
+
+    `resolved_inputs` maps each of `item.depends_on`'s role names to
+    (value, source_dimension_id) -- matching a role name to an actual
+    dimension on a specific drawing is the caller's job (see
+    pipeline.handlers), since that's a per-drawing, classification-specific
+    concern, not a generic arithmetic one. Any role in `item.depends_on`
+    missing from `resolved_inputs` produces a null value with a `reason`,
+    never a guessed number.
+    """
+    missing = [role for role in item.depends_on if role not in resolved_inputs]
+    if missing:
+        return ComputedQuantity(
+            name=item.name,
+            unit=item.unit,
+            measurement_basis=item.measurement_basis,
+            resource_category=item.resource_category,
+            formula=item.formula,
+            value=None,
+            sources=[],
+            reason=(
+                "could not compute -- no matching dimension found on this drawing for: "
+                + ", ".join(missing)
+            ),
         )
-    return value * _UNIT_TO_METRES[unit_norm]
 
-
-def calculate_single_step_volume(
-    tread_depth: float | None,
-    riser_height: float | None,
-    stair_width: float | None,
-    unit: str = "mm",
-) -> float:
-    """Concrete volume of one stair step, treated as a triangular prism:
-
-        V = 0.5 * tread_depth * riser_height * stair_width
-
-    `tread_depth`, `riser_height`, and `stair_width` are all in `unit`
-    (mm/cm/m, default mm -- matching how dimensions are normally extracted).
-    The result is in cubic metres, not rounded -- rounding is a display
-    concern, not a calculation concern.
-
-    Raises ValueError if any input is missing, zero, or negative -- a stair
-    step can't have a non-positive dimension, so this is a real input error,
-    not a value to silently coerce.
-    """
-    if tread_depth is None or riser_height is None or stair_width is None:
-        raise ValueError(
-            "tread_depth, riser_height, and stair_width are all required "
-            f"(got tread_depth={tread_depth!r}, riser_height={riser_height!r}, "
-            f"stair_width={stair_width!r})"
-        )
-    if tread_depth <= 0 or riser_height <= 0 or stair_width <= 0:
-        raise ValueError(
-            "tread_depth, riser_height, and stair_width must all be positive "
-            f"(got tread_depth={tread_depth!r}, riser_height={riser_height!r}, "
-            f"stair_width={stair_width!r})"
+    variables = {role: value for role, (value, _source) in resolved_inputs.items()}
+    try:
+        result = evaluate_formula(item.formula, variables)
+    except FormulaError as exc:
+        return ComputedQuantity(
+            name=item.name,
+            unit=item.unit,
+            measurement_basis=item.measurement_basis,
+            resource_category=item.resource_category,
+            formula=item.formula,
+            value=None,
+            sources=[],
+            reason=f"could not compute -- {exc}",
         )
 
-    tread_depth_m = _to_metres(tread_depth, unit)
-    riser_height_m = _to_metres(riser_height, unit)
-    stair_width_m = _to_metres(stair_width, unit)
-    return 0.5 * tread_depth_m * riser_height_m * stair_width_m
-
-
-def build_single_step_concrete(
-    tread_depth: float,
-    riser_height: float,
-    stair_width: float,
-    unit: str = "mm",
-    tread_depth_source: str | None = None,
-    riser_height_source: str | None = None,
-    stair_width_source: str | None = None,
-) -> SingleStepConcrete:
-    """Build the auditable SingleStepConcrete record: the original inputs
-    (in `unit`), the computed volume (m3), and the formula as evaluated in
-    metres, so the result is checkable by hand. `*_source` should be the
-    dimension_id each input was read from, when known -- left None (never
-    fabricated) when the caller can't trace an input back to a specific
-    extracted dimension.
-    """
-    volume_m3 = calculate_single_step_volume(tread_depth, riser_height, stair_width, unit=unit)
-    tread_depth_m = _to_metres(tread_depth, unit)
-    riser_height_m = _to_metres(riser_height, unit)
-    stair_width_m = _to_metres(stair_width, unit)
-
-    return SingleStepConcrete(
-        tread_depth=MeasuredValue(value=tread_depth, unit=unit),
-        riser_height=MeasuredValue(value=riser_height, unit=unit),
-        stair_width=MeasuredValue(value=stair_width, unit=unit),
-        volume=MeasuredValue(value=volume_m3, unit="m3"),
-        formula=f"0.5 × {tread_depth_m:.3f} × {riser_height_m:.3f} × {stair_width_m:.3f}",
-        tread_depth_source=tread_depth_source,
-        riser_height_source=riser_height_source,
-        stair_width_source=stair_width_source,
-    )
-
-
-def calculate_total_steps_volume(volume_per_step_m3: float, num_steps: float) -> float:
-    """Total concrete volume for a run of `num_steps` identical steps:
-
-        total = volume_per_step * num_steps
-
-    `volume_per_step_m3` must already be in cubic metres (e.g. from
-    calculate_single_step_volume). Raises ValueError for a missing/non-
-    positive step count -- a flight can't have zero or a negative number of
-    steps, so this is a real input error, not a value to silently coerce.
-    """
-    if num_steps is None or num_steps <= 0:
-        raise ValueError(f"num_steps must be a positive number (got {num_steps!r})")
-    return volume_per_step_m3 * num_steps
-
-
-def select_mode_value(readings: list[tuple[float, float]]) -> float:
-    """Given (value, weight) pairs, return the value with the largest total
-    weight, tie-broken by the smaller value (a conservative choice for a
-    concrete-volume estimate).
-
-    Used two ways: (1) picking a single value out of several raw dimension
-    readings that share a step count, each weighted 1.0; and (2) picking a
-    single "representative" tread/riser value across a whole stair's
-    resolved flights, each weighted by that flight's own step count (so a
-    14-step flight influences the representative value more than a 7-step
-    one).
-    """
-    if not readings:
-        raise ValueError("select_mode_value requires at least one reading")
-    totals: dict[float, float] = {}
-    for value, weight in readings:
-        totals[value] = totals.get(value, 0.0) + weight
-    return min(totals, key=lambda v: (-totals[v], v))
-
-
-def build_flight_concrete(
-    flight_label: str,
-    tread_depth: float,
-    riser_height: float,
-    stair_width: float,
-    num_steps: float,
-    unit: str = "mm",
-    tread_depth_source: str | None = None,
-    riser_height_source: str | None = None,
-    stair_width_source: str | None = None,
-    num_steps_source: str | None = None,
-    num_steps_method: str | None = None,
-) -> FlightConcrete:
-    """Build the auditable FlightConcrete record for ONE physical flight:
-    inputs (in `unit`), volume per step, total volume for this flight's
-    steps, and both formulas as evaluated in metres, so every number is
-    checkable by hand.
-    """
-    volume_per_step_m3 = calculate_single_step_volume(tread_depth, riser_height, stair_width, unit=unit)
-    total_volume_m3 = calculate_total_steps_volume(volume_per_step_m3, num_steps)
-    tread_depth_m = _to_metres(tread_depth, unit)
-    riser_height_m = _to_metres(riser_height, unit)
-    stair_width_m = _to_metres(stair_width, unit)
-
-    return FlightConcrete(
-        flight_label=flight_label,
-        num_steps=MeasuredValue(value=num_steps, unit="count", source=num_steps_source),
-        num_steps_method=num_steps_method,
-        tread_depth=MeasuredValue(value=tread_depth, unit=unit, source=tread_depth_source),
-        riser_height=MeasuredValue(value=riser_height, unit=unit, source=riser_height_source),
-        stair_width=MeasuredValue(value=stair_width, unit=unit, source=stair_width_source),
-        volume_per_step=MeasuredValue(value=volume_per_step_m3, unit="m3"),
-        formula_per_step=f"0.5 × {tread_depth_m:.3f} × {riser_height_m:.3f} × {stair_width_m:.3f}",
-        total_volume=MeasuredValue(value=total_volume_m3, unit="m3"),
-        formula_total=f"{int(round(num_steps))} × {volume_per_step_m3:.8f}",
+    sources = [source for _value, source in resolved_inputs.values() if source]
+    return ComputedQuantity(
+        name=item.name,
+        unit=item.unit,
+        measurement_basis=item.measurement_basis,
+        resource_category=item.resource_category,
+        formula=item.formula,
+        value=MeasuredValue(value=result, unit=item.unit),
+        sources=sources,
+        reason=None,
     )

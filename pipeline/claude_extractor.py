@@ -12,7 +12,10 @@ format, this is the one place that would need adjusting.
 from __future__ import annotations
 
 import base64
+import copy
+import json
 import logging
+import re
 
 from anthropic import Anthropic
 
@@ -146,52 +149,6 @@ _DETAIL_CALLOUT_ITEM_SCHEMA = {
     "required": ["label_text"],
 }
 
-_QUANTITY_FIELD_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "value": {"type": "number", "description": "Numeric value in `unit`. Omit if not derivable from this drawing."},
-        "unit": {"type": "string", "description": "e.g. mm, m, m2, m3"},
-        "method": {
-            "type": "string",
-            "description": (
-                "How this was obtained, e.g. 'count of stair_rise dimensions', 'sum of riser "
-                "counts across flights', 'FFL(top) - FFL(bottom)', or 'not derivable -- requires "
-                "plan view showing wall centerlines/thickness'."
-            ),
-        },
-        "confidence": {
-            "type": "string",
-            "enum": CONFIDENCE_LEVELS,
-            "description": "'low' when derived/estimated rather than directly labeled on the drawing.",
-        },
-        "notes": {
-            "type": "string",
-            "description": "Caveats, ambiguity, or what additional drawing (e.g. plan view) would be needed.",
-        },
-    },
-}
-
-_QUANTITY_TAKEOFF_FIELDS = [
-    "num_doors", "num_drains",
-    "num_flights", "num_risers_total", "riser_height", "num_treads_total", "tread_length",
-    "total_tread_length", "num_landings", "total_vertical_drop", "perimeter_wall_length",
-    "internal_room_footprint_area", "inner_perimeter", "wall_thickness", "centerline_perimeter",
-    "perimeter_wall_concrete_quantity", "flight_landing_concrete_quantity", "wall_formwork_area",
-    "soffit_stair_formwork_area",
-]
-
-_QUANTITY_TAKEOFF_SCHEMA = {
-    "type": "object",
-    "description": (
-        "Stair/enclosure quantity-takeoff figures derived from this drawing's own dimensions "
-        "and elevation_datums (e.g. flights/risers/treads/landings/vertical drop from a section), "
-        "plus wall/footprint/concrete/formwork figures where this drawing is a plan view or "
-        "detail that actually shows wall centerlines, thickness, or member sizes. Never invent a "
-        "figure a plan view would be needed for -- set method to explain what's missing instead."
-    ),
-    "properties": {field: _QUANTITY_FIELD_SCHEMA for field in _QUANTITY_TAKEOFF_FIELDS},
-}
-
 _BOUNDING_BOX_SCHEMA = {
     "type": "object",
     "description": (
@@ -294,7 +251,6 @@ TOOL_SCHEMA = {
                             ),
                             "items": _DETAIL_CALLOUT_ITEM_SCHEMA,
                         },
-                        "quantity_takeoff": _QUANTITY_TAKEOFF_SCHEMA,
                         "bounding_box": _BOUNDING_BOX_SCHEMA,
                     },
                     "required": ["drawing_type", "dimensions", "bounding_box"],
@@ -306,22 +262,22 @@ TOOL_SCHEMA = {
 }
 
 SYSTEM_PROMPT = (
-    "You are an expert Senior Architectural & Structural BIM Engineer and Technical Drawing "
-    "Reader. Exhaustively extract and annotate EVERY visible dimension, datum level, and "
-    "measurement string on this sheet. A single page can contain multiple physically distinct "
-    "drawings (separated by border lines, whitespace, or separate title callouts) -- treat each "
-    "one separately, with its own metadata/dimensions/elevation_datums. Do NOT create a separate "
-    "'drawing' entry for the sheet's title block, revision table, key-plan/locator, north arrow, "
-    "or general notes column -- that content belongs to the whole sheet, not to any one scaled "
-    "drawing, and reporting it as its own drawing produces an empty or meaningless entry. Only "
-    "segment actual scaled drawings (plan, section, elevation, detail, isometric, schedule).\n\n"
-    "Multiple drawings on this sheet may look alike (e.g. several similar stair-plan or "
-    "landing-plan views side by side) -- when reading each one's own title/label text, read it "
-    "from THAT drawing's own title callout, never from a neighboring drawing's, even if the OCR "
-    "text block handed to you contains both. If a drawing's title is genuinely illegible, set it "
-    "to 'unclear' rather than guessing a neighbor's title, and cross-check that the title you did "
-    "read is consistent with that drawing's own dimensions/labels (e.g. riser/tread numbers, "
-    "landing name) before finalizing it.\n\n"
+    "You are an expert Technical Drawing Reader covering architectural, structural, civil, and "
+    "MEP disciplines. Exhaustively extract and annotate EVERY visible dimension, datum level, and "
+    "measurement string on this sheet, whatever discipline or project type it belongs to. A single "
+    "page can contain multiple physically distinct drawings (separated by border lines, whitespace, "
+    "or separate title callouts) -- treat each one separately, with its own metadata/dimensions/"
+    "elevation_datums. Do NOT create a separate 'drawing' entry for the sheet's title block, "
+    "revision table, key-plan/locator, north arrow, or general notes column -- that content belongs "
+    "to the whole sheet, not to any one scaled drawing, and reporting it as its own drawing produces "
+    "an empty or meaningless entry. Only segment actual scaled drawings (plan, section, elevation, "
+    "detail, isometric, schedule).\n\n"
+    "Multiple drawings on this sheet may look alike (e.g. several similar plan or landing views side "
+    "by side) -- when reading each one's own title/label text, read it from THAT drawing's own title "
+    "callout, never from a neighboring drawing's, even if the OCR text block handed to you contains "
+    "both. If a drawing's title is genuinely illegible, set it to 'unclear' rather than guessing a "
+    "neighbor's title, and cross-check that the title you did read is consistent with that drawing's "
+    "own dimensions/labels before finalizing it.\n\n"
     "Follow this protocol for each drawing:\n"
     "1. Locate its bounding box FIRST, before reading any dimensions: find the drawing's outer "
     "border/frame (or, if it has no drawn border, the tightest rectangle enclosing all of its "
@@ -338,14 +294,13 @@ SYSTEM_PROMPT = (
     "drawing's title text.\n"
     "2. Metadata scan -- find THIS drawing's own title callout: a distinctly bold/large number "
     "inside a circle or box (usually at the bottom-left of this drawing's own frame), immediately "
-    "followed by this drawing's name (e.g. '(4) STAIR-07-INTERMEDIATE LANDING-03'). On a sheet "
-    "with N drawings, these callout numbers are typically sequential across the whole sheet (1, 2, "
-    "3, ... up to N), one per drawing -- record that number as `title_callout_number` and the text "
-    "beside it as `drawing_title`. Do NOT confuse this with:\n"
+    "followed by this drawing's name (e.g. '(4) FOUNDATION PLAN - GRID A-D'). On a sheet with N "
+    "drawings, these callout numbers are typically sequential across the whole sheet (1, 2, 3, ... "
+    "up to N), one per drawing -- record that number as `title_callout_number` and the text beside "
+    "it as `drawing_title`. Do NOT confuse this with:\n"
     "   - an internal equipment/room identifier tag printed INSIDE the drawing's geometry (e.g. a "
-    "small label like 'EGRESS STAIR 07 BG1 03 C' next to a door or room) -- that is a label for a "
-    "component within the drawing, not the drawing's own title, even though both can look like "
-    "short bold text;\n"
+    "small label next to a door, duct, or room) -- that is a label for a component within the "
+    "drawing, not the drawing's own title, even though both can look like short bold text;\n"
     "   - a `detail_callouts` bubble (a numbered circle pointing to a detail on another sheet) -- "
     "those are handled separately in step 3 below and are NOT this drawing's own title, even when "
     "their number happens to coincide with another drawing's title_callout_number;\n"
@@ -359,47 +314,30 @@ SYSTEM_PROMPT = (
     "   - Exterior dimension strings (left, right, top, bottom)\n"
     "   - Interior compartment/shaft clear dimensions and headroom\n"
     "   - Vertical elevation datums (F.F.L., T.O.S., T.O.C., S.S.L.)\n"
-    "   - Component details (stairs, handrails, doors, nosings, wall thicknesses, tread going)\n"
-    "   - Stair width: on a PLAN view, the CLEAR WIDTH of the stair flight itself -- the "
-    "dimension spanning across the flight between its two bounding wall faces (or wall-to-"
-    "handrail), measured perpendicular to the direction of travel. Tag this `stair_width`. "
-    "Do NOT tag as `stair_width`: landing width/depth, overall room or enclosure width, "
-    "corridor width, or wall thickness -- those are real dimensions worth recording too, "
-    "just under `width`/`wall_thickness`/`other` instead, not `stair_width`.\n"
-    "     Decide which of several nearby candidates is the real stair_width by what its "
-    "witness/extension lines actually TOUCH, never by which number is bigger or smaller -- "
-    "magnitude alone is not a reliable signal, and sometimes the larger of two adjacent "
-    "figures is the correct flight width while the smaller is a partial sub-segment, and "
-    "sometimes it's the reverse. For each candidate, trace both ends independently and set "
-    "start_reference/end_reference to what they concretely touch (e.g. 'inner wall face of "
-    "upper flight' / 'handrail centerline of upper flight'). A candidate is `stair_width` "
-    "only if BOTH ends touch that one flight's own immediate bounding wall/handrail faces; if "
-    "either end touches a landing rail edge, a mid-point between flights, an adjacent room, or "
-    "spans the full enclosure/shaft between the outer walls (i.e. across both flights or the "
-    "whole stairwell), it is not stair_width for that flight -- tag it `width` or `other` "
-    "instead, regardless of its magnitude relative to other nearby figures.\n"
-    "     Do not silently discard a plausible candidate just because you end up preferring "
-    "another one for the same flight -- tag EVERY reading whose witness lines plausibly "
-    "bound a flight's clear width as `stair_width` (not demoted to `width`/`other`), and set "
-    "its `confidence` to reflect how sure you are: 'high' only when both ends unambiguously "
-    "touch that flight's own wall/handrail faces, 'medium'/'low' when there's real doubt. This "
-    "keeps every candidate visible instead of losing one to a wrong either/or guess.\n"
-    "     A plan view showing two stacked flights (e.g. an upper flight and a lower flight one "
-    "above the other, as on an intermediate landing plan) normally has TWO separate stair_width "
-    "dimensions, one per flight, which can legitimately differ from each other -- look for and "
-    "tag both individually rather than assuming one value applies to the whole drawing, and set "
-    "that dimension's `section_part` to say which flight it belongs to (e.g. 'Upper flight' or "
-    "'Lower flight') so the two can be told apart later. A plan view showing only a single "
-    "flight only has one.\n"
-    "     Do not invent a theory that one flight's width is split into two segments by a "
-    "central newel/handrail unless you can actually see that newel/handrail symbol drawn "
-    "between the two witness lines in the image -- if you can't point to the physical symbol "
-    "causing the split, it is far more likely that a single continuous dimension line was "
-    "misread as two, so re-trace it as one reading spanning the whole flight instead.\n"
-    "     If this image is a tightly cropped, high-resolution re-render of a single drawing "
-    "(rather than a full sheet), treat that as your best chance to resolve any stair_width "
-    "ambiguity precisely -- use the extra resolution to trace witness lines pixel-by-pixel "
-    "rather than repeating a lower-confidence guess from a wider view.\n"
+    "   - Component details relevant to this drawing's own discipline (stairs, handrails, doors, "
+    "nosings, wall thicknesses, tread going, footings, rebar, ducts, pipes, pavement layers, etc.) "
+    "-- tag each with the closest matching `type` from the controlled vocabulary, or `other` if "
+    "none fit; never force a dimension into a type it doesn't actually match.\n"
+    "   - Stair width (ONLY when this drawing shows a stair flight in plan): the CLEAR WIDTH of the "
+    "flight itself -- the dimension spanning across the flight between its two bounding wall faces "
+    "(or wall-to-handrail), measured perpendicular to the direction of travel. Tag this "
+    "`stair_width`. Do NOT tag as `stair_width`: landing width/depth, overall room or enclosure "
+    "width, corridor width, or wall thickness -- record those under `width`/`wall_thickness`/"
+    "`other` instead.\n"
+    "     Decide which of several nearby candidates is the real stair_width by what its witness/"
+    "extension lines actually TOUCH, never by which number is bigger or smaller. Trace each "
+    "candidate's start_reference/end_reference independently; a candidate is `stair_width` only if "
+    "BOTH ends touch that one flight's own immediate bounding wall/handrail faces -- if either end "
+    "touches a landing rail edge, a mid-point between flights, or spans the full enclosure/shaft "
+    "across both flights, it is not stair_width, regardless of its magnitude relative to other "
+    "nearby figures.\n"
+    "     Don't silently discard a plausible candidate in favor of another for the same flight -- "
+    "tag every reading whose witness lines plausibly bound a flight's clear width as `stair_width`, "
+    "with `confidence` reflecting how sure you are. A drawing showing two stacked flights normally "
+    "has TWO separate stair_width dimensions, one per flight, which can legitimately differ -- tag "
+    "both individually and set `section_part` to say which flight each belongs to. Don't invent a "
+    "theory that one flight's width is split by a central newel/handrail unless you can actually "
+    "see that symbol drawn between the two witness lines.\n"
     "   - Detail-bubble cross-references: a circled/numbered tag (e.g. a circle containing '6') "
     "next to a title (e.g. 'STEEL HANDRAIL DETAIL-1-5') and often a small referenced drawing/sheet "
     "number underneath -- record every one of these as a `detail_callouts` entry (not as a "
@@ -419,39 +357,126 @@ SYSTEM_PROMPT = (
     "illegible due to resolution or blur, set label_text to 'unclear' (or your best reading), "
     "set confidence to 'low', and explain the surrounding context in `notes`. Use the provided "
     "OCR text to help disambiguate anything hard to read in the image.\n"
-    "7. Quantity takeoff: after recording dimensions/datums, derive `quantity_takeoff` for this "
-    "drawing:\n"
-    "   - num_doors: count every distinct door symbol/leaf visible on this drawing (typically a "
-    "plan or detail view) -- a door swing arc, a door leaf line across an opening, or a door tag "
-    "(e.g. 'D1', 'HD-01'). Count each physical door once even if it also has a dimension or tag "
-    "labeling it. If this drawing is a section/elevation with no doors shown, leave it null with "
-    "method 'not derivable -- no doors visible on this drawing'.\n"
-    "   - num_drains: count every distinct drain symbol/tag visible on this drawing (e.g. a floor "
-    "drain circle, gully, or a tag like 'FD-01'). Leave it null with an explanatory method if none "
-    "are shown on this drawing.\n"
-    "   - From a section/elevation showing stair_rise dimensions and FFL datums, derive: "
-    "num_flights (count of stair_rise entries), num_risers_total (sum of their counts), "
-    "riser_height (typical/per-flight riser dim), num_treads_total -- this project treats the "
-    "number of treads as EQUAL to the number of risers for each flight (do NOT use a risers-1 "
-    "convention), so num_treads_total must equal num_risers_total, summed the same way -- "
-    "num_landings (distinct intermediate FFL levels between flights), and "
-    "total_vertical_drop = the HIGHEST elevation_datum value you recorded for this drawing minus "
-    "the LOWEST one -- use the actual max/min of this drawing's own `elevation_datums` list, never "
-    "an arbitrary or intermediate pair of FFLs, even if one of them is labeled as a landing near "
-    "the top; cross-check the result against the sum of all riser rises (they should match). "
-    "tread_length/total_tread_length need a horizontal run or plan dimension; only fill "
-    "them if one is actually shown (e.g. a diagonal flight-run dimension combined with the "
-    "known rise), and mark the method/derivation used.\n"
-    "   - perimeter_wall_length, internal_room_footprint_area, inner_perimeter, wall_thickness, "
-    "centerline_perimeter, and the concrete/formwork quantities need a plan view (footprint, "
-    "wall centerlines and thickness) plus, for volumes/formwork, member thickness or height. "
-    "Only fill these from a plan/detail drawing that actually shows that geometry; on a "
-    "section-only drawing leave them null and set `method` to state what's missing (e.g. "
-    "'requires plan view showing wall centerlines/thickness -- not present in this section').\n"
-    "   - Every quantity_takeoff field carries confidence/notes like a dimension does: 'low' for "
-    "anything derived/estimated rather than read directly, with the arithmetic or assumption "
-    "spelled out in notes.\n\n"
+    "7. If this image is a tightly cropped, high-resolution re-render of a single drawing (rather "
+    "than a full sheet), treat that as your best chance to resolve any ambiguous reading precisely "
+    "-- use the extra resolution to trace witness lines pixel-by-pixel rather than repeating a "
+    "lower-confidence guess from a wider view.\n\n"
     "Call the record_drawings tool exactly once with your complete findings for this page."
+    # "You are an expert Senior Architectural & Structural BIM Engineer and Technical Drawing "
+    # "Reader. Exhaustively extract and annotate EVERY visible dimension, datum level, and "
+    # "measurement string on this sheet. A single page can contain multiple physically distinct "
+    # "drawings (separated by border lines, whitespace, or separate title callouts) -- treat each "
+    # "one separately, with its own metadata/dimensions/elevation_datums. Do NOT create a separate "
+    # "'drawing' entry for the sheet's title block, revision table, key-plan/locator, north arrow, "
+    # "or general notes column -- that content belongs to the whole sheet, not to any one scaled "
+    # "drawing, and reporting it as its own drawing produces an empty or meaningless entry. Only "
+    # "segment actual scaled drawings (plan, section, elevation, detail, isometric, schedule).\n\n"
+    # "Multiple drawings on this sheet may look alike (e.g. several similar stair-plan or "
+    # "landing-plan views side by side) -- when reading each one's own title/label text, read it "
+    # "from THAT drawing's own title callout, never from a neighboring drawing's, even if the OCR "
+    # "text block handed to you contains both. If a drawing's title is genuinely illegible, set it "
+    # "to 'unclear' rather than guessing a neighbor's title, and cross-check that the title you did "
+    # "read is consistent with that drawing's own dimensions/labels (e.g. riser/tread numbers, "
+    # "landing name) before finalizing it.\n\n"
+    # "Follow this protocol for each drawing:\n"
+    # "1. Locate its bounding box FIRST, before reading any dimensions: find the drawing's outer "
+    # "border/frame (or, if it has no drawn border, the tightest rectangle enclosing all of its "
+    # "geometry, dimension lines, and title). Report x0/y0/x1/y1 as fractions of the FULL page's "
+    # "width/height (0,0 = top-left corner of the whole page, 1,1 = bottom-right), not fractions "
+    # "of some other region. Pad it generously (roughly 2-5% of page width/height on each side) so "
+    # "nothing near the edge is clipped -- this box will be used to crop and re-render this exact "
+    # "drawing alone at much higher resolution in a later pass, so a slightly loose box is fine but "
+    # "a tight/clipped one will cut off real content. If two drawings are packed tightly together "
+    # "with no gap (e.g. stacked in a column), split the boundary between them rather than "
+    # "overlapping their interiors -- each drawing's own title/number callout (usually printed at "
+    # "the bottom of its frame) belongs inside THAT drawing's own box, not the box of the drawing "
+    # "below it, so make sure your padding on a shared edge does not creep into the neighboring "
+    # "drawing's title text.\n"
+    # "2. Metadata scan -- find THIS drawing's own title callout: a distinctly bold/large number "
+    # "inside a circle or box (usually at the bottom-left of this drawing's own frame), immediately "
+    # "followed by this drawing's name (e.g. '(4) STAIR-07-INTERMEDIATE LANDING-03'). On a sheet "
+    # "with N drawings, these callout numbers are typically sequential across the whole sheet (1, 2, "
+    # "3, ... up to N), one per drawing -- record that number as `title_callout_number` and the text "
+    # "beside it as `drawing_title`. Do NOT confuse this with:\n"
+    # "   - an internal equipment/room identifier tag printed INSIDE the drawing's geometry (e.g. a "
+    # "small label like 'EGRESS STAIR 07 BG1 03 C' next to a door or room) -- that is a label for a "
+    # "component within the drawing, not the drawing's own title, even though both can look like "
+    # "short bold text;\n"
+    # "   - a `detail_callouts` bubble (a numbered circle pointing to a detail on another sheet) -- "
+    # "those are handled separately in step 3 below and are NOT this drawing's own title, even when "
+    # "their number happens to coincide with another drawing's title_callout_number;\n"
+    # "   - a grid-line bubble (e.g. a plain circled 'A' or '3' marking a column/row on the drawing) "
+    # "-- these have no title text beside them and are not a title callout.\n"
+    # "If you cannot find a bold numbered title callout for this drawing at all, set drawing_title to "
+    # "'unclear' and title_callout_number to null rather than reusing a neighboring drawing's number "
+    # "or an internal tag. Also record the drawing/sheet number, scale, default units (mm or m), and "
+    # "revision status from the title block.\n"
+    # "3. Spatial categorization -- systematically sweep the whole drawing:\n"
+    # "   - Exterior dimension strings (left, right, top, bottom)\n"
+    # "   - Interior compartment/shaft clear dimensions and headroom\n"
+    # "   - Vertical elevation datums (F.F.L., T.O.S., T.O.C., S.S.L.)\n"
+    # "   - Component details (stairs, handrails, doors, nosings, wall thicknesses, tread going)\n"
+    # "   - Stair width: on a PLAN view, the CLEAR WIDTH of the stair flight itself -- the "
+    # "dimension spanning across the flight between its two bounding wall faces (or wall-to-"
+    # "handrail), measured perpendicular to the direction of travel. Tag this `stair_width`. "
+    # "Do NOT tag as `stair_width`: landing width/depth, overall room or enclosure width, "
+    # "corridor width, or wall thickness -- those are real dimensions worth recording too, "
+    # "just under `width`/`wall_thickness`/`other` instead, not `stair_width`.\n"
+    # "     Decide which of several nearby candidates is the real stair_width by what its "
+    # "witness/extension lines actually TOUCH, never by which number is bigger or smaller -- "
+    # "magnitude alone is not a reliable signal, and sometimes the larger of two adjacent "
+    # "figures is the correct flight width while the smaller is a partial sub-segment, and "
+    # "sometimes it's the reverse. For each candidate, trace both ends independently and set "
+    # "start_reference/end_reference to what they concretely touch (e.g. 'inner wall face of "
+    # "upper flight' / 'handrail centerline of upper flight'). A candidate is `stair_width` "
+    # "only if BOTH ends touch that one flight's own immediate bounding wall/handrail faces; if "
+    # "either end touches a landing rail edge, a mid-point between flights, an adjacent room, or "
+    # "spans the full enclosure/shaft between the outer walls (i.e. across both flights or the "
+    # "whole stairwell), it is not stair_width for that flight -- tag it `width` or `other` "
+    # "instead, regardless of its magnitude relative to other nearby figures.\n"
+    # "     Do not silently discard a plausible candidate just because you end up preferring "
+    # "another one for the same flight -- tag EVERY reading whose witness lines plausibly "
+    # "bound a flight's clear width as `stair_width` (not demoted to `width`/`other`), and set "
+    # "its `confidence` to reflect how sure you are: 'high' only when both ends unambiguously "
+    # "touch that flight's own wall/handrail faces, 'medium'/'low' when there's real doubt. This "
+    # "keeps every candidate visible instead of losing one to a wrong either/or guess.\n"
+    # "     A plan view showing two stacked flights (e.g. an upper flight and a lower flight one "
+    # "above the other, as on an intermediate landing plan) normally has TWO separate stair_width "
+    # "dimensions, one per flight, which can legitimately differ from each other -- look for and "
+    # "tag both individually rather than assuming one value applies to the whole drawing, and set "
+    # "that dimension's `section_part` to say which flight it belongs to (e.g. 'Upper flight' or "
+    # "'Lower flight') so the two can be told apart later. A plan view showing only a single "
+    # "flight only has one.\n"
+    # "     Do not invent a theory that one flight's width is split into two segments by a "
+    # "central newel/handrail unless you can actually see that newel/handrail symbol drawn "
+    # "between the two witness lines in the image -- if you can't point to the physical symbol "
+    # "causing the split, it is far more likely that a single continuous dimension line was "
+    # "misread as two, so re-trace it as one reading spanning the whole flight instead.\n"
+    # "     If this image is a tightly cropped, high-resolution re-render of a single drawing "
+    # "(rather than a full sheet), treat that as your best chance to resolve any stair_width "
+    # "ambiguity precisely -- use the extra resolution to trace witness lines pixel-by-pixel "
+    # "rather than repeating a lower-confidence guess from a wider view.\n"
+    # "   - Detail-bubble cross-references: a circled/numbered tag (e.g. a circle containing '6') "
+    # "next to a title (e.g. 'STEEL HANDRAIL DETAIL-1-5') and often a small referenced drawing/sheet "
+    # "number underneath -- record every one of these as a `detail_callouts` entry (not as a "
+    # "dimension); they point to a detail shown elsewhere and are real sheet content worth keeping. "
+    # "Do NOT confuse this with a small triangular arrow marker (often at the drawing's left edge, "
+    # "pointing off the page) that references THIS SHEET's own drawing number -- that triangle marker "
+    # "is a sheet-navigation aid, not a detail callout, and its number/target must never be copied "
+    # "onto a nearby circular detail-callout bubble or vice versa; read each one's own number/target "
+    # "independently even when they sit close together.\n"
+    # "4. Trace witness/extension lines: for every numerical figure, trace its bounding witness "
+    # "lines or datum markers to determine the precise start_reference and end_reference.\n"
+    # "5. Independent math cross-check: verify step-rise formulas (count * riser_or_tread_dim == "
+    # "calculated_total, and that this equals the annotated label_text); verify floor-to-floor "
+    # "rises against the difference between the corresponding FFL datums. If a check fails, still "
+    # "report the value as printed but note the discrepancy in `notes`.\n"
+    # "6. No-hallucination rule: never invent a dimension or value not actually shown. If text is "
+    # "illegible due to resolution or blur, set label_text to 'unclear' (or your best reading), "
+    # "set confidence to 'low', and explain the surrounding context in `notes`. Use the provided "
+    # "OCR text to help disambiguate anything hard to read in the image.\n\n"
+    # "Call the record_drawings tool exactly once with your complete findings for this page."
+    
 )
 
 
@@ -510,10 +535,6 @@ def _validate_drawings(raw: object) -> list[dict]:
         if drawing_metadata is not None and not isinstance(drawing_metadata, dict):
             raise ValueError(f"'drawing_metadata' must be a JSON object, got: {drawing_metadata!r}")
 
-        quantity_takeoff = item.get("quantity_takeoff")
-        if quantity_takeoff is not None and not isinstance(quantity_takeoff, dict):
-            raise ValueError(f"'quantity_takeoff' must be a JSON object, got: {quantity_takeoff!r}")
-
         bounding_box = item.get("bounding_box")
         if bounding_box is not None:
             if not isinstance(bounding_box, dict):
@@ -552,9 +573,58 @@ def _build_messages(image_b64: str, ocr_text: str, page_number: int) -> list[dic
     ]
 
 
-def extract_page(image_bytes: bytes, ocr_text: str, page_number: int, settings: Settings) -> list[dict]:
+_DYNAMIC_PROPERTIES_PROMPT_ADDENDUM = (
+    "\n\n8. Resource-planning input roles: this drawing's own tool schema includes an extra "
+    "`quantities` object under each drawing, whose properties are specific named input roles "
+    "(e.g. 'wall_height', 'main_bar_diameter') proposed for this drawing's classification. For "
+    "each role you can actually determine from what's shown, report its numeric value under that "
+    "exact key -- read it the same careful way you read any other dimension (trace witness lines, "
+    "check against OCR text), never guess. Omit a role entirely (or set it null) if this specific "
+    "drawing doesn't show it; do not force a value onto a role that isn't really there."
+)
+
+
+def _tool_schema_with_dynamic_properties(dynamic_properties: dict[str, dict]) -> dict:
+    """A copy of TOOL_SCHEMA with an extra `quantities` object property added
+    to each drawing item -- one property per proposed resource-planning
+    input role (see classify_drawing), so the SAME extraction pass that
+    reads dimensions/datums/callouts can also report each role's value
+    directly, instead of a separate downstream step guessing which
+    dimension matches a role from free text after the fact. Python still
+    does 100% of the arithmetic on these values (pipeline.calculations) --
+    this only changes WHERE a raw input value gets read from, never who
+    computes a formula over it.
+    """
+    schema = copy.deepcopy(TOOL_SCHEMA)
+    item_properties = schema["input_schema"]["properties"]["drawings"]["items"]["properties"]
+    item_properties["quantities"] = {
+        "type": "object",
+        "description": (
+            "Numeric values for this drawing's own resource-planning input roles (proposed by "
+            "the earlier classification pass for this drawing). One key per role below; omit or "
+            "null any role this drawing doesn't actually show -- never fabricate a value."
+        ),
+        "properties": dynamic_properties,
+    }
+    return schema
+
+
+def extract_page(
+    image_bytes: bytes,
+    ocr_text: str,
+    page_number: int,
+    settings: Settings,
+    dynamic_properties: dict[str, dict] | None = None,
+) -> list[dict]:
     """Call Claude on one rendered page image; return raw drawing dicts
     (drawing_type/title/dimensions), unvalidated and without IDs assigned.
+
+    `dynamic_properties`, when given, merges an extra `quantities` object
+    into the per-drawing tool schema for this call only (see
+    _tool_schema_with_dynamic_properties) -- used for the per-drawing detail
+    pass, once classify_drawing has already proposed this drawing's own
+    resource-planning input roles. The base (no-argument) call used for
+    Pass 1 whole-page segmentation is unaffected.
 
     Retries up to MAX_ATTEMPTS times. If the model's tool call doesn't match
     the expected shape, the error is fed back to it as a tool_result so it
@@ -566,6 +636,11 @@ def extract_page(image_bytes: bytes, ocr_text: str, page_number: int, settings: 
     image_b64 = base64.b64encode(image_bytes).decode("ascii")
     messages = _build_messages(image_b64, ocr_text, page_number)
 
+    tool_schema = (
+        _tool_schema_with_dynamic_properties(dynamic_properties) if dynamic_properties else TOOL_SCHEMA
+    )
+    system_prompt = SYSTEM_PROMPT + _DYNAMIC_PROPERTIES_PROMPT_ADDENDUM if dynamic_properties else SYSTEM_PROMPT
+
     last_error: Exception | None = None
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
@@ -573,8 +648,8 @@ def extract_page(image_bytes: bytes, ocr_text: str, page_number: int, settings: 
             message = client.messages.create(
                 model=settings.foundry_claude_deployment,
                 max_tokens=8192,
-                system=SYSTEM_PROMPT,
-                tools=[TOOL_SCHEMA],
+                system=system_prompt,
+                tools=[tool_schema],
                 tool_choice={"type": "tool", "name": TOOL_NAME},
                 messages=messages,
             )
@@ -627,3 +702,294 @@ def extract_page(image_bytes: bytes, ocr_text: str, page_number: int, settings: 
         page_number, MAX_ATTEMPTS, last_error,
     )
     return []
+
+
+# --- Drawing classification + dynamic takeoff-schema proposal --------------
+#
+# A second, separate plain-JSON prompt call per drawing crop (Pass 1.5,
+# between segmentation and the detail pass) -- deliberately NOT a forced
+# tool call (see classify_drawing's docstring): the model identifies what
+# the drawing actually is, then proposes which resource-planning quantities
+# can be derived from it and how -- but never computes them.
+# pipeline.calculations does the arithmetic; pipeline.schema_registry turns
+# the proposal into a validated JSON Schema and reuses it across drawings
+# that share a classification; the proposed input roles then flow into
+# extract_page's own tool schema (_tool_schema_with_dynamic_properties) so
+# the main extraction pass can report their values directly.
+
+MEASUREMENT_BASES = ["count", "length", "area", "volume", "weight"]
+RESOURCE_CATEGORIES = ["material", "labor", "equipment"]
+
+_CLASSIFICATION_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "project_type": {"type": "string", "description": "e.g. 'commercial building', 'road/highway', 'tunnel'"},
+        "discipline": {"type": "string", "description": "e.g. 'architectural', 'structural', 'MEP', 'civil'"},
+        "drawing_type": {"type": "string", "enum": DRAWING_TYPES},
+        "building_elements": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Building elements/systems shown, e.g. ['foundation', 'footing'] or ['stair', 'handrail']",
+        },
+        "confidence": {"type": "string", "enum": CONFIDENCE_LEVELS},
+        "notes": {"type": "string", "description": "Context for an uncertain classification"},
+    },
+    "required": ["drawing_type", "confidence"],
+}
+
+_QUANTITY_ITEM_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "name": {"type": "string", "description": "Quantity item name, e.g. 'wall_concrete_volume'"},
+        "description": {"type": "string"},
+        "unit": {"type": "string", "description": "e.g. m3, m2, m, count, kg"},
+        "measurement_basis": {"type": "string", "enum": MEASUREMENT_BASES},
+        "resource_category": {"type": "string", "enum": RESOURCE_CATEGORIES},
+        "depends_on": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": (
+                "Logical input role names this formula needs, e.g. ['wall_length', 'wall_height', "
+                "'wall_thickness'] -- snake_case, generic enough to match the same role across "
+                "other drawings of this same classification, NOT this drawing's own dimension_ids."
+            ),
+        },
+        "formula": {
+            "type": "string",
+            "description": (
+                "A plain arithmetic expression over the `depends_on` names ONLY -- e.g. "
+                "'wall_length * wall_height * wall_thickness'. Arithmetic operators and "
+                "parentheses only: no function calls, no computed numbers, no units in the "
+                "expression itself. You propose the formula; it is evaluated in Python, never by you."
+            ),
+        },
+    },
+    "required": ["name", "unit", "measurement_basis", "resource_category", "depends_on", "formula"],
+}
+
+# Kept as a human-readable reference for what shape the classification JSON
+# must take (see the formatting instructions appended to
+# CLASSIFICATION_SYSTEM_PROMPT below) -- no longer wired into the API call as
+# a forced tool_choice. classify_drawing() now asks for this shape as plain
+# JSON text and parses/validates it itself (_validate_classification), so a
+# Foundry deployment doesn't need tool-calling support for this step at all.
+CLASSIFY_RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "classification": _CLASSIFICATION_SCHEMA,
+        "quantity_items": {
+            "type": "array",
+            "description": (
+                "Every quantity-takeoff item genuinely derivable from this drawing. Empty if "
+                "nothing meaningful can be derived (e.g. a legend or a drawing with no "
+                "dimensioned geometry) -- do not invent an item just to fill this array."
+            ),
+            "items": _QUANTITY_ITEM_SCHEMA,
+        },
+    },
+    "required": ["classification", "quantity_items"],
+}
+
+CLASSIFICATION_SYSTEM_PROMPT = (
+    "You are an expert estimator reviewing ONE architectural/structural/civil/MEP drawing (already "
+    "cropped from its sheet). Two jobs, in order:\n\n"
+    "1. Classify it: project_type (the kind of facility/project this drawing belongs to), discipline "
+    "(architectural/structural/MEP/civil/etc.), drawing_type, and building_elements (the specific "
+    "elements/systems actually shown -- e.g. ['stair', 'handrail'], ['foundation', 'footing', "
+    "'rebar'], ['duct', 'diffuser'], ['road', 'pavement', 'curb']). Set confidence to 'low' if the "
+    "drawing's subject is genuinely ambiguous (e.g. a fragment with no title or legible content) "
+    "rather than guessing.\n\n"
+    "2. Propose a resource-planning quantity-takeoff schema for THIS classification: think like an "
+    "estimator building a bill of quantities for labor, materials, and equipment. For each quantity "
+    "genuinely derivable from a drawing of this kind (not necessarily from every instance -- other "
+    "drawings sharing this same discipline/drawing_type will reuse this same schema), propose:\n"
+    "   - name: a stable snake_case identifier, e.g. 'foundation_concrete_volume', "
+    "'rebar_weight', 'formwork_area', 'duct_length'.\n"
+    "   - unit, measurement_basis (count/length/area/volume/weight), resource_category "
+    "(material/labor/equipment).\n"
+    "   - depends_on: the generic, reusable input roles the formula needs, NOT specific numbers or "
+    "this drawing's own dimension IDs -- these roles get matched automatically to each drawing's own "
+    "extracted dimensions later, by a downstream matcher that only understands a few specific naming "
+    "patterns, so you MUST pick role names from these patterns rather than free-form phrasing:\n"
+    "       * A role ending in '_length'/'_width'/'_span'/'_run' is matched against a HORIZONTAL "
+    "dimension; a role ending in '_height'/'_depth'/'_thickness'/'_rise' is matched against a "
+    "VERTICAL one -- always end a geometric role with one of these words so it can be matched by "
+    "orientation even when no other text lines up (e.g. 'footing_width', 'wall_height', "
+    "'slab_thickness', not 'footing_size' or 'wall_dimension').\n"
+    "       * For rebar/bar-mark callouts specifically (e.g. a label like 'Y32-100' or '12 Y25'), "
+    "use role names ending in exactly '_bar_diameter', '_bar_spacing', '_bar_count', or "
+    "'_bar_length' (e.g. 'main_bar_diameter', 'stirrup_bar_spacing') -- the matcher parses these "
+    "specific sub-values directly out of a bar-mark callout's own text, so do NOT invent a role "
+    "like 'rebar_size' or 'bar_info' that bundles diameter+spacing together; split them into "
+    "separate roles instead.\n"
+    "       * Where this project's own dimension vocabulary already has a matching category -- "
+    "wall_thickness, floor_to_floor, guardrail_height, tread_going, stair_rise -- reuse that exact "
+    "word inside your role name (e.g. 'wall_thickness', not 'wall_thick') so an exact-type match is "
+    "possible.\n"
+    "   - formula: plain arithmetic over those role names only (+ - * / ** and parentheses) -- e.g. "
+    "'footing_length * footing_width * footing_depth'. Never write a computed number as the "
+    "formula's result; you are proposing HOW to compute it, not computing it. A formula may ONLY "
+    "reference `depends_on` roles that are themselves matchable to something drawn/labeled/"
+    "dimensioned on a drawing of this kind (a length, count, weight-per-length, etc.) -- NEVER "
+    "reference an external reference constant that no drawing could ever show, such as a labor "
+    "productivity rate, an equipment output rate, or a material unit-weight factor (e.g. "
+    "'placement_rate_per_hour', 'pump_rate_per_hour', 'labor_hours_per_kg', "
+    "'rebar_unit_weight_factor'). If a genuinely useful quantity (like installation labor-hours) "
+    "would require such a constant, leave it out entirely rather than proposing an item that can "
+    "never compute -- propose the underlying material quantity itself instead (e.g. "
+    "'rebar_weight' in kg, not 'rebar_installation_labor' in hours).\n"
+    "Only propose items that are genuinely derivable from the kind of geometry/dimensions a "
+    "drawing like this would show -- an empty quantity_items list is correct and expected for a "
+    "drawing with no meaningful takeoff (e.g. a key plan, a legend, a note-only sheet).\n\n"
+    "Respond with ONLY a single raw JSON object -- no markdown code fences, no explanation before "
+    "or after it -- with exactly two top-level keys, in this exact shape:\n"
+    "{\n"
+    '  "classification": {\n'
+    '    "project_type": "<string or null>", "discipline": "<string or null>",\n'
+    f'    "drawing_type": "<one of {DRAWING_TYPES}>",\n'
+    '    "building_elements": ["<string>", "..."],\n'
+    f'    "confidence": "<one of {CONFIDENCE_LEVELS}>", "notes": "<string or null>"\n'
+    "  },\n"
+    '  "quantity_items": [\n'
+    "    {\n"
+    '      "name": "<snake_case string>", "description": "<string or null>", "unit": "<string>",\n'
+    f'      "measurement_basis": "<one of {MEASUREMENT_BASES}>",\n'
+    f'      "resource_category": "<one of {RESOURCE_CATEGORIES}>",\n'
+    '      "depends_on": ["<role_name>", "..."], "formula": "<arithmetic expression string>"\n'
+    "    }\n"
+    "  ]\n"
+    "}\n"
+    "`quantity_items` may be an empty array; `classification` is always required. Your entire "
+    "reply must be parseable by a strict JSON parser as-is -- do not wrap it in ```json fences, "
+    "do not add commentary, do not truncate it."
+)
+
+
+def _validate_classification(raw: object) -> dict:
+    """Raise a descriptive ValueError if the classification tool call's
+    input doesn't match the expected shape."""
+    if not isinstance(raw, dict):
+        raise ValueError(f"classification input must be a JSON object, got {type(raw).__name__}: {raw!r}")
+
+    classification = raw.get("classification")
+    if not isinstance(classification, dict):
+        raise ValueError(f"'classification' must be a JSON object, got: {classification!r}")
+    if not classification.get("drawing_type"):
+        raise ValueError("'classification.drawing_type' is required")
+
+    items = raw.get("quantity_items", [])
+    if not isinstance(items, list) or any(not isinstance(i, dict) for i in items):
+        raise ValueError(f"'quantity_items' must be an array of JSON objects, got: {items!r}")
+    for item in items:
+        missing = [
+            k for k in ("name", "unit", "measurement_basis", "resource_category", "depends_on", "formula")
+            if k not in item
+        ]
+        if missing:
+            raise ValueError(f"quantity_item missing required fields {missing}: {item!r}")
+        if not isinstance(item.get("depends_on"), list):
+            raise ValueError(f"quantity_item.depends_on must be an array, got: {item.get('depends_on')!r}")
+
+    return raw
+
+
+_JSON_FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE | re.MULTILINE)
+
+
+def _parse_json_response(text: str) -> dict:
+    """Parse a plain-text model response as JSON, tolerating the common case
+    of the model wrapping it in ```json ... ``` fences despite being told
+    not to. Raises ValueError (not json.JSONDecodeError) so callers have one
+    exception type to catch, matching _validate_classification's contract.
+    """
+    stripped = _JSON_FENCE_RE.sub("", text.strip()).strip()
+    try:
+        parsed = json.loads(stripped)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"response was not valid JSON: {exc}") from exc
+    if not isinstance(parsed, dict):
+        raise ValueError(f"response JSON must be an object, got {type(parsed).__name__}: {parsed!r}")
+    return parsed
+
+
+def classify_drawing(image_bytes: bytes, ocr_text: str, page_number: int, settings: Settings) -> dict:
+    """Call Claude on one drawing's (cropped) image to classify it and
+    propose a dynamic quantity-takeoff schema for it.
+
+    Unlike extract_page, this is a PLAIN prompt call -- no tools/tool_choice
+    forcing a particular call shape. CLASSIFICATION_SYSTEM_PROMPT itself
+    spells out the required JSON shape in text, and the model's plain-text
+    reply is parsed as JSON here (_parse_json_response) and validated
+    (_validate_classification). This is what lets the proposed schema flow
+    into extract_page's own tool schema afterward (see
+    _tool_schema_with_dynamic_properties) instead of living behind a second,
+    separate forced-tool-call schema.
+
+    Same retry-with-error-feedback pattern as extract_page, just carried by
+    a plain user-turn message instead of a tool_result block (there's no
+    tool_use to attach one to). Returns {"classification": {...},
+    "quantity_items": [...]}; on repeated failure returns an empty-but-valid
+    shape (low-confidence 'other' classification, no items) so one bad
+    drawing doesn't take down the whole run -- callers should treat a
+    low-confidence/'other' result as "no dynamic takeoff for this drawing"
+    rather than retrying indefinitely.
+    """
+    client = _build_client(settings)
+    image_b64 = base64.b64encode(image_bytes).decode("ascii")
+    messages = _build_messages(image_b64, ocr_text, page_number)
+
+    last_error: Exception | None = None
+
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            message = client.messages.create(
+                model=settings.foundry_claude_deployment,
+                max_tokens=4096,
+                system=CLASSIFICATION_SYSTEM_PROMPT,
+                messages=messages,
+            )
+        except Exception as exc:
+            logger.warning("Classify page %s attempt %s: request failed: %s", page_number, attempt, exc)
+            last_error = exc
+            continue
+
+        raw_text = "".join(block.text for block in message.content if block.type == "text")
+        if not raw_text.strip():
+            last_error = ValueError("Claude's reply contained no text content")
+            logger.warning("Classify page %s attempt %s: %s", page_number, attempt, last_error)
+            continue
+
+        try:
+            parsed = _parse_json_response(raw_text)
+            return _validate_classification(parsed)
+        except ValueError as exc:
+            logger.warning("Classify page %s attempt %s: malformed JSON reply: %s", page_number, attempt, exc)
+            last_error = exc
+            messages.append({"role": "assistant", "content": raw_text})
+            messages.append(
+                {
+                    "role": "user",
+                    "content": (
+                        f"Your last reply was invalid: {exc}. Reply again with ONLY the corrected "
+                        "raw JSON object (no markdown fences, no commentary), matching the exact "
+                        "shape described in the system prompt: a top-level 'classification' object "
+                        "with at least 'drawing_type' and 'confidence', and a top-level "
+                        "'quantity_items' array of objects each with name/unit/measurement_basis/"
+                        "resource_category/depends_on/formula."
+                    ),
+                }
+            )
+
+    logger.error(
+        "Giving up on classifying page %s drawing after %s attempts (%s); "
+        "returning a low-confidence 'other' classification with no takeoff items",
+        page_number, MAX_ATTEMPTS, last_error,
+    )
+    return {
+        "classification": {
+            "drawing_type": "other",
+            "confidence": "low",
+            "notes": f"classification failed after {MAX_ATTEMPTS} attempts: {last_error}",
+        },
+        "quantity_items": [],
+    }

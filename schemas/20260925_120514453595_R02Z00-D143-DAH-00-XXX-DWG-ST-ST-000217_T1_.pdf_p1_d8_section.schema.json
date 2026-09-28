@@ -1,0 +1,782 @@
+{
+  "header": {
+    "schema_id": "944c5348c865",
+    "version": 5,
+    "run_timestamp": "20260925_120514453595",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 8,
+    "drawing_title": "SECTION B-B",
+    "classification": {
+      "project_type": "tunnel infrastructure (King Abdulaziz West Tunnel)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "tunnel slab",
+        "tunnel box girder/culvert",
+        "rebar reinforcement",
+        "web/wall panels"
+      ],
+      "confidence": "medium",
+      "notes": "This is a reinforced concrete cross-section (Section B-B) of a multi-cell tunnel/box culvert structure showing top and bottom slabs, vertical webs, circular voids (likely void formers for weight reduction), and detailed rebar callouts (Y-bar diameters and spacing). No overall length dimension is given directly in this section, so linear quantities depend on external/segment length inputs."
+    }
+  },
+  "schema_id": "944c5348c865",
+  "version": 5,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:944c5348c865:v5",
+    "title": "Quantity takeoff schema 944c5348c865 v5",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "base_slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "base_slab_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width",
+              "slab_thickness"
+            ],
+            "x-formula": "slab_length * slab_width * slab_thickness"
+          },
+          "wall_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "wall_thickness"
+            ],
+            "x-formula": "wall_length * wall_height * wall_thickness"
+          },
+          "top_slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "top_slab_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_slab_length",
+              "top_slab_width",
+              "top_slab_thickness"
+            ],
+            "x-formula": "top_slab_length * top_slab_width * top_slab_thickness"
+          },
+          "wall_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "wall_length",
+              "wall_height",
+              "wall_sides"
+            ],
+            "x-formula": "wall_length * wall_height * wall_sides"
+          },
+          "slab_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width"
+            ],
+            "x-formula": "slab_length * slab_width"
+          },
+          "wall_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "wall_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_rebar_length",
+              "wall_rebar_count",
+              "wall_rebar_unit_weight"
+            ],
+            "x-formula": "wall_rebar_length * wall_rebar_count * wall_rebar_unit_weight"
+          },
+          "slab_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_rebar_length",
+              "slab_rebar_count",
+              "slab_rebar_unit_weight"
+            ],
+            "x-formula": "slab_rebar_length * slab_rebar_count * slab_rebar_unit_weight"
+          },
+          "construction_joint_waterstop_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "construction_joint_waterstop_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "construction_joint_count",
+              "joint_length_per_run"
+            ],
+            "x-formula": "construction_joint_count * joint_length_per_run"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_concrete_volume",
+              "placement_crew_output_rate"
+            ],
+            "x-formula": "total_concrete_volume / placement_crew_output_rate"
+          },
+          "formwork_erection_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_erection_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_formwork_area",
+              "formwork_crew_output_rate"
+            ],
+            "x-formula": "total_formwork_area / formwork_crew_output_rate"
+          },
+          "rebar_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_rebar_weight",
+              "rebar_crew_output_rate"
+            ],
+            "x-formula": "total_rebar_weight / rebar_crew_output_rate"
+          },
+          "concrete_pump_equipment_hours": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_pump_equipment_hours",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "total_concrete_volume",
+              "pump_output_rate"
+            ],
+            "x-formula": "total_concrete_volume / pump_output_rate"
+          },
+          "opening_edge_beam_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_edge_beam_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "member_width",
+              "member_depth",
+              "member_length"
+            ],
+            "x-formula": "member_width * member_depth * member_length"
+          },
+          "main_longitudinal_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_longitudinal_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_count",
+              "main_bar_length",
+              "main_bar_unit_weight"
+            ],
+            "x-formula": "main_bar_count * main_bar_length * main_bar_unit_weight"
+          },
+          "stirrup_link_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "stirrup_link_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_perimeter",
+              "stirrup_spacing",
+              "member_length",
+              "stirrup_unit_weight"
+            ],
+            "x-formula": "(member_length / stirrup_spacing) * stirrup_perimeter * stirrup_unit_weight"
+          },
+          "additional_opening_reinforcement_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "additional_opening_reinforcement_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_count",
+              "additional_bar_length",
+              "additional_bar_unit_weight"
+            ],
+            "x-formula": "additional_bar_count * additional_bar_length * additional_bar_unit_weight"
+          },
+          "formwork_area_around_opening": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area_around_opening",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_perimeter",
+              "member_length"
+            ],
+            "x-formula": "opening_perimeter * member_length"
+          },
+          "slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_length",
+              "slab_width",
+              "slab_thickness"
+            ],
+            "x-formula": "recess_length * slab_width * slab_thickness"
+          },
+          "recess_concrete_volume_deduction": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "recess_concrete_volume_deduction",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_length",
+              "recess_width",
+              "recess_depth"
+            ],
+            "x-formula": "recess_length * recess_width * recess_depth"
+          },
+          "top_reinforcement_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "top_reinforcement_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_bar_length",
+              "top_bar_spacing",
+              "recess_width",
+              "top_bar_unit_weight"
+            ],
+            "x-formula": "(recess_width / top_bar_spacing) * top_bar_length * top_bar_unit_weight"
+          },
+          "bottom_reinforcement_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "bottom_reinforcement_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_bar_length",
+              "bottom_bar_spacing",
+              "recess_width",
+              "bottom_bar_unit_weight"
+            ],
+            "x-formula": "(recess_width / bottom_bar_spacing) * bottom_bar_length * bottom_bar_unit_weight"
+          },
+          "vertical_stepdown_reinforcement_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "vertical_stepdown_reinforcement_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stepdown_bar_length",
+              "stepdown_bar_spacing",
+              "recess_width",
+              "stepdown_bar_unit_weight"
+            ],
+            "x-formula": "(recess_width / stepdown_bar_spacing) * stepdown_bar_length * stepdown_bar_unit_weight"
+          },
+          "formwork_area_at_recess_edges": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area_at_recess_edges",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_width",
+              "recess_depth"
+            ],
+            "x-formula": "recess_width * recess_depth"
+          },
+          "rebar_fixing_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_fixing_labor",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "top_bar_length",
+              "top_bar_spacing",
+              "recess_width",
+              "top_bar_unit_weight",
+              "bottom_bar_length",
+              "bottom_bar_spacing",
+              "bottom_bar_unit_weight"
+            ],
+            "x-formula": "((recess_width / top_bar_spacing) * top_bar_length * top_bar_unit_weight) + ((recess_width / bottom_bar_spacing) * bottom_bar_length * bottom_bar_unit_weight)"
+          },
+          "deck_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "deck_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "section_length",
+              "section_width",
+              "section_depth",
+              "void_diameter",
+              "number_of_voids"
+            ],
+            "x-formula": "(section_length * section_width * section_depth) - (3.14159 * ((void_diameter/2)**2) * section_length * number_of_voids)"
+          },
+          "top_mat_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "top_mat_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_mat_bar_length",
+              "top_mat_bar_spacing",
+              "top_mat_bar_diameter",
+              "section_width",
+              "unit_weight_per_meter"
+            ],
+            "x-formula": "(section_width / top_mat_bar_spacing) * top_mat_bar_length * unit_weight_per_meter"
+          },
+          "bottom_mat_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "bottom_mat_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_mat_bar_length",
+              "bottom_mat_bar_spacing",
+              "bottom_mat_bar_diameter",
+              "section_width",
+              "unit_weight_per_meter"
+            ],
+            "x-formula": "(section_width / bottom_mat_bar_spacing) * bottom_mat_bar_length * unit_weight_per_meter"
+          },
+          "web_diagonal_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "web_diagonal_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_length",
+              "web_bar_spacing",
+              "web_bar_diameter",
+              "section_width",
+              "unit_weight_per_meter",
+              "number_of_webs"
+            ],
+            "x-formula": "(section_width / web_bar_spacing) * web_bar_length * unit_weight_per_meter * number_of_webs"
+          },
+          "void_former_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "void_former_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "number_of_voids"
+            ],
+            "x-formula": "number_of_voids"
+          },
+          "void_former_surface_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "void_former_surface_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "void_diameter",
+              "section_length",
+              "number_of_voids"
+            ],
+            "x-formula": "3.14159 * void_diameter * section_length * number_of_voids"
+          },
+          "formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "section_perimeter",
+              "section_length"
+            ],
+            "x-formula": "section_perimeter * section_length"
+          },
+          "total_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "total_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_mat_rebar_weight",
+              "bottom_mat_rebar_weight",
+              "web_diagonal_rebar_weight",
+              "additional_local_bar_weight"
+            ],
+            "x-formula": "top_mat_rebar_weight + bottom_mat_rebar_weight + web_diagonal_rebar_weight + additional_local_bar_weight"
+          },
+          "bottom_slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "bottom_slab_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_slab_width",
+              "bottom_slab_thickness",
+              "section_length"
+            ],
+            "x-formula": "bottom_slab_width * bottom_slab_thickness * section_length"
+          },
+          "web_panel_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "web_panel_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_count",
+              "web_thickness",
+              "web_height",
+              "section_length"
+            ],
+            "x-formula": "web_count * web_thickness * web_height * section_length"
+          },
+          "void_deduction_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "void_deduction_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "void_count",
+              "void_diameter",
+              "section_length"
+            ],
+            "x-formula": "void_count * (3.14159 * (void_diameter/2) ** 2) * section_length"
+          },
+          "net_section_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "net_section_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_slab_concrete_volume",
+              "bottom_slab_concrete_volume",
+              "web_panel_concrete_volume",
+              "void_deduction_volume"
+            ],
+            "x-formula": "top_slab_concrete_volume + bottom_slab_concrete_volume + web_panel_concrete_volume - void_deduction_volume"
+          },
+          "slab_top_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_top_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "rebar_diameter_top",
+              "rebar_spacing_top",
+              "section_length",
+              "top_slab_width",
+              "rebar_unit_weight_factor"
+            ],
+            "x-formula": "(top_slab_width / rebar_spacing_top) * section_length * rebar_diameter_top ** 2 * rebar_unit_weight_factor"
+          },
+          "slab_bottom_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_bottom_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "rebar_diameter_bottom",
+              "rebar_spacing_bottom",
+              "section_length",
+              "bottom_slab_width",
+              "rebar_unit_weight_factor"
+            ],
+            "x-formula": "(bottom_slab_width / rebar_spacing_bottom) * section_length * rebar_diameter_bottom ** 2 * rebar_unit_weight_factor"
+          },
+          "web_stirrup_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "web_stirrup_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_diameter",
+              "stirrup_spacing",
+              "web_height",
+              "web_count",
+              "section_length",
+              "rebar_unit_weight_factor"
+            ],
+            "x-formula": "(section_length / stirrup_spacing) * web_height * web_count * stirrup_diameter ** 2 * rebar_unit_weight_factor"
+          },
+          "web_diagonal_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "web_diagonal_bar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "diagonal_bar_diameter",
+              "diagonal_bar_length",
+              "diagonal_bar_count_per_web",
+              "web_count",
+              "rebar_unit_weight_factor"
+            ],
+            "x-formula": "diagonal_bar_count_per_web * web_count * diagonal_bar_length * diagonal_bar_diameter ** 2 * rebar_unit_weight_factor"
+          },
+          "total_reinforcement_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "total_reinforcement_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_top_rebar_weight",
+              "slab_bottom_rebar_weight",
+              "web_stirrup_rebar_weight",
+              "web_diagonal_bar_weight"
+            ],
+            "x-formula": "slab_top_rebar_weight + slab_bottom_rebar_weight + web_stirrup_rebar_weight + web_diagonal_bar_weight"
+          },
+          "formwork_area_top_bottom": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area_top_bottom",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_slab_width",
+              "bottom_slab_width",
+              "section_length"
+            ],
+            "x-formula": "(top_slab_width + bottom_slab_width) * section_length"
+          },
+          "formwork_area_webs": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area_webs",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_count",
+              "web_height",
+              "section_length"
+            ],
+            "x-formula": "web_count * 2 * web_height * section_length"
+          },
+          "formwork_area_voids": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area_voids",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "void_count",
+              "void_diameter",
+              "section_length"
+            ],
+            "x-formula": "void_count * 3.14159 * void_diameter * section_length"
+          },
+          "formwork_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "formwork_area_top_bottom",
+              "formwork_area_webs",
+              "formwork_area_voids",
+              "formwork_installation_rate"
+            ],
+            "x-formula": "(formwork_area_top_bottom + formwork_area_webs + formwork_area_voids) / formwork_installation_rate"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

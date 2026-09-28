@@ -1,0 +1,227 @@
+{
+  "header": {
+    "schema_id": "e8de039edbcf",
+    "version": 1,
+    "run_timestamp": "20260925_123138020348",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221[T2].pdf",
+    "page": 1,
+    "drawing_index": 4,
+    "drawing_title": "ROOF SLAB R.C. DETAILS",
+    "classification": {
+      "project_type": "commercial/institutional building",
+      "discipline": "structural",
+      "drawing_type": "plan",
+      "building_elements": [
+        "roof slab",
+        "reinforced concrete slab",
+        "rebar reinforcement",
+        "slab openings",
+        "section markers"
+      ],
+      "confidence": "medium",
+      "notes": "This is a reinforced concrete roof slab reinforcement layout plan showing top and bottom rebar (Y16-150) with additional reinforcement bands (2x2 Y25-T&B) around openings/columns, and section cut markers (1-4). No slab thickness or overall plan dimensions are legible from OCR, limiting some quantity derivations to typical/assumed inputs."
+    }
+  },
+  "schema_id": "e8de039edbcf",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:e8de039edbcf:v1",
+    "title": "Quantity takeoff schema e8de039edbcf v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "roof_slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "roof_slab_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width",
+              "slab_thickness"
+            ],
+            "x-formula": "slab_length * slab_width * slab_thickness"
+          },
+          "roof_slab_formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "roof_slab_formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "slab_soffit_length",
+              "slab_soffit_width"
+            ],
+            "x-formula": "slab_soffit_length * slab_soffit_width"
+          },
+          "main_rebar_top_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_rebar_top_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_rebar_top_total_length",
+              "main_rebar_unit_weight"
+            ],
+            "x-formula": "main_rebar_top_total_length * main_rebar_unit_weight"
+          },
+          "main_rebar_bottom_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_rebar_bottom_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_rebar_bottom_total_length",
+              "main_rebar_unit_weight"
+            ],
+            "x-formula": "main_rebar_bottom_total_length * main_rebar_unit_weight"
+          },
+          "main_rebar_top_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_rebar_top_bar_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_span_perpendicular_to_bars",
+              "bar_spacing"
+            ],
+            "x-formula": "slab_span_perpendicular_to_bars / bar_spacing"
+          },
+          "main_rebar_bottom_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "main_rebar_bottom_bar_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_span_perpendicular_to_bars",
+              "bar_spacing"
+            ],
+            "x-formula": "slab_span_perpendicular_to_bars / bar_spacing"
+          },
+          "opening_reinforcement_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_reinforcement_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_band_bar_count",
+              "opening_band_bar_length",
+              "opening_reinforcement_unit_weight"
+            ],
+            "x-formula": "opening_band_bar_count * opening_band_bar_length * opening_reinforcement_unit_weight"
+          },
+          "total_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "total_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_rebar_top_weight",
+              "main_rebar_bottom_weight",
+              "opening_reinforcement_weight"
+            ],
+            "x-formula": "main_rebar_top_weight + main_rebar_bottom_weight + opening_reinforcement_weight"
+          },
+          "rebar_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "total_rebar_weight",
+              "rebar_labor_productivity_rate"
+            ],
+            "x-formula": "total_rebar_weight / rebar_labor_productivity_rate"
+          },
+          "concrete_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "roof_slab_concrete_volume",
+              "concrete_labor_productivity_rate"
+            ],
+            "x-formula": "roof_slab_concrete_volume / concrete_labor_productivity_rate"
+          },
+          "concrete_pump_equipment_hours": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_pump_equipment_hours",
+            "x-unit": "hr",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "equipment",
+            "x-depends-on": [
+              "roof_slab_concrete_volume",
+              "pump_output_rate"
+            ],
+            "x-formula": "roof_slab_concrete_volume / pump_output_rate"
+          },
+          "slab_opening_deduction_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "slab_opening_deduction_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_length",
+              "opening_width",
+              "slab_thickness"
+            ],
+            "x-formula": "opening_length * opening_width * slab_thickness"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

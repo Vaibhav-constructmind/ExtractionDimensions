@@ -1,0 +1,318 @@
+{
+  "header": {
+    "schema_id": "ceff1a326533",
+    "version": 3,
+    "run_timestamp": "20260925_123138020348",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000221[T2].pdf",
+    "page": 1,
+    "drawing_index": 8,
+    "drawing_title": "RFT AROUND SHAFT OPENING",
+    "classification": {
+      "project_type": "tunnel infrastructure (egress stairs)",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "shaft opening",
+        "reinforced concrete slab/wall",
+        "reinforcement bars (rebar)",
+        "opening trimmer bars"
+      ],
+      "confidence": "medium",
+      "notes": "Detail shows reinforcement layout (2 X 6 Y25 bars) around a shaft opening for egress stairs in a tunnel structure. Only a partial detail view is visible with limited dimensions; title block confirms it's an RC detail sheet for King Abdulaziz West Tunnel egress stairs."
+    }
+  },
+  "schema_id": "ceff1a326533",
+  "version": 3,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:ceff1a326533:v3",
+    "title": "Quantity takeoff schema ceff1a326533 v3",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "rebar_length_main": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_length_main",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bar_spacing",
+              "element_span_length",
+              "number_of_bars"
+            ],
+            "x-formula": "number_of_bars * element_span_length"
+          },
+          "rebar_weight_main": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_weight_main",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "rebar_length_main",
+              "bar_unit_weight"
+            ],
+            "x-formula": "rebar_length_main * bar_unit_weight"
+          },
+          "number_of_bars": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "number_of_bars",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "element_width",
+              "bar_spacing"
+            ],
+            "x-formula": "element_width / bar_spacing"
+          },
+          "concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "element_length",
+              "element_width",
+              "element_thickness"
+            ],
+            "x-formula": "element_length * element_width * element_thickness"
+          },
+          "formwork_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "element_length",
+              "element_thickness"
+            ],
+            "x-formula": "element_length * element_thickness"
+          },
+          "rebar_placement_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_placement_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "rebar_weight_main",
+              "labor_productivity_rate"
+            ],
+            "x-formula": "rebar_weight_main / labor_productivity_rate"
+          },
+          "rebar_cutting_bending_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_cutting_bending_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "number_of_bars",
+              "bending_rate_per_bar"
+            ],
+            "x-formula": "number_of_bars * bending_rate_per_bar"
+          },
+          "opening_trim_bar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_trim_bar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "trim_bar_count",
+              "trim_bar_length",
+              "trim_bar_unit_weight"
+            ],
+            "x-formula": "trim_bar_count * trim_bar_length * trim_bar_unit_weight"
+          },
+          "opening_trim_bar_length_total": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_trim_bar_length_total",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "trim_bar_count",
+              "trim_bar_length"
+            ],
+            "x-formula": "trim_bar_count * trim_bar_length"
+          },
+          "opening_edge_perimeter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_edge_perimeter",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_width",
+              "opening_height"
+            ],
+            "x-formula": "2 * (opening_width + opening_height)"
+          },
+          "rebar_fixing_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_fixing_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "trim_bar_count",
+              "labor_hours_per_bar"
+            ],
+            "x-formula": "trim_bar_count * labor_hours_per_bar"
+          },
+          "opening_void_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_void_area",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_width",
+              "opening_height"
+            ],
+            "x-formula": "opening_width * opening_height"
+          },
+          "opening_trimmer_rebar_weight": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_trimmer_rebar_weight",
+            "x-unit": "kg",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "trimmer_bar_length",
+              "trimmer_bar_count",
+              "rebar_unit_weight_per_length"
+            ],
+            "x-formula": "trimmer_bar_length * trimmer_bar_count * rebar_unit_weight_per_length"
+          },
+          "opening_trimmer_rebar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "opening_trimmer_rebar_length",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "trimmer_bar_length",
+              "trimmer_bar_count"
+            ],
+            "x-formula": "trimmer_bar_length * trimmer_bar_count"
+          },
+          "shaft_opening_perimeter_rebar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "shaft_opening_perimeter_rebar_count",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bars_per_side",
+              "number_of_sides"
+            ],
+            "x-formula": "bars_per_side * number_of_sides"
+          },
+          "shaft_opening_slab_concrete_volume": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "shaft_opening_slab_concrete_volume",
+            "x-unit": "m3",
+            "x-measurement-basis": "volume",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_length",
+              "opening_width",
+              "slab_thickness",
+              "opening_area_deduction"
+            ],
+            "x-formula": "(opening_length * opening_width * slab_thickness) - opening_area_deduction"
+          },
+          "rebar_installation_labor": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "rebar_installation_labor",
+            "x-unit": "hr",
+            "x-measurement-basis": "weight",
+            "x-resource-category": "labor",
+            "x-depends-on": [
+              "opening_trimmer_rebar_weight",
+              "labor_hours_per_kg_rebar"
+            ],
+            "x-formula": "opening_trimmer_rebar_weight * labor_hours_per_kg_rebar"
+          },
+          "formwork_area_around_opening": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "formwork_area_around_opening",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "opening_perimeter",
+              "slab_thickness"
+            ],
+            "x-formula": "opening_perimeter * slab_thickness"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}
