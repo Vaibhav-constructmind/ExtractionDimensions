@@ -1,0 +1,124 @@
+{
+  "header": {
+    "schema_id": "9b895cdc2fac",
+    "version": 1,
+    "run_timestamp": "20260929_112445065865",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+    "page": 1,
+    "drawing_index": 6,
+    "drawing_title": "SECTION C-C",
+    "classification": {
+      "project_type": "building (reinforced concrete structure)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "rebar",
+        "concrete member"
+      ],
+      "confidence": "low",
+      "notes": "Fragment of a section drawing (SECTION C-C, SC. 1/25) showing only bar-mark callouts (Y12-125, Y32-125, Y20-125) with no visible member geometry, dimensions, or profile. The parent concrete element (wall/slab/beam) is not identifiable from this crop, so quantities are limited to what the bar-mark callouts themselves convey."
+    }
+  },
+  "schema_id": "9b895cdc2fac",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:9b895cdc2fac:v1",
+    "title": "Quantity takeoff schema 9b895cdc2fac v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "y12_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y12 reinforcement bars called out at 125mm spacing (typical), read directly from the bar-mark callout 'Y12-125 (TYP.)'.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y12_bar_diameter"
+            ],
+            "x-formula": "y12_bar_diameter"
+          },
+          "y12_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y12 reinforcement bars read directly from the bar-mark callout 'Y12-125'.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y12_bar_spacing"
+            ],
+            "x-formula": "y12_bar_spacing"
+          },
+          "y32_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y32 reinforcement bars read directly from the bar-mark callout 'Y32-125'.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y32_bar_diameter"
+            ],
+            "x-formula": "y32_bar_diameter"
+          },
+          "y32_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y32 reinforcement bars read directly from the bar-mark callout 'Y32-125'.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y32_bar_spacing"
+            ],
+            "x-formula": "y32_bar_spacing"
+          },
+          "y20_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y20 reinforcement bars read directly from the bar-mark callout 'Y20-125'.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y20_bar_diameter"
+            ],
+            "x-formula": "y20_bar_diameter"
+          },
+          "y20_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y20 reinforcement bars read directly from the bar-mark callout 'Y20-125'.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y20_bar_spacing"
+            ],
+            "x-formula": "y20_bar_spacing"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

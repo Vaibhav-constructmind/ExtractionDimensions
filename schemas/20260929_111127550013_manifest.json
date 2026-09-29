@@ -1,0 +1,213 @@
+{
+  "run_timestamp": "20260929_111127550013",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D1",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 1,
+      "drawing_title": "SECTION 1-1",
+      "classification": {
+        "project_type": "reinforced concrete structure (likely raft/mat foundation or tank base)",
+        "discipline": "structural",
+        "drawing_type": "plan",
+        "building_elements": [
+          "raft_foundation",
+          "slab",
+          "rebar",
+          "construction_joint"
+        ],
+        "confidence": "medium",
+        "notes": "Sheet is titled 'SECTION 1-1' but the content displayed is a plan-view reinforcement layout of a slab/raft (bar marks such as Y32-100, Y25-100, Y20-125, Y12-150/WEB spread across a two-directional grid with construction joints C.J.), typical of a mat/raft foundation top or bottom mesh plan rather than a vertical section cut. Overall footprint and bay dimensions are chain-dimensioned but no single overall slab thickness figure is legible, limiting volume derivation."
+      },
+      "schema_id": "d68245846f16",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_111127550013_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d1_plan.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D2",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 2,
+      "drawing_title": "SECTION 2-2",
+      "classification": {
+        "project_type": "Residential/Mixed-use Superblock Development",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "reinforced concrete wall",
+          "slab",
+          "footing/kicker",
+          "rebar",
+          "construction joint"
+        ],
+        "confidence": "medium",
+        "notes": "Section 2-2 of a reinforced concrete structure (likely basement/retaining walls and slab of a superblock), showing wall heights, stepped footing/kicker widths, construction joints (C.J.), and reinforcement bar-mark callouts (Y32-100, Y25-100, Y20-125, Y12-150/WEB). As a vertical section, only cross-sectional dimensions (height, thickness, width across the cut) are legible; run lengths of walls/slabs along their length are not shown here."
+      },
+      "schema_id": "a9644c9d383e",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_111127550013_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d2_section.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "unclear",
+      "classification": {
+        "project_type": null,
+        "discipline": null,
+        "drawing_type": "other",
+        "building_elements": [],
+        "confidence": "low",
+        "notes": "classification failed after 3 attempts: Claude's reply contained no text content"
+      },
+      "schema_id": null,
+      "schema_version": null,
+      "schema_file": null,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "ADDITIONAL REINFORCEMENT AROUND THE OPENING AT THE INNER WALL AT STA: 0+314",
+      "classification": {
+        "project_type": "Tunnel/culvert or underground structure (station-referenced concrete lining)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "wall",
+          "opening",
+          "reinforcement/rebar"
+        ],
+        "confidence": "medium",
+        "notes": "Detail shows additional reinforcement bars (dots) arranged around an opening cut into an 'inner wall' at station 0+314, drawn at scale 1:25. Only one dimension (800) is legible; bar diameter/spacing callouts are not shown, only bar positions as dots, so weight/spacing cannot be computed."
+      },
+      "schema_id": "497a4cde249e",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_111127550013_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d4_detail.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "SECTION 1'-1'",
+      "classification": {
+        "project_type": "civil infrastructure (culvert/retaining wall structure)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "reinforced_concrete_wall",
+          "opening",
+          "rebar",
+          "stirrup"
+        ],
+        "confidence": "medium",
+        "notes": "Two reinforcement sections (1'-1' and 2'-2') showing additional rebar around an opening in an inner wall at station 0+314. Sections show cross-sectional dimensions and bar-mark callouts (main bars and stirrups) but no plan view or run length for the wall/opening, so lengths/volumes of the member itself cannot be derived."
+      },
+      "schema_id": "8b20a25b115e",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_111127550013_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d5_section.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D6",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 6,
+      "drawing_title": null,
+      "classification": {
+        "project_type": null,
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "reinforcement",
+          "wall_or_column_section"
+        ],
+        "confidence": "low",
+        "notes": "Fragment shows a partial reinforced concrete section with vertical rebar rows and bar-mark callouts (Y25-125, Y25-100). No overall element dimensions, scale is noted (1/25) but no length/width/depth figures are legible in this crop, so the specific element (wall, column, or pile cap) cannot be confirmed."
+      },
+      "schema_id": "4c72a558f194",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_111127550013_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d6_detail.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D7",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 7,
+      "drawing_title": "RECESS IN THE OUTER WALLS OF THE TUNNEL AT SECTION 2",
+      "classification": {
+        "project_type": null,
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "rebar"
+        ],
+        "confidence": "low",
+        "notes": "This is a tiny fragment showing only a partial bar-mark callout 'Y25-1...' (likely 'Y25-125', meaning 25mm diameter bars at 125mm spacing). No other geometry, dimensions, or context is visible, so the element it belongs to (slab, wall, footing, etc.) cannot be determined."
+      },
+      "schema_id": "2f005281d3d1",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_111127550013_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d7_detail.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D8",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 8,
+      "drawing_title": "unclear",
+      "classification": {
+        "project_type": "Building - reinforced concrete structure (likely institutional/commercial, voided/waffle slab construction)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "slab",
+          "rebar",
+          "recess",
+          "voided_slab",
+          "reinforcement"
+        ],
+        "confidence": "medium",
+        "notes": "Sheet shows a reinforced-concrete recess detail (Section 3'-3') and a biaxial/voided slab reinforcement detail with spherical void formers. Multiple bar-mark callouts (Y25-100, Y25-125, Y32-100, Y16-125, Y20-125, Y12-125, Y12-150, 2 Y12-150x500, 2x4 Y16) are visible, giving bar size and spacing, but no dimensioned bar run lengths (except one explicit '500' length on the 2 Y12-150x500 mark) or plan-view extents, so most quantities are limited to directly-read bar properties rather than computed weights/volumes."
+      },
+      "schema_id": "946b41a197e0",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_111127550013_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d8_detail.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D9",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 9,
+      "drawing_title": "RECESS IN THE OUTER WALLS OF THE TUNNEL AT SECTION 2",
+      "classification": {
+        "project_type": "Tunnel / underground infrastructure",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "tunnel wall",
+          "recess",
+          "reinforcement",
+          "rebar"
+        ],
+        "confidence": "high",
+        "notes": "Section B-B through a recess formed in the outer wall of a tunnel, showing reinforcement bar-mark callouts (Y32-100, Y25-100, Y20-125, Y12-150/WEB, 2x4 Y16) and a single dimension of 1300mm across the recess width. Circular dashed features appear to be duct/void penetrations, not dimensioned. No wall run length or recess height/depth is shown on this section."
+      },
+      "schema_id": "ba11c54c035c",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_111127550013_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d9_section.schema.json",
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "header": {
+    "schema_id": "2530698ba18c",
+    "version": 1,
+    "run_timestamp": "20260929_112445065865",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+    "page": 1,
+    "drawing_index": 2,
+    "drawing_title": "SECTION 4-4 & 4A-4A & 4B-4B",
+    "classification": {
+      "project_type": "water/civil infrastructure (reservoir or tank structure)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "concrete wall",
+        "base slab",
+        "rebar",
+        "stirrup",
+        "web reinforcement"
+      ],
+      "confidence": "medium",
+      "notes": "Reinforcement detail section (SECTION 4-4 & 4A-4A & 4B-4B) through a two-cell reinforced concrete tank/reservoir structure, showing bar-mark callouts (Y32, Y25, Y20, Y12) for wall and slab reinforcement, spacing, and stirrup details. Overall wall heights (5100, 4800mm) and slab/wall widths in plan-like layout are dimensioned, but this is a section so run lengths of walls are not derivable."
+    }
+  },
+  "schema_id": "2530698ba18c",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:2530698ba18c:v1",
+    "title": "Quantity takeoff schema 2530698ba18c v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "wall_vertical_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of distinct Y25-125/Y32-125/Y20-125 vertical wall reinforcement bar-mark callouts shown in the section",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "wall_vertical_bar_count"
+          },
+          "wall_vertical_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of main vertical wall reinforcement bars as read from bar-mark callouts (e.g. Y32, Y25, Y20)",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_bar_diameter"
+            ],
+            "x-formula": "wall_bar_diameter"
+          },
+          "wall_vertical_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of main vertical wall reinforcement bars as read from bar-mark callouts (e.g. Y25-125)",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_bar_spacing"
+            ],
+            "x-formula": "wall_bar_spacing"
+          },
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of web reinforcement bars (Y12-150/WEB callout)",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of web reinforcement bars (Y12-150/WEB callout)",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "stirrup_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of stirrup bars per 'FOR STIRRUPS Y12-150x500' callout",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_diameter"
+            ],
+            "x-formula": "stirrup_bar_diameter"
+          },
+          "stirrup_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of stirrup bars per 'FOR STIRRUPS Y12-150x500' callout",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_spacing"
+            ],
+            "x-formula": "stirrup_bar_spacing"
+          },
+          "wall_height_left": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Overall height of left wall segment as dimensioned (5100mm)",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_height"
+            ],
+            "x-formula": "wall_height"
+          },
+          "wall_height_right": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Overall height of right wall segment as dimensioned (4800mm)",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_height"
+            ],
+            "x-formula": "wall_height"
+          },
+          "base_slab_width": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Width of base slab/footing at bottom of section as dimensioned (e.g. 3600, 4000mm)",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "base_slab_width"
+            ],
+            "x-formula": "base_slab_width"
+          },
+          "wall_thickness_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Cross-sectional area of wall in this section derived from wall height and wall thickness dimensions shown",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_height",
+              "wall_thickness"
+            ],
+            "x-formula": "wall_height * wall_thickness"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

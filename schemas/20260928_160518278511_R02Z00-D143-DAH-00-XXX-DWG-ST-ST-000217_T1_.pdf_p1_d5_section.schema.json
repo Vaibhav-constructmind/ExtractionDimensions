@@ -1,0 +1,126 @@
+{
+  "header": {
+    "schema_id": "7f0d9e3b699d",
+    "version": 1,
+    "run_timestamp": "20260928_160518278511",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 5,
+    "drawing_title": "SECTION 1'-1'",
+    "classification": {
+      "project_type": "Culvert/tunnel or retaining structure (inner wall with opening)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "wall",
+        "opening",
+        "rebar",
+        "reinforcement"
+      ],
+      "confidence": "medium",
+      "notes": "Two cross-sections (1'-1' and 2'-2') showing additional reinforcement bars around an opening in an inner wall at station 0+314. Sections show bar-mark callouts and cross-sectional dimensions (800mm x 600mm) but no plan view, so bar run lengths and wall length along the opening cannot be derived from this drawing."
+    }
+  },
+  "schema_id": "7f0d9e3b699d",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:7f0d9e3b699d:v1",
+    "title": "Quantity takeoff schema 7f0d9e3b699d v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "main_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of main longitudinal bars (12 Y32) shown in section around the opening",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_count"
+            ],
+            "x-formula": "main_bar_count"
+          },
+          "main_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of main reinforcement bars (Y32) read from bar-mark callout",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_diameter"
+            ],
+            "x-formula": "main_bar_diameter"
+          },
+          "additional_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of additional reinforcement bars (4 Y25) shown in Section 2'-2'",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_count"
+            ],
+            "x-formula": "additional_bar_count"
+          },
+          "additional_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of additional reinforcement bars (Y25) read from bar-mark callout",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_diameter"
+            ],
+            "x-formula": "additional_bar_diameter"
+          },
+          "stirrup_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of stirrup/link bars (Y16) read from bar-mark callout Y16-150",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_diameter"
+            ],
+            "x-formula": "stirrup_bar_diameter"
+          },
+          "stirrup_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of stirrup/link bars read from bar-mark callout Y16-150",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_spacing"
+            ],
+            "x-formula": "stirrup_bar_spacing"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

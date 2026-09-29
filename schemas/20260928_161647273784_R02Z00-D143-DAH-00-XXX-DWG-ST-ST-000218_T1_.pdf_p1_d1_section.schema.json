@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_id": "6d59240fa319",
+    "version": 1,
+    "run_timestamp": "20260928_161647273784",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+    "page": 1,
+    "drawing_index": 1,
+    "drawing_title": "SECTION 3-3",
+    "classification": {
+      "project_type": "infrastructure / drainage or utility structure",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "box culvert",
+        "reinforced concrete wall",
+        "slab",
+        "reinforcement bar",
+        "stirrup"
+      ],
+      "confidence": "medium",
+      "notes": "Drawing shows a cross-section (SECTION 3-3) of what appears to be a twin-cell reinforced concrete box culvert or underground box structure, with extensive rebar bar-mark callouts (Y32-125, Y25-125, Y25-250, Y20-125, Y12-150/WEB) and stirrup callouts (Y12-150x500). Overall envelope dimensions (5100, 4800, 4000, 3000) are cross-sectional dimensions only, not run lengths, and are not clearly labeled with descriptive terms (e.g. 'wall thickness', 'slab thickness'), so area/volume quantities cannot be reliably derived without risking mismatched roles. Bar-mark callouts are the most reliably extractable quantities from this view."
+    }
+  },
+  "schema_id": "6d59240fa319",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:6d59240fa319:v1",
+    "title": "Quantity takeoff schema 6d59240fa319 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "y32_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y32 reinforcement bars as called out in bar-mark labels (e.g. 'Y32-125') around the box perimeter.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y32_bar_diameter"
+            ],
+            "x-formula": "y32_bar_diameter"
+          },
+          "y32_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y32 reinforcement bars as called out in bar-mark labels (e.g. 'Y32-125').",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y32_bar_spacing"
+            ],
+            "x-formula": "y32_bar_spacing"
+          },
+          "y25_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y25 reinforcement bars as called out in bar-mark labels (e.g. 'Y25-125', 'Y25-250').",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y25_bar_diameter"
+            ],
+            "x-formula": "y25_bar_diameter"
+          },
+          "y25_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y25 reinforcement bars as called out in bar-mark labels.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y25_bar_spacing"
+            ],
+            "x-formula": "y25_bar_spacing"
+          },
+          "y20_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y20 reinforcement bars as called out in bar-mark labels (e.g. 'Y20-125').",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y20_bar_diameter"
+            ],
+            "x-formula": "y20_bar_diameter"
+          },
+          "y20_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y20 reinforcement bars as called out in bar-mark labels.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y20_bar_spacing"
+            ],
+            "x-formula": "y20_bar_spacing"
+          },
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y12 web reinforcement bars as called out ('Y12-150 / WEB').",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y12 web reinforcement bars as called out ('Y12-150 / WEB').",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "stirrup_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of stirrup bars as called out in 'FOR STIRRUPS Y12-150x500' labels.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_diameter"
+            ],
+            "x-formula": "stirrup_bar_diameter"
+          },
+          "stirrup_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of stirrup bars as called out in 'FOR STIRRUPS Y12-150x500' labels.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_spacing"
+            ],
+            "x-formula": "stirrup_bar_spacing"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

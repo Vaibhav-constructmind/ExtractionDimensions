@@ -1,0 +1,183 @@
+{
+  "header": {
+    "schema_id": "9d54d12ced24",
+    "version": 1,
+    "run_timestamp": "20260928_161647273784",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+    "page": 1,
+    "drawing_index": 5,
+    "drawing_title": "SECTION C-C",
+    "classification": {
+      "project_type": "Building (likely precast/cast-in-place voided slab or beam structure)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "slab",
+        "voided_slab",
+        "reinforcement",
+        "shear_reinforcement",
+        "void_former"
+      ],
+      "confidence": "medium",
+      "notes": "Section C-C through a reinforced concrete voided slab/beam element showing circular void formers, top/bottom reinforcement layers, and diagonal (shear) reinforcement with bar-mark callouts (Y12-125, Y25-125, Y20-125, 3 Y12). No plan view is present, so run lengths for bars or slab cannot be derived from this drawing alone."
+    }
+  },
+  "schema_id": "9d54d12ced24",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:9d54d12ced24:v1",
+    "title": "Quantity takeoff schema 9d54d12ced24 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "y12_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y12-125 reinforcement bars called out in section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y12_bar_diameter"
+            ],
+            "x-formula": "y12_bar_diameter"
+          },
+          "y12_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y12-125 reinforcement bars along the section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y12_bar_spacing"
+            ],
+            "x-formula": "y12_bar_spacing"
+          },
+          "y25_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y25-125 reinforcement bars called out in section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y25_bar_diameter"
+            ],
+            "x-formula": "y25_bar_diameter"
+          },
+          "y25_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y25-125 reinforcement bars along the section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y25_bar_spacing"
+            ],
+            "x-formula": "y25_bar_spacing"
+          },
+          "y20_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y20-125 reinforcement bars called out in section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y20_bar_diameter"
+            ],
+            "x-formula": "y20_bar_diameter"
+          },
+          "y20_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y20-125 reinforcement bars along the section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y20_bar_spacing"
+            ],
+            "x-formula": "y20_bar_spacing"
+          },
+          "3y12_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of Y12 diagonal/shear bars in the '3 Y12' bar-mark group shown per void module",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "3y12_bar_count"
+            ],
+            "x-formula": "3y12_bar_count"
+          },
+          "3y12_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y12 bars in the '3 Y12' bar-mark group",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "3y12_bar_diameter"
+            ],
+            "x-formula": "3y12_bar_diameter"
+          },
+          "void_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of circular void formers visible in this section",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "void_count"
+            ],
+            "x-formula": "void_count"
+          },
+          "void_cross_sectional_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Cross-sectional area of a single circular void based on its diameter shown in section (per-void area; slab length not shown on this section so total void volume cannot be derived)",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "void_diameter"
+            ],
+            "x-formula": "3.14159 * (void_diameter ** 2) / 4"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "run_timestamp": "20260929_112445065865",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D1",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 1,
+      "drawing_title": "SECTION 3-3",
+      "classification": {
+        "project_type": null,
+        "discipline": null,
+        "drawing_type": "other",
+        "building_elements": [],
+        "confidence": "low",
+        "notes": "classification failed after 3 attempts: Claude's reply contained no text content"
+      },
+      "schema_id": null,
+      "schema_version": null,
+      "schema_file": null,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D2",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 2,
+      "drawing_title": "SECTION 4-4 & 4A-4A & 4B-4B",
+      "classification": {
+        "project_type": "water/civil infrastructure (reservoir or tank structure)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "concrete wall",
+          "base slab",
+          "rebar",
+          "stirrup",
+          "web reinforcement"
+        ],
+        "confidence": "medium",
+        "notes": "Reinforcement detail section (SECTION 4-4 & 4A-4A & 4B-4B) through a two-cell reinforced concrete tank/reservoir structure, showing bar-mark callouts (Y32, Y25, Y20, Y12) for wall and slab reinforcement, spacing, and stirrup details. Overall wall heights (5100, 4800mm) and slab/wall widths in plan-like layout are dimensioned, but this is a section so run lengths of walls are not derivable."
+      },
+      "schema_id": "2530698ba18c",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_112445065865_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218_T1_.pdf_p1_d2_section.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "RECESS IN THE OUTER WALLS OF THE TUNNEL EACH 50M AT SECTION 3, 4 & 5",
+      "classification": {
+        "project_type": "tunnel infrastructure",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "tunnel wall",
+          "recess",
+          "rebar",
+          "reinforcement"
+        ],
+        "confidence": "high",
+        "notes": "This is a reinforcement detail for a recess formed in the outer walls of a tunnel, repeated every 50m at Sections 3, 4 & 5. It shows vertical/horizontal bar-mark callouts (Y25-125, Y32-125, Y32-125 ADD, 2 Y12-150x500) and two key dimensions of the recess opening (2000mm height, 1200mm width split 600+600)."
+      },
+      "schema_id": "8473b663f961",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_112445065865_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218_T1_.pdf_p1_d3_detail.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "RECESS AT SECTION 1'-1'",
+      "classification": {
+        "project_type": null,
+        "discipline": null,
+        "drawing_type": "other",
+        "building_elements": [],
+        "confidence": "low",
+        "notes": "The provided image appears blank with no legible graphical content, dimensions, or annotations, and no OCR text was extracted. Unable to determine project type, discipline, or building elements from this drawing fragment."
+      },
+      "schema_id": null,
+      "schema_version": null,
+      "schema_file": null,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "RECESS AT SECTION 1'-1'",
+      "classification": {
+        "project_type": "Building structure (likely commercial/industrial slab construction)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "slab",
+          "recess",
+          "reinforcement",
+          "void former",
+          "voided slab"
+        ],
+        "confidence": "medium",
+        "notes": "Two structural section details: an upper 'Recess at Section 1'-1'' showing reinforcement around a stepped recess in a slab/beam, and a lower cross-section of a voided (biaxial/bubble-deck type) slab with circular void formers and multiple rebar mark callouts (Y32-125, Y25-125, Y20-125, Y16-125, Y12-125, Y12-150/WEB, 2x4 Y16, 3 Y12). No plan view is present, so run lengths of bars/slab cannot be derived from this sheet."
+      },
+      "schema_id": "385bc104c2b9",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_112445065865_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218_T1_.pdf_p1_d5_section.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D6",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+      "page": 1,
+      "drawing_index": 6,
+      "drawing_title": "SECTION C-C",
+      "classification": {
+        "project_type": "building (reinforced concrete structure)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "rebar",
+          "concrete member"
+        ],
+        "confidence": "low",
+        "notes": "Fragment of a section drawing (SECTION C-C, SC. 1/25) showing only bar-mark callouts (Y12-125, Y32-125, Y20-125) with no visible member geometry, dimensions, or profile. The parent concrete element (wall/slab/beam) is not identifiable from this crop, so quantities are limited to what the bar-mark callouts themselves convey."
+      },
+      "schema_id": "9b895cdc2fac",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260929_112445065865_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218_T1_.pdf_p1_d6_section.schema.json",
+      "error": null
+    }
+  ]
+}

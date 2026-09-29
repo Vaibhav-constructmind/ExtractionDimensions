@@ -1,0 +1,209 @@
+{
+  "run_timestamp": "20260928_160518278511",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D1",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 1,
+      "drawing_title": "SECTION 1-1",
+      "classification": {
+        "project_type": "Reinforced concrete water-retaining structure (tank/reservoir) base slab reinforcement layout",
+        "discipline": "structural",
+        "drawing_type": "plan",
+        "building_elements": [
+          "slab",
+          "rebar",
+          "construction_joint"
+        ],
+        "confidence": "medium",
+        "notes": "Titled 'SECTION 1-1' but the content is a two-directional dimensioned layout with rebar mark callouts (Y32-100, Y25-100, Y20-125, Y12-150/WEB) and construction joints (C.J.), consistent with a reinforcement plan of a base slab/raft rather than a vertical section. Overall footprint dimensions are legible; bar cut-lengths and slab thickness are not shown on this sheet."
+      },
+      "schema_id": "df10813bdb1b",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_160518278511_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d1_plan.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D2",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 2,
+      "drawing_title": "SECTION 2-2",
+      "classification": {
+        "project_type": null,
+        "discipline": null,
+        "drawing_type": "other",
+        "building_elements": [],
+        "confidence": "low",
+        "notes": "classification failed after 3 attempts: response was not valid JSON: Unterminated string starting at: line 59 column 7 (char 2844)"
+      },
+      "schema_id": null,
+      "schema_version": null,
+      "schema_file": null,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "unclear",
+      "classification": {
+        "project_type": "building (RC frame)",
+        "discipline": "structural",
+        "drawing_type": "elevation",
+        "building_elements": [
+          "beam",
+          "rebar",
+          "stirrup"
+        ],
+        "confidence": "medium",
+        "notes": "Longitudinal elevation/detail of a reinforced concrete beam showing bar-mark callouts (bottom bars 12 Y32, top bars 4 Y25, stirrups Y16-150/Y18-150) with span and depth dimensions (3000, 1500). Cropped fragment lacks title block/plan reference so exact beam location/project context is uncertain."
+      },
+      "schema_id": "abc94a5b739d",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_160518278511_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d3_elevation.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "unclear",
+      "classification": {
+        "project_type": null,
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "wall",
+          "rebar"
+        ],
+        "confidence": "low",
+        "notes": "Fragment appears to be a section through a concrete wall or shaft with vertical reinforcement bars shown as dots along both faces, with a break line indicating continuation. No dimensions, labels, or bar-mark callouts are legible, and no OCR text was extracted, so quantities cannot be reliably derived."
+      },
+      "schema_id": null,
+      "schema_version": null,
+      "schema_file": null,
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "SECTION 1'-1'",
+      "classification": {
+        "project_type": "Culvert/tunnel or retaining structure (inner wall with opening)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "wall",
+          "opening",
+          "rebar",
+          "reinforcement"
+        ],
+        "confidence": "medium",
+        "notes": "Two cross-sections (1'-1' and 2'-2') showing additional reinforcement bars around an opening in an inner wall at station 0+314. Sections show bar-mark callouts and cross-sectional dimensions (800mm x 600mm) but no plan view, so bar run lengths and wall length along the opening cannot be derived from this drawing."
+      },
+      "schema_id": "7f0d9e3b699d",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_160518278511_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d5_section.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D6",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 6,
+      "drawing_title": "unclear",
+      "classification": {
+        "project_type": null,
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "rebar",
+          "column"
+        ],
+        "confidence": "low",
+        "notes": "Fragment shows a small section/detail with two rows of dots representing reinforcement bars and a bar-mark callout 'Y25-125' (25mm dia bars at 125mm spacing) at scale 1/25. No plan context, member name, or overall dimensions are legible, so the parent element (column, wall, pile, etc.) cannot be confirmed."
+      },
+      "schema_id": "e894e12c1e47",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_160518278511_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d6_detail.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D7",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 7,
+      "drawing_title": "unclear",
+      "classification": {
+        "project_type": "reinforced concrete building (voided/bubble slab structure)",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "slab",
+          "rebar",
+          "void former",
+          "shear reinforcement"
+        ],
+        "confidence": "medium",
+        "notes": "Fragment of a structural reinforcement detail showing a biaxial voided (bubble) slab section with top/bottom mesh bars (Y25-100, Y20-125), diagonal/shear bars (Y16-125), and a local additional bar callout (2 Y12-150x500). No plan view, title block, or overall slab dimensions are present, so run lengths for the slab and most bars cannot be derived."
+      },
+      "schema_id": "6d3d281ac5e8",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_160518278511_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d7_detail.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D8",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 8,
+      "drawing_title": "RECESS AT SECTION 3'-3'",
+      "classification": {
+        "project_type": "building (reinforced concrete structure)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "concrete slab",
+          "recess",
+          "rebar"
+        ],
+        "confidence": "medium",
+        "notes": "Section detail 'RECESS AT SECTION 3-3' showing a stepped concrete slab/raft recess with reinforcement bar-mark callouts (Y25-100, Y25-125, Y12-125, Y12-150/WEB, 2x4 Y16) and thickness dimensions (700, 600, 1200). No plan view is present, so bar run lengths and slab plan dimensions (length/width) cannot be derived from this drawing alone; only bar sizes, spacings, and counts read directly from the callouts, plus the labeled thickness dimensions, are extractable."
+      },
+      "schema_id": "efa4bf6c39a2",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_160518278511_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d8_section.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D9",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+      "page": 1,
+      "drawing_index": 9,
+      "drawing_title": "SECTION A-A",
+      "classification": {
+        "project_type": "tunnel infrastructure",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "tunnel_lining",
+          "rebar",
+          "concrete_section"
+        ],
+        "confidence": "medium",
+        "notes": "This is a reinforced concrete cross-section detail of a tunnel lining, showing bar-mark callouts (Y32-100, Y20-125, Y12-125, 4 Y12) for reinforcement layout. No overall run lengths or plan dimensions are shown, only bar spacing/size callouts within the section cut."
+      },
+      "schema_id": "1d730d620294",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_160518278511_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217_T1_.pdf_p1_d9_section.schema.json",
+      "error": null
+    }
+  ]
+}

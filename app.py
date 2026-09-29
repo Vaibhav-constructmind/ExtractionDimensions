@@ -48,13 +48,55 @@ def render_result(result: ExtractionResult, key_prefix: str) -> None:
     """Render one file's extraction result: metrics, download, suspect-drawing
     checks, and the per-drawing expanders. `key_prefix` keeps widget keys
     unique when this is called once per tab across multiple uploaded files."""
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric("Pages", result.total_pages)
     col2.metric("Drawings found", result.total_drawings)
     col3.metric(
         "Total dimensions",
         sum(len(d.dimensions) for d in result.drawings),
     )
+    col4.metric("Claude cost (est.)", f"${result.total_cost_usd:.4f}")
+
+    with st.expander("💲 Claude cost breakdown", expanded=False):
+        st.caption(
+            f"{result.total_input_tokens:,} input tokens · {result.total_output_tokens:,} output "
+            f"tokens · **${result.total_cost_usd:.4f}** estimated total (list pricing configured in "
+            "`pipeline/pricing.py` -- actual Foundry billing may differ slightly)."
+        )
+        if result.page_llm_usage:
+            st.markdown("**Page-level segmentation calls (Pass 1, not attributable to one drawing)**")
+            st.dataframe(
+                [
+                    {
+                        "Page": u.page_number,
+                        "Attempt": u.attempt,
+                        "Input tokens": u.input_tokens,
+                        "Output tokens": u.output_tokens,
+                        "Cost (USD)": round(u.cost_usd, 5),
+                    }
+                    for u in result.page_llm_usage
+                ],
+                use_container_width=True,
+                hide_index=True,
+            )
+        per_drawing_usage = [u for d in result.drawings for u in d.llm_usage]
+        if per_drawing_usage:
+            st.markdown("**Per-drawing calls (classification + detail pass)**")
+            st.dataframe(
+                [
+                    {
+                        "Drawing": u.drawing_id,
+                        "Call type": u.call_type,
+                        "Attempt": u.attempt,
+                        "Input tokens": u.input_tokens,
+                        "Output tokens": u.output_tokens,
+                        "Cost (USD)": round(u.cost_usd, 5),
+                    }
+                    for u in per_drawing_usage
+                ],
+                use_container_width=True,
+                hide_index=True,
+            )
 
     st.download_button(
         "⬇️ Download full result (JSON)",
@@ -285,6 +327,16 @@ def render_result(result: ExtractionResult, key_prefix: str) -> None:
                     with st.expander("View JSON Schema"):
                         st.json(schema_payload["json_schema"])
 
+            if drawing.llm_usage:
+                drawing_cost = sum(u.cost_usd for u in drawing.llm_usage)
+                drawing_input_tokens = sum(u.input_tokens for u in drawing.llm_usage)
+                drawing_output_tokens = sum(u.output_tokens for u in drawing.llm_usage)
+                st.caption(
+                    f"💲 **Claude cost (est.) for {drawing.drawing_id}:** ${drawing_cost:.4f} "
+                    f"({drawing_input_tokens:,} input / {drawing_output_tokens:,} output tokens "
+                    f"across {len(drawing.llm_usage)} call(s))"
+                )
+
             if drawing.dynamic_takeoff:
                 st.markdown("**Dynamic quantity takeoff**")
                 st.dataframe(
@@ -390,6 +442,12 @@ if results or errors:
     elapsed_seconds = st.session_state.get("elapsed_seconds")
     if elapsed_seconds is not None:
         st.caption(f"⏱️ Extraction took {elapsed_seconds:.1f}s")
+
+    if results:
+        st.metric(
+            "💲 Total Claude cost across all uploaded PDFs (est.)",
+            f"${sum(r.total_cost_usd for r in results.values()):.4f}",
+        )
 
     if len(results) + len(errors) > 1:
         col1, col2, col3 = st.columns(3)

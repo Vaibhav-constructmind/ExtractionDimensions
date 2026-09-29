@@ -1,0 +1,295 @@
+{
+  "header": {
+    "schema_id": "385bc104c2b9",
+    "version": 1,
+    "run_timestamp": "20260929_112445065865",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+    "page": 1,
+    "drawing_index": 5,
+    "drawing_title": "RECESS AT SECTION 1'-1'",
+    "classification": {
+      "project_type": "Building structure (likely commercial/industrial slab construction)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "slab",
+        "recess",
+        "reinforcement",
+        "void former",
+        "voided slab"
+      ],
+      "confidence": "medium",
+      "notes": "Two structural section details: an upper 'Recess at Section 1'-1'' showing reinforcement around a stepped recess in a slab/beam, and a lower cross-section of a voided (biaxial/bubble-deck type) slab with circular void formers and multiple rebar mark callouts (Y32-125, Y25-125, Y20-125, Y16-125, Y12-125, Y12-150/WEB, 2x4 Y16, 3 Y12). No plan view is present, so run lengths of bars/slab cannot be derived from this sheet."
+    }
+  },
+  "schema_id": "385bc104c2b9",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:385bc104c2b9:v1",
+    "title": "Quantity takeoff schema 385bc104c2b9 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "recess_top_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of main top reinforcement bar (Y32-125) at the recess section",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_top_bar_diameter"
+            ],
+            "x-formula": "recess_top_bar_diameter"
+          },
+          "recess_top_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of main top reinforcement bar (Y32-125) at the recess section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_top_bar_spacing"
+            ],
+            "x-formula": "recess_top_bar_spacing"
+          },
+          "recess_side_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y25-125 bars around the vertical/side faces and bottom of the recess step",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_side_bar_diameter"
+            ],
+            "x-formula": "recess_side_bar_diameter"
+          },
+          "recess_side_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y25-125 bars around the recess step",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_side_bar_spacing"
+            ],
+            "x-formula": "recess_side_bar_spacing"
+          },
+          "slab_top_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of top reinforcement (Y20-125, TYP.) in voided slab section",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_top_bar_diameter"
+            ],
+            "x-formula": "slab_top_bar_diameter"
+          },
+          "slab_top_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of top reinforcement (Y20-125, TYP.) in voided slab section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_top_bar_spacing"
+            ],
+            "x-formula": "slab_top_bar_spacing"
+          },
+          "slab_bottom_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of bottom reinforcement (Y16-125, TYP.) in voided slab section",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_bottom_bar_diameter"
+            ],
+            "x-formula": "slab_bottom_bar_diameter"
+          },
+          "slab_bottom_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of bottom reinforcement (Y16-125, TYP.) in voided slab section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_bottom_bar_spacing"
+            ],
+            "x-formula": "slab_bottom_bar_spacing"
+          },
+          "slab_stirrup_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of transverse/loop bars (Y12-125, TYP.) around each void in the slab",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_stirrup_bar_diameter"
+            ],
+            "x-formula": "slab_stirrup_bar_diameter"
+          },
+          "slab_stirrup_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of transverse/loop bars (Y12-125, TYP.) around each void in the slab",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_stirrup_bar_spacing"
+            ],
+            "x-formula": "slab_stirrup_bar_spacing"
+          },
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of web reinforcement bar (Y12-150/WEB, TYP.) between voids",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of web reinforcement bar (Y12-150/WEB, TYP.) between voids",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "side_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of side face bars (2x4 Y16, TYP.) between voids",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "side_bar_diameter"
+            ],
+            "x-formula": "side_bar_diameter"
+          },
+          "side_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of side face bars per group (2x4 Y16, TYP.)",
+            "x-unit": "no.",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "side_bar_count"
+            ],
+            "x-formula": "side_bar_count"
+          },
+          "additional_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of additional bar group (3 Y12) at void location",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_diameter"
+            ],
+            "x-formula": "additional_bar_diameter"
+          },
+          "additional_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of additional bars in group (3 Y12) at void location",
+            "x-unit": "no.",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_count"
+            ],
+            "x-formula": "additional_bar_count"
+          },
+          "top_edge_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of edge top reinforcement (Y25-125, TYP.) in voided slab section",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_edge_bar_diameter"
+            ],
+            "x-formula": "top_edge_bar_diameter"
+          },
+          "top_edge_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of edge top reinforcement (Y25-125, TYP.) in voided slab section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_edge_bar_spacing"
+            ],
+            "x-formula": "top_edge_bar_spacing"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

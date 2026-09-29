@@ -1,0 +1,141 @@
+{
+  "header": {
+    "schema_id": "a9644c9d383e",
+    "version": 1,
+    "run_timestamp": "20260929_111127550013",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 2,
+    "drawing_title": "SECTION 2-2",
+    "classification": {
+      "project_type": "Residential/Mixed-use Superblock Development",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "reinforced concrete wall",
+        "slab",
+        "footing/kicker",
+        "rebar",
+        "construction joint"
+      ],
+      "confidence": "medium",
+      "notes": "Section 2-2 of a reinforced concrete structure (likely basement/retaining walls and slab of a superblock), showing wall heights, stepped footing/kicker widths, construction joints (C.J.), and reinforcement bar-mark callouts (Y32-100, Y25-100, Y20-125, Y12-150/WEB). As a vertical section, only cross-sectional dimensions (height, thickness, width across the cut) are legible; run lengths of walls/slabs along their length are not shown here."
+    }
+  },
+  "schema_id": "a9644c9d383e",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:a9644c9d383e:v1",
+    "title": "Quantity takeoff schema a9644c9d383e v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "wall_height": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Height of the main reinforced concrete wall as dimensioned in this section (e.g. 4500, 5000).",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_height"
+            ],
+            "x-formula": "wall_height"
+          },
+          "footing_width": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Width of the stepped footing/kicker at the base of the wall as dimensioned in this section (e.g. 3000, 4000, 1500, 1000).",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "footing_width"
+            ],
+            "x-formula": "footing_width"
+          },
+          "main_wall_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of main vertical/horizontal wall reinforcement bar as read from bar-mark callout (e.g. Y32-100).",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_wall_bar_diameter"
+            ],
+            "x-formula": "main_wall_bar_diameter"
+          },
+          "main_wall_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of main wall reinforcement bar as read from bar-mark callout (e.g. Y32-100 = 32mm dia at 100mm spacing).",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_wall_bar_spacing"
+            ],
+            "x-formula": "main_wall_bar_spacing"
+          },
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of web/link reinforcement bar as read from bar-mark callout (e.g. Y12-150/WEB).",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of web/link reinforcement bar as read from bar-mark callout (e.g. Y12-150/WEB).",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "construction_joint_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of construction joints (C.J.) shown along the section.",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "construction_joint_count"
+            ],
+            "x-formula": "construction_joint_count"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

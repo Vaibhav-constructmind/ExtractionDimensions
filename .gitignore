@@ -6,3 +6,4 @@ venv/
 .streamlit/
 *.pdf
 sample_output/
+ExtractionDimensions/schemas

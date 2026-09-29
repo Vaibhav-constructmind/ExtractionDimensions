@@ -1,0 +1,116 @@
+{
+  "header": {
+    "schema_id": "df10813bdb1b",
+    "version": 1,
+    "run_timestamp": "20260928_160518278511",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 1,
+    "drawing_title": "SECTION 1-1",
+    "classification": {
+      "project_type": "Reinforced concrete water-retaining structure (tank/reservoir) base slab reinforcement layout",
+      "discipline": "structural",
+      "drawing_type": "plan",
+      "building_elements": [
+        "slab",
+        "rebar",
+        "construction_joint"
+      ],
+      "confidence": "medium",
+      "notes": "Titled 'SECTION 1-1' but the content is a two-directional dimensioned layout with rebar mark callouts (Y32-100, Y25-100, Y20-125, Y12-150/WEB) and construction joints (C.J.), consistent with a reinforcement plan of a base slab/raft rather than a vertical section. Overall footprint dimensions are legible; bar cut-lengths and slab thickness are not shown on this sheet."
+    }
+  },
+  "schema_id": "df10813bdb1b",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:df10813bdb1b:v1",
+    "title": "Quantity takeoff schema df10813bdb1b v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "slab_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Overall plan area of the slab/raft panel derived from the overall length and width dimensions shown around the perimeter.",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "overall_length",
+              "overall_width"
+            ],
+            "x-formula": "overall_length * overall_width"
+          },
+          "construction_joint_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of construction joints (C.J.) marked on the slab layout.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "construction_joint_count"
+          },
+          "y32_bar_mark_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of Y32-100 bar-mark callouts shown across the slab layout.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "y32_bar_mark_count"
+          },
+          "y25_bar_mark_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of Y25-100 bar-mark callouts shown across the slab layout.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "y25_bar_mark_count"
+          },
+          "y20_bar_mark_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of Y20-125 bar-mark callouts shown across the slab layout.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "y20_bar_mark_count"
+          },
+          "y12_web_bar_mark_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of Y12-150/WEB bar-mark callouts shown across the slab layout.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "y12_web_bar_mark_count"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

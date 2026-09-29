@@ -21,6 +21,7 @@ from .schema import (
     DynamicQuantityItemSpec,
     ElevationDatum,
     ExtractionResult,
+    LlmCallUsage,
     SchemaHeader,
     StepFormula,
 )
@@ -378,6 +379,7 @@ def _run_detail_pass(
     settings: Settings,
     crop_bytes: bytes | None = None,
     dynamic_properties: dict[str, dict] | None = None,
+    usage_sink: list[LlmCallUsage] | None = None,
 ) -> dict | None:
     """Re-extract this drawing alone from its (already-cropped, high-DPI)
     image. `crop_bytes` is normally supplied by the caller (rendered once
@@ -386,6 +388,8 @@ def _run_detail_pass(
     when given, merges this drawing's proposed resource-planning input roles
     into the tool schema for this call, so the model reports their values
     directly alongside its dimensions (see claude_extractor.extract_page).
+    `usage_sink`, when given, records this call's token usage/cost onto it
+    (see claude_extractor._record_usage).
 
     Returns the merged raw-drawing dict to rebuild this Drawing's fields from,
     or None if the detail pass failed or found nothing (caller should keep
@@ -403,6 +407,9 @@ def _run_detail_pass(
             page_number=page_number,
             settings=settings,
             dynamic_properties=dynamic_properties,
+            usage_sink=usage_sink,
+            call_type="detail",
+            drawing_id=drawing_id,
         )
     except Exception:
         logger.warning("Detail-pass extraction failed for %s; keeping full-page-pass results", drawing_id, exc_info=True)
@@ -890,6 +897,7 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
     registry = SchemaRegistry(settings.schema_output_dir, run_timestamp)
 
     drawings: list[Drawing] = []
+    page_llm_usage: list[LlmCallUsage] = []
 
     # 3. Per page: ask Claude to segment drawings and extract dimensions
     #    (a low-res pass over the whole page, just to find each drawing and
@@ -904,6 +912,7 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
             ocr_text=page_ocr_text,
             page_number=page_number,
             settings=settings,
+            usage_sink=page_llm_usage,
         )
 
         # Bounding boxes for every drawing on this page, computed up front so
@@ -939,6 +948,9 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
         classifications_by_id: dict[str, DrawingClassification] = {}
         proposed_items_by_id: dict[str, list[DynamicQuantityItemSpec]] = {}
         dynamic_properties_by_id: dict[str, dict] = {}
+        llm_usage_by_id: dict[str, list[LlmCallUsage]] = {
+            drawing_id: [] for drawing_id in page_drawing_ids
+        }
         for drawing_index, drawing_id in enumerate(page_drawing_ids):
             bounding_box = page_bounding_boxes[drawing_index]
             if bounding_box is None:
@@ -959,6 +971,7 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
             try:
                 raw_classification = claude_extractor.classify_drawing(
                     image_bytes=crop_bytes, ocr_text=scoped_ocr_text, page_number=page_number, settings=settings,
+                    usage_sink=llm_usage_by_id[drawing_id], drawing_id=drawing_id,
                 )
             except Exception:
                 logger.warning("Classification failed for %s", drawing_id, exc_info=True)
@@ -999,6 +1012,7 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
                     pdf_bytes, page_number, bounding_box, scoped_ocr_text, drawing_id, settings,
                     crop_bytes=crop_bytes_by_id.get(drawing_id),
                     dynamic_properties=dynamic_properties_by_id.get(drawing_id),
+                    usage_sink=llm_usage_by_id[drawing_id],
                 )
                 if raw_detail is not None:
                     fields = _build_drawing_fields(raw_detail, drawing_id, page_number)
@@ -1030,6 +1044,7 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
                         page_number=page_number,
                         bounding_box=bounding_box,
                         detail_pass_applied=detail_pass_applied,
+                        llm_usage=llm_usage_by_id.get(drawing_id, []),
                         **fields,
                     )
                 )
@@ -1056,6 +1071,8 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
 
     schema_manifest_path = registry.write_manifest()
 
+    all_llm_usage = page_llm_usage + [u for d in drawings for u in d.llm_usage]
+
     return ExtractionResult(
         source_file=filename,
         total_pages=total_pages,
@@ -1064,6 +1081,10 @@ def run_pipeline(pdf_bytes: bytes, filename: str, settings: Settings) -> Extract
         schema_output_dir=str(registry.output_dir),
         schema_manifest_path=schema_manifest_path,
         schema_files_written=registry.written_files,
+        page_llm_usage=page_llm_usage,
+        total_input_tokens=sum(u.input_tokens for u in all_llm_usage),
+        total_output_tokens=sum(u.output_tokens for u in all_llm_usage),
+        total_cost_usd=sum(u.cost_usd for u in all_llm_usage),
     )
 
 

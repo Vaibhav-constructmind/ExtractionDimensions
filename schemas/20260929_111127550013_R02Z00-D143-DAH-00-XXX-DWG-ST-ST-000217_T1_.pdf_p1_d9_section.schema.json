@@ -1,0 +1,213 @@
+{
+  "header": {
+    "schema_id": "ba11c54c035c",
+    "version": 1,
+    "run_timestamp": "20260929_111127550013",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 9,
+    "drawing_title": "RECESS IN THE OUTER WALLS OF THE TUNNEL AT SECTION 2",
+    "classification": {
+      "project_type": "Tunnel / underground infrastructure",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "tunnel wall",
+        "recess",
+        "reinforcement",
+        "rebar"
+      ],
+      "confidence": "high",
+      "notes": "Section B-B through a recess formed in the outer wall of a tunnel, showing reinforcement bar-mark callouts (Y32-100, Y25-100, Y20-125, Y12-150/WEB, 2x4 Y16) and a single dimension of 1300mm across the recess width. Circular dashed features appear to be duct/void penetrations, not dimensioned. No wall run length or recess height/depth is shown on this section."
+    }
+  },
+  "schema_id": "ba11c54c035c",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:ba11c54c035c:v1",
+    "title": "Quantity takeoff schema ba11c54c035c v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "recess_opening_width": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Width of the recess opening in the tunnel outer wall, dimensioned at top of section.",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_width"
+            ],
+            "x-formula": "recess_width / 1000"
+          },
+          "y32_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Estimated number of Y32 top face bars across recess width at 100mm spacing per Y32-100 callout.",
+            "x-unit": "nr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_width",
+              "y32_bar_spacing"
+            ],
+            "x-formula": "recess_width / y32_bar_spacing + 1"
+          },
+          "y32_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y32 top face reinforcement bars, read from Y32-100 bar-mark callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y32_bar_diameter"
+            ],
+            "x-formula": "y32_bar_diameter"
+          },
+          "y32_bar_spacing_value": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y32 bars as labelled in Y32-100 callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y32_bar_spacing"
+            ],
+            "x-formula": "y32_bar_spacing"
+          },
+          "y25_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Estimated number of Y25 bottom face bars across recess width at 100mm spacing per Y25-100 callout.",
+            "x-unit": "nr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_width",
+              "y25_bar_spacing"
+            ],
+            "x-formula": "recess_width / y25_bar_spacing + 1"
+          },
+          "y25_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y25 bottom face reinforcement bars, read from Y25-100 callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y25_bar_diameter"
+            ],
+            "x-formula": "y25_bar_diameter"
+          },
+          "y20_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Estimated number of Y20 vertical bars at 125mm centres per Y20-125 callout.",
+            "x-unit": "nr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_width",
+              "y20_bar_spacing"
+            ],
+            "x-formula": "recess_width / y20_bar_spacing + 1"
+          },
+          "y20_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y20 vertical reinforcement bars, read from Y20-125 callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y20_bar_diameter"
+            ],
+            "x-formula": "y20_bar_diameter"
+          },
+          "y12_web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y12 web reinforcement bars, read from Y12-150/WEB callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y12_web_bar_diameter"
+            ],
+            "x-formula": "y12_web_bar_diameter"
+          },
+          "y12_web_bar_spacing_value": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y12 web reinforcement bars, read from Y12-150/WEB callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y12_web_bar_spacing"
+            ],
+            "x-formula": "y12_web_bar_spacing"
+          },
+          "y16_side_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of Y16 side bars at recess opening edge, per 2x4 Y16 (TYP.) callout, applied at each recess edge condition shown.",
+            "x-unit": "nr",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y16_bar_count"
+            ],
+            "x-formula": "y16_bar_count"
+          },
+          "y16_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y16 side bars, read from 2x4 Y16 (TYP.) callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y16_bar_diameter"
+            ],
+            "x-formula": "y16_bar_diameter"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

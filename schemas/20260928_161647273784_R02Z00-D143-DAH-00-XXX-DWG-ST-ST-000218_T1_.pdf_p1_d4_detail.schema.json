@@ -1,0 +1,154 @@
+{
+  "header": {
+    "schema_id": "cd326b2cb24b",
+    "version": 1,
+    "run_timestamp": "20260928_161647273784",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+    "page": 1,
+    "drawing_index": 4,
+    "drawing_title": "RECESS AT SECTION 1'-1'",
+    "classification": {
+      "project_type": "building (reinforced concrete structure)",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "concrete slab",
+        "recess",
+        "rebar",
+        "reinforcement"
+      ],
+      "confidence": "medium",
+      "notes": "This is a reinforcement detail of a recess/step in a concrete slab or beam section (SECTION 1'-1'), with multiple bar-mark callouts (Y32-125, Y25-125, Y18-125, Y20-125, Y12-125, Y12-150/WEB, 2x4 Y16). No overall run lengths, widths, or depths are dimensioned on this crop, only bar-mark callouts and a scale note, so only bar-mark-derived quantities (diameter/spacing) can be read directly; weight/volume cannot be computed without a companion plan or dimensioned section showing bar run lengths."
+    }
+  },
+  "schema_id": "cd326b2cb24b",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:cd326b2cb24b:v1",
+    "title": "Quantity takeoff schema cd326b2cb24b v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "top_slab_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of top main reinforcement bar mark Y32-125 shown along top face of section.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_slab_bar_diameter"
+            ],
+            "x-formula": "top_slab_bar_diameter"
+          },
+          "top_slab_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of top main reinforcement bar mark Y32-125.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_slab_bar_spacing"
+            ],
+            "x-formula": "top_slab_bar_spacing"
+          },
+          "recess_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of reinforcement bar mark Y25-125 used repeatedly around the recess walls and bottom faces.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_bar_diameter"
+            ],
+            "x-formula": "recess_bar_diameter"
+          },
+          "recess_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of reinforcement bar mark Y25-125 around the recess.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_bar_spacing"
+            ],
+            "x-formula": "recess_bar_spacing"
+          },
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of web reinforcement bar mark Y12-150 /WEB.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of web reinforcement bar mark Y12-150 /WEB.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "typ_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of typical secondary reinforcement bar mark Y25-125 (TYP.).",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "typ_bar_diameter"
+            ],
+            "x-formula": "typ_bar_diameter"
+          },
+          "typ_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of typical secondary reinforcement bar mark Y25-125 (TYP.).",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "typ_bar_spacing"
+            ],
+            "x-formula": "typ_bar_spacing"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

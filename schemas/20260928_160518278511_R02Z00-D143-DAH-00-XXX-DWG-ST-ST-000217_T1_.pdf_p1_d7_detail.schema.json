@@ -1,0 +1,182 @@
+{
+  "header": {
+    "schema_id": "6d3d281ac5e8",
+    "version": 1,
+    "run_timestamp": "20260928_160518278511",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 7,
+    "drawing_title": "unclear",
+    "classification": {
+      "project_type": "reinforced concrete building (voided/bubble slab structure)",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "slab",
+        "rebar",
+        "void former",
+        "shear reinforcement"
+      ],
+      "confidence": "medium",
+      "notes": "Fragment of a structural reinforcement detail showing a biaxial voided (bubble) slab section with top/bottom mesh bars (Y25-100, Y20-125), diagonal/shear bars (Y16-125), and a local additional bar callout (2 Y12-150x500). No plan view, title block, or overall slab dimensions are present, so run lengths for the slab and most bars cannot be derived."
+    }
+  },
+  "schema_id": "6d3d281ac5e8",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:6d3d281ac5e8:v1",
+    "title": "Quantity takeoff schema 6d3d281ac5e8 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "top_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of top mesh reinforcement bar from callout 'Y25-100'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_bar_diameter"
+            ],
+            "x-formula": "top_bar_diameter"
+          },
+          "top_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of top mesh reinforcement bar from callout 'Y25-100'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_bar_spacing"
+            ],
+            "x-formula": "top_bar_spacing"
+          },
+          "bottom_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of bottom mesh reinforcement bar from callout 'Y20-125'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_bar_diameter"
+            ],
+            "x-formula": "bottom_bar_diameter"
+          },
+          "bottom_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of bottom mesh reinforcement bar from callout 'Y20-125'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_bar_spacing"
+            ],
+            "x-formula": "bottom_bar_spacing"
+          },
+          "diagonal_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of diagonal/shear reinforcement bar from callout 'Y16-125'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "diagonal_bar_diameter"
+            ],
+            "x-formula": "diagonal_bar_diameter"
+          },
+          "diagonal_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of diagonal/shear reinforcement bar from callout 'Y16-125'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "diagonal_bar_spacing"
+            ],
+            "x-formula": "diagonal_bar_spacing"
+          },
+          "additional_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of additional local bars from callout '2 Y12-150x500'",
+            "x-unit": "each",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_count"
+            ],
+            "x-formula": "additional_bar_count"
+          },
+          "additional_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of additional local bar from callout '2 Y12-150x500'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_diameter"
+            ],
+            "x-formula": "additional_bar_diameter"
+          },
+          "additional_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of additional local bar from callout '2 Y12-150x500'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_spacing"
+            ],
+            "x-formula": "additional_bar_spacing"
+          },
+          "additional_bar_length": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Cut length of additional local bar directly labeled '500' in callout '2 Y12-150x500'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_length"
+            ],
+            "x-formula": "additional_bar_length"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

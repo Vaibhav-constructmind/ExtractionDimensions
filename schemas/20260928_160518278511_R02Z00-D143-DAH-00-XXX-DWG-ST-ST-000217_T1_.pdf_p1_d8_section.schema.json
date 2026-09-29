@@ -1,0 +1,209 @@
+{
+  "header": {
+    "schema_id": "efa4bf6c39a2",
+    "version": 1,
+    "run_timestamp": "20260928_160518278511",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 8,
+    "drawing_title": "RECESS AT SECTION 3'-3'",
+    "classification": {
+      "project_type": "building (reinforced concrete structure)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "concrete slab",
+        "recess",
+        "rebar"
+      ],
+      "confidence": "medium",
+      "notes": "Section detail 'RECESS AT SECTION 3-3' showing a stepped concrete slab/raft recess with reinforcement bar-mark callouts (Y25-100, Y25-125, Y12-125, Y12-150/WEB, 2x4 Y16) and thickness dimensions (700, 600, 1200). No plan view is present, so bar run lengths and slab plan dimensions (length/width) cannot be derived from this drawing alone; only bar sizes, spacings, and counts read directly from the callouts, plus the labeled thickness dimensions, are extractable."
+    }
+  },
+  "schema_id": "efa4bf6c39a2",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:efa4bf6c39a2:v1",
+    "title": "Quantity takeoff schema efa4bf6c39a2 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "top_mat_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of top mat reinforcement bar mark Y25-100",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_mat_bar_diameter"
+            ],
+            "x-formula": "top_mat_bar_diameter"
+          },
+          "top_mat_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of top mat reinforcement bar mark Y25-100",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_mat_bar_spacing"
+            ],
+            "x-formula": "top_mat_bar_spacing"
+          },
+          "step_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of stepped/edge reinforcement bar mark Y25-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "step_bar_diameter"
+            ],
+            "x-formula": "step_bar_diameter"
+          },
+          "step_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of stepped/edge reinforcement bar mark Y25-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "step_bar_spacing"
+            ],
+            "x-formula": "step_bar_spacing"
+          },
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of web reinforcement bar mark Y12-150/WEB",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of web reinforcement bar mark Y12-150/WEB",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "stirrup_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of stirrup/tie reinforcement bar mark Y12-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_diameter"
+            ],
+            "x-formula": "stirrup_bar_diameter"
+          },
+          "stirrup_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of stirrup/tie reinforcement bar mark Y12-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_spacing"
+            ],
+            "x-formula": "stirrup_bar_spacing"
+          },
+          "tie_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of tie bar mark 2x4 Y16",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tie_bar_diameter"
+            ],
+            "x-formula": "tie_bar_diameter"
+          },
+          "tie_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of tie bars per group as noted '2x4 Y16' (2 rows x 4 bars)",
+            "x-unit": "bars",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tie_bar_count"
+            ],
+            "x-formula": "tie_bar_count"
+          },
+          "recess_step_depth": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Depth of the recess step as labeled (700) on the section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_step_depth"
+            ],
+            "x-formula": "recess_step_depth"
+          },
+          "slab_thickness": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Overall slab/section thickness as labeled (1200) on the section",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_thickness"
+            ],
+            "x-formula": "slab_thickness"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

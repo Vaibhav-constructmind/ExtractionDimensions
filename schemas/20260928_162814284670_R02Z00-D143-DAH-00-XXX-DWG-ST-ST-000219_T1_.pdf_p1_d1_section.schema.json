@@ -1,0 +1,240 @@
+{
+  "header": {
+    "schema_id": "4ef247ec470f",
+    "version": 1,
+    "run_timestamp": "20260928_162814284670",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+    "page": 1,
+    "drawing_index": 1,
+    "drawing_title": "SECTION 5-5",
+    "classification": {
+      "project_type": "Box culvert / drainage structure",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "box culvert",
+        "concrete wall",
+        "top slab",
+        "bottom slab (invert)",
+        "rebar",
+        "stirrups"
+      ],
+      "confidence": "medium",
+      "notes": "Section 5-5 through what appears to be a double-cell reinforced concrete box culvert or similar buried structure, showing wall, top slab and invert slab reinforcement with bar-mark callouts (e.g. Y32-125, Y25-125, Y20-125, Y12-150/WEB) and stirrup details (Y12-150x500, Y12-150x200). No plan view or run-length dimension is present, so only bar diameter/spacing (directly read from bar-mark callouts) can be reliably derived; bar cut lengths and concrete volumes cannot be computed without a companion plan and clear thickness call-outs."
+    }
+  },
+  "schema_id": "4ef247ec470f",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:4ef247ec470f:v1",
+    "title": "Quantity takeoff schema 4ef247ec470f v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "bottom_slab_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of main reinforcement bars in the bottom slab/invert, read from bar-mark callout Y32-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_slab_bar_diameter"
+            ],
+            "x-formula": "bottom_slab_bar_diameter"
+          },
+          "bottom_slab_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of main reinforcement bars in the bottom slab/invert, read from bar-mark callout Y32-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_slab_bar_spacing"
+            ],
+            "x-formula": "bottom_slab_bar_spacing"
+          },
+          "wall_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of main wall reinforcement bars, read from bar-mark callout Y25-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_bar_diameter"
+            ],
+            "x-formula": "wall_bar_diameter"
+          },
+          "wall_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of main wall reinforcement bars, read from bar-mark callout Y25-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_bar_spacing"
+            ],
+            "x-formula": "wall_bar_spacing"
+          },
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of web reinforcement bars in the wall, read from bar-mark callout Y12-150/WEB",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of web reinforcement bars in the wall, read from bar-mark callout Y12-150/WEB",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "top_slab_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of main reinforcement bars in the top slab, read from bar-mark callout Y20-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_slab_bar_diameter"
+            ],
+            "x-formula": "top_slab_bar_diameter"
+          },
+          "top_slab_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of main reinforcement bars in the top slab, read from bar-mark callout Y20-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_slab_bar_spacing"
+            ],
+            "x-formula": "top_slab_bar_spacing"
+          },
+          "stirrup_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of stirrup bars called out as FOR STIRRUPS Y12-150x500",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_diameter"
+            ],
+            "x-formula": "stirrup_bar_diameter"
+          },
+          "stirrup_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of stirrup bars called out as FOR STIRRUPS Y12-150x500",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_spacing"
+            ],
+            "x-formula": "stirrup_bar_spacing"
+          },
+          "wall_height": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Clear height of the culvert cell wall, from the two vertical dimensions (3800 and 3500) stacked on the drawing between top slab soffit and bottom slab",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_height"
+            ],
+            "x-formula": "wall_height"
+          },
+          "top_slab_thickness": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Thickness of the top slab as shown in cut section (visible depth between top and underside face)",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_slab_thickness"
+            ],
+            "x-formula": "top_slab_thickness"
+          },
+          "bottom_slab_thickness": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Thickness of the bottom slab/invert as shown in cut section",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_slab_thickness"
+            ],
+            "x-formula": "bottom_slab_thickness"
+          },
+          "wall_thickness": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Thickness of the culvert wall as shown in cut section",
+            "x-unit": "m",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_thickness"
+            ],
+            "x-formula": "wall_thickness"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

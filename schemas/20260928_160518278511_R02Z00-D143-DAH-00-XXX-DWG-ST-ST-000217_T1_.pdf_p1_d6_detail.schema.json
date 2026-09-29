@@ -1,0 +1,82 @@
+{
+  "header": {
+    "schema_id": "e894e12c1e47",
+    "version": 1,
+    "run_timestamp": "20260928_160518278511",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 6,
+    "drawing_title": "unclear",
+    "classification": {
+      "project_type": null,
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "rebar",
+        "column"
+      ],
+      "confidence": "low",
+      "notes": "Fragment shows a small section/detail with two rows of dots representing reinforcement bars and a bar-mark callout 'Y25-125' (25mm dia bars at 125mm spacing) at scale 1/25. No plan context, member name, or overall dimensions are legible, so the parent element (column, wall, pile, etc.) cannot be confirmed."
+    }
+  },
+  "schema_id": "e894e12c1e47",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:e894e12c1e47:v1",
+    "title": "Quantity takeoff schema e894e12c1e47 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "main_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Bar diameter read directly from the bar-mark callout 'Y25-125' shown on this detail.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_diameter"
+            ],
+            "x-formula": "main_bar_diameter"
+          },
+          "main_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Bar spacing read directly from the bar-mark callout 'Y25-125' shown on this detail.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_spacing"
+            ],
+            "x-formula": "main_bar_spacing"
+          },
+          "main_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of discrete reinforcement bar positions (dots) visible in the cross-section shown on this detail.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_count"
+            ],
+            "x-formula": "main_bar_count"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

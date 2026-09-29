@@ -1,0 +1,65 @@
+{
+  "header": {
+    "schema_id": "497a4cde249e",
+    "version": 1,
+    "run_timestamp": "20260929_111127550013",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 4,
+    "drawing_title": "ADDITIONAL REINFORCEMENT AROUND THE OPENING AT THE INNER WALL AT STA: 0+314",
+    "classification": {
+      "project_type": "Tunnel/culvert or underground structure (station-referenced concrete lining)",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "wall",
+        "opening",
+        "reinforcement/rebar"
+      ],
+      "confidence": "medium",
+      "notes": "Detail shows additional reinforcement bars (dots) arranged around an opening cut into an 'inner wall' at station 0+314, drawn at scale 1:25. Only one dimension (800) is legible; bar diameter/spacing callouts are not shown, only bar positions as dots, so weight/spacing cannot be computed."
+    }
+  },
+  "schema_id": "497a4cde249e",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:497a4cde249e:v1",
+    "title": "Quantity takeoff schema 497a4cde249e v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "additional_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of additional reinforcement bars (shown as dots) placed around the wall opening, tallied directly from the detail.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "additional_bar_count"
+          },
+          "opening_width": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Width of the wall opening as dimensioned (800) at the base of the detail, for reference/reinforcement layout extent.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "opening_width"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

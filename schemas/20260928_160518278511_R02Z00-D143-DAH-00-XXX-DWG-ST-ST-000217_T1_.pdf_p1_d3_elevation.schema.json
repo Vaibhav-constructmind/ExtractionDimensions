@@ -1,0 +1,113 @@
+{
+  "header": {
+    "schema_id": "abc94a5b739d",
+    "version": 1,
+    "run_timestamp": "20260928_160518278511",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 3,
+    "drawing_title": "unclear",
+    "classification": {
+      "project_type": "building (RC frame)",
+      "discipline": "structural",
+      "drawing_type": "elevation",
+      "building_elements": [
+        "beam",
+        "rebar",
+        "stirrup"
+      ],
+      "confidence": "medium",
+      "notes": "Longitudinal elevation/detail of a reinforced concrete beam showing bar-mark callouts (bottom bars 12 Y32, top bars 4 Y25, stirrups Y16-150/Y18-150) with span and depth dimensions (3000, 1500). Cropped fragment lacks title block/plan reference so exact beam location/project context is uncertain."
+    }
+  },
+  "schema_id": "abc94a5b739d",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:abc94a5b739d:v1",
+    "title": "Quantity takeoff schema abc94a5b739d v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "bottom_main_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of bottom longitudinal bars per beam cross-section as called out (12 Y32), read directly from bar-mark callout.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "bottom_main_bar_count"
+          },
+          "bottom_main_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of bottom longitudinal bars (Y32) read from bar-mark callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "bottom_main_bar_diameter"
+          },
+          "top_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of top longitudinal bars per beam cross-section as called out (4 Y25), read directly from bar-mark callout.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "top_bar_count"
+          },
+          "top_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of top longitudinal bars (Y25) read from bar-mark callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "top_bar_diameter"
+          },
+          "stirrup_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of stirrup/link bars (Y16 or Y18) read from bar-mark callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "stirrup_bar_diameter"
+          },
+          "stirrup_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Centre-to-centre spacing of stirrups/links (150mm) read from bar-mark callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [],
+            "x-formula": "stirrup_bar_spacing"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

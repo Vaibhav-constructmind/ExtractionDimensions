@@ -1,0 +1,142 @@
+{
+  "header": {
+    "schema_id": "06fa2e6c9f29",
+    "version": 1,
+    "run_timestamp": "20260928_161647273784",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+    "page": 1,
+    "drawing_index": 2,
+    "drawing_title": "SECTION 4-4 & 4A-4A & 4B-4B",
+    "classification": {
+      "project_type": "water retaining structure / concrete tank or reservoir",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "wall",
+        "rebar",
+        "stirrups",
+        "footing",
+        "base slab"
+      ],
+      "confidence": "medium",
+      "notes": "Section cut through concrete wall/footing showing vertical and horizontal bar mark callouts (Y25-125, Y32-125, Y20-125, Y12-150/WEB) and stirrup callouts (Y12-150x500). Overall section height/width dimensions are given (5100, 4800, 3000/4000/3600 spans) but these represent the section's own depth/width, not a wall run length. No plan view present, so bar cut lengths along a run cannot be derived."
+    }
+  },
+  "schema_id": "06fa2e6c9f29",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:06fa2e6c9f29:v1",
+    "title": "Quantity takeoff schema 06fa2e6c9f29 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "wall_vertical_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of vertical wall reinforcement bars from bar-mark callouts (e.g. Y25-125, Y32-125, Y20-125)",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_vertical_bar_diameter"
+            ],
+            "x-formula": "wall_vertical_bar_diameter"
+          },
+          "wall_vertical_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of vertical wall reinforcement bars from bar-mark callouts",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_vertical_bar_spacing"
+            ],
+            "x-formula": "wall_vertical_bar_spacing"
+          },
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of web reinforcement bars from callout Y12-150/WEB",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of web reinforcement bars from callout Y12-150/WEB",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "stirrup_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of stirrup reinforcement bars from callout Y12-150x500 (FOR STIRRUPS)",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_diameter"
+            ],
+            "x-formula": "stirrup_bar_diameter"
+          },
+          "stirrup_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of stirrup reinforcement bars from callout Y12-150x500",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_spacing"
+            ],
+            "x-formula": "stirrup_bar_spacing"
+          },
+          "wall_thickness_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Cross-sectional area of wall section using overall section height and wall thickness dimensions shown",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "wall_height",
+              "wall_thickness"
+            ],
+            "x-formula": "wall_height * wall_thickness"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

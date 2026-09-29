@@ -1,0 +1,124 @@
+{
+  "run_timestamp": "20260928_162814284670",
+  "schema_output_dir": "schemas",
+  "drawings": [
+    {
+      "drawing_id": "P1-D1",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+      "page": 1,
+      "drawing_index": 1,
+      "drawing_title": "SECTION 5-5",
+      "classification": {
+        "project_type": "Box culvert / drainage structure",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "box culvert",
+          "concrete wall",
+          "top slab",
+          "bottom slab (invert)",
+          "rebar",
+          "stirrups"
+        ],
+        "confidence": "medium",
+        "notes": "Section 5-5 through what appears to be a double-cell reinforced concrete box culvert or similar buried structure, showing wall, top slab and invert slab reinforcement with bar-mark callouts (e.g. Y32-125, Y25-125, Y20-125, Y12-150/WEB) and stirrup details (Y12-150x500, Y12-150x200). No plan view or run-length dimension is present, so only bar diameter/spacing (directly read from bar-mark callouts) can be reliably derived; bar cut lengths and concrete volumes cannot be computed without a companion plan and clear thickness call-outs."
+      },
+      "schema_id": "4ef247ec470f",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_162814284670_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219_T1_.pdf_p1_d1_section.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D2",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+      "page": 1,
+      "drawing_index": 2,
+      "drawing_title": "SECTION E-E",
+      "classification": {
+        "project_type": "commercial/institutional building (reinforced concrete structure)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "slab",
+          "voided slab",
+          "rebar",
+          "void former"
+        ],
+        "confidence": "high",
+        "notes": "Section E-E through a biaxial voided (bubble-deck type) reinforced concrete slab, showing top and bottom reinforcement mesh, additional bars around the voids, and web/shear-link bars. No plan-view run lengths, slab thickness, or void spacing dimensions are given on this drawing, so only bar-mark callout attributes (diameter, spacing, count) can be derived directly; weight/length items are omitted as no dimensioned bar run length is shown."
+      },
+      "schema_id": "7a2559f6f202",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_162814284670_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219_T1_.pdf_p1_d2_section.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D3",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+      "page": 1,
+      "drawing_index": 3,
+      "drawing_title": "SECTION F-F",
+      "classification": {
+        "project_type": "building structure (likely precast/cast-in-place voided slab or beam system)",
+        "discipline": "structural",
+        "drawing_type": "section",
+        "building_elements": [
+          "slab",
+          "void/hollow core",
+          "rebar",
+          "web reinforcement",
+          "top and bottom reinforcement"
+        ],
+        "confidence": "medium",
+        "notes": "Section F-F shows a voided (hollow-core/waffle-type) concrete slab or beam with circular voids between reinforced webs. Bar-mark callouts (Y12-150/WEB, Y25-125, Y20-125, 2x4 Y16) give diameter and spacing but no dimensioned overall depth, width, or run length, so only bar-mark-derived quantities (diameter/spacing/count) can be taken off; volumetric or area quantities are not derivable from this section alone."
+      },
+      "schema_id": "caa88692846f",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_162814284670_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219_T1_.pdf_p1_d3_section.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D4",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+      "page": 1,
+      "drawing_index": 4,
+      "drawing_title": "TYPICAL R.C. DETAIL FOR THE RECESS OF FIRE HOSE CABINET EVERY 50M",
+      "classification": {
+        "project_type": "building services / structural fire protection recess",
+        "discipline": "structural",
+        "drawing_type": "detail",
+        "building_elements": [
+          "reinforced concrete wall",
+          "recess",
+          "rebar",
+          "fire hose cabinet"
+        ],
+        "confidence": "medium",
+        "notes": "This is a typical RC reinforcement detail for a wall recess accommodating a fire hose cabinet, repeated every 50m. It is a section/elevation-style detail showing bar-mark callouts (diameter/spacing) rather than a plan, so bar run lengths and overall wall length cannot be derived from this sheet alone."
+      },
+      "schema_id": "6fce12599c3b",
+      "schema_version": 1,
+      "schema_file": "schemas\\20260928_162814284670_R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219_T1_.pdf_p1_d4_detail.schema.json",
+      "error": null
+    },
+    {
+      "drawing_id": "P1-D5",
+      "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+      "page": 1,
+      "drawing_index": 5,
+      "drawing_title": "SECTION 6-6",
+      "classification": {
+        "project_type": null,
+        "discipline": null,
+        "drawing_type": "other",
+        "building_elements": [],
+        "confidence": "low",
+        "notes": "classification failed after 3 attempts: Claude's reply contained no text content"
+      },
+      "schema_id": null,
+      "schema_version": null,
+      "schema_file": null,
+      "error": null
+    }
+  ]
+}

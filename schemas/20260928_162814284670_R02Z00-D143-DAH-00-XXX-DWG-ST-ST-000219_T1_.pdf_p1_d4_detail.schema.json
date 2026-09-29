@@ -1,0 +1,168 @@
+{
+  "header": {
+    "schema_id": "6fce12599c3b",
+    "version": 1,
+    "run_timestamp": "20260928_162814284670",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+    "page": 1,
+    "drawing_index": 4,
+    "drawing_title": "TYPICAL R.C. DETAIL FOR THE RECESS OF FIRE HOSE CABINET EVERY 50M",
+    "classification": {
+      "project_type": "building services / structural fire protection recess",
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "reinforced concrete wall",
+        "recess",
+        "rebar",
+        "fire hose cabinet"
+      ],
+      "confidence": "medium",
+      "notes": "This is a typical RC reinforcement detail for a wall recess accommodating a fire hose cabinet, repeated every 50m. It is a section/elevation-style detail showing bar-mark callouts (diameter/spacing) rather than a plan, so bar run lengths and overall wall length cannot be derived from this sheet alone."
+    }
+  },
+  "schema_id": "6fce12599c3b",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:6fce12599c3b:v1",
+    "title": "Quantity takeoff schema 6fce12599c3b v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "main_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of the main vertical reinforcement bar labelled Y32-125, read directly from its bar-mark callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_diameter"
+            ],
+            "x-formula": "main_bar_diameter"
+          },
+          "main_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of the main vertical reinforcement bar Y32-125, read directly from its bar-mark callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_spacing"
+            ],
+            "x-formula": "main_bar_spacing"
+          },
+          "secondary_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of the secondary reinforcement bars labelled Y25-125, repeated at multiple recess edges.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "secondary_bar_diameter"
+            ],
+            "x-formula": "secondary_bar_diameter"
+          },
+          "secondary_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of the Y25-125 secondary reinforcement bars, read directly from bar-mark callouts.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "secondary_bar_spacing"
+            ],
+            "x-formula": "secondary_bar_spacing"
+          },
+          "secondary_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of distinct Y25-125 bar-mark callouts shown around the recess (top, mid, and bottom edges) for this typical detail.",
+            "x-unit": "no.",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "secondary_bar_count"
+            ],
+            "x-formula": "secondary_bar_count"
+          },
+          "tie_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of Y12 tie/link bars per set, read directly from the callout '2 Y12-150x500'.",
+            "x-unit": "no.",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tie_bar_count"
+            ],
+            "x-formula": "tie_bar_count"
+          },
+          "tie_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of the Y12 tie bars from the callout '2 Y12-150x500'.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tie_bar_diameter"
+            ],
+            "x-formula": "tie_bar_diameter"
+          },
+          "tie_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of the Y12 tie bars, from the callout '2 Y12-150x500'.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tie_bar_spacing"
+            ],
+            "x-formula": "tie_bar_spacing"
+          },
+          "recess_width": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Overall width of the recess opening shown at the base of the detail, dimensioned as 1200.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "recess_width"
+            ],
+            "x-formula": "recess_width"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

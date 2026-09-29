@@ -1,0 +1,210 @@
+{
+  "header": {
+    "schema_id": "9cf012c0f4f3",
+    "version": 1,
+    "run_timestamp": "20260928_161647273784",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000218[T1].pdf",
+    "page": 1,
+    "drawing_index": 6,
+    "drawing_title": "SECTION D-D",
+    "classification": {
+      "project_type": "Building structure (reinforced concrete voided/biaxial slab or beam)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "slab",
+        "rebar",
+        "void_former",
+        "concrete"
+      ],
+      "confidence": "medium",
+      "notes": "Section D-D shows a reinforced concrete slab/beam with circular void formers (biaxial voided slab construction), top and bottom rebar mats with labeled bar marks (Y12-125, Y32-125, Y20-125, Y25-125) and transverse tie bars (2x4 Y16 TYP). No plan-view run length or overall member depth/width dimensions are given on this cropped section, only bar spacing callouts, so quantities are limited to what a bar-mark callout can directly provide (diameter, spacing, count)."
+    }
+  },
+  "schema_id": "9cf012c0f4f3",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:9cf012c0f4f3:v1",
+    "title": "Quantity takeoff schema 9cf012c0f4f3 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "stirrup_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y12-125 vertical link/stirrup bar (TYP.) read from bar-mark callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_diameter"
+            ],
+            "x-formula": "stirrup_bar_diameter"
+          },
+          "stirrup_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y12-125 vertical link/stirrup bars read from bar-mark callout.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "stirrup_bar_spacing"
+            ],
+            "x-formula": "stirrup_bar_spacing"
+          },
+          "main_top_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y32-125 top main reinforcement bar over interior void cells.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_top_bar_diameter"
+            ],
+            "x-formula": "main_top_bar_diameter"
+          },
+          "main_top_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y32-125 top main reinforcement bars.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_top_bar_spacing"
+            ],
+            "x-formula": "main_top_bar_spacing"
+          },
+          "edge_top_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y20-125 top bar at edge/cage zone.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "edge_top_bar_diameter"
+            ],
+            "x-formula": "edge_top_bar_diameter"
+          },
+          "edge_top_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y20-125 top edge bars.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "edge_top_bar_spacing"
+            ],
+            "x-formula": "edge_top_bar_spacing"
+          },
+          "edge_bottom_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y20-125 bottom bar at edge/cage zone.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "edge_bottom_bar_diameter"
+            ],
+            "x-formula": "edge_bottom_bar_diameter"
+          },
+          "edge_bottom_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y20-125 bottom edge bars.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "edge_bottom_bar_spacing"
+            ],
+            "x-formula": "edge_bottom_bar_spacing"
+          },
+          "main_bottom_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y25-125 bottom main reinforcement bar.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bottom_bar_diameter"
+            ],
+            "x-formula": "main_bottom_bar_diameter"
+          },
+          "main_bottom_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y25-125 bottom main reinforcement bars.",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bottom_bar_spacing"
+            ],
+            "x-formula": "main_bottom_bar_spacing"
+          },
+          "tie_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of 2x4 Y16 (TYP.) transverse tie bars placed between voids at cage crossing.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tie_bar_diameter"
+            ],
+            "x-formula": "tie_bar_diameter"
+          },
+          "tie_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of Y16 tie bars per typical crossing location as noted '2x4 Y16 (TYP.)' (8 bars per group).",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "tie_bar_count"
+            ],
+            "x-formula": "tie_bar_count"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

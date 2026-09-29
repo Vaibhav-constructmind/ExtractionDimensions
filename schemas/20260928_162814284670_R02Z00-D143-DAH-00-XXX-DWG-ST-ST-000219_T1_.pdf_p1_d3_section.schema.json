@@ -1,0 +1,155 @@
+{
+  "header": {
+    "schema_id": "caa88692846f",
+    "version": 1,
+    "run_timestamp": "20260928_162814284670",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+    "page": 1,
+    "drawing_index": 3,
+    "drawing_title": "SECTION F-F",
+    "classification": {
+      "project_type": "building structure (likely precast/cast-in-place voided slab or beam system)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "slab",
+        "void/hollow core",
+        "rebar",
+        "web reinforcement",
+        "top and bottom reinforcement"
+      ],
+      "confidence": "medium",
+      "notes": "Section F-F shows a voided (hollow-core/waffle-type) concrete slab or beam with circular voids between reinforced webs. Bar-mark callouts (Y12-150/WEB, Y25-125, Y20-125, 2x4 Y16) give diameter and spacing but no dimensioned overall depth, width, or run length, so only bar-mark-derived quantities (diameter/spacing/count) can be taken off; volumetric or area quantities are not derivable from this section alone."
+    }
+  },
+  "schema_id": "caa88692846f",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:caa88692846f:v1",
+    "title": "Quantity takeoff schema caa88692846f v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of vertical web reinforcement bars labeled Y12-150/WEB (TYP.)",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of vertical web reinforcement bars labeled Y12-150/WEB (TYP.)",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "top_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of top reinforcement bars labeled Y20-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_bar_diameter"
+            ],
+            "x-formula": "top_bar_diameter"
+          },
+          "top_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of top reinforcement bars labeled Y20-125",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "top_bar_spacing"
+            ],
+            "x-formula": "top_bar_spacing"
+          },
+          "bottom_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of bottom reinforcement bars labeled Y25-125 (TYP.)",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_bar_diameter"
+            ],
+            "x-formula": "bottom_bar_diameter"
+          },
+          "bottom_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of bottom reinforcement bars labeled Y25-125 (TYP.)",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "bottom_bar_spacing"
+            ],
+            "x-formula": "bottom_bar_spacing"
+          },
+          "void_edge_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of additional reinforcement bars at void edge labeled 2x4 Y16 (TYP.), i.e. 2 groups of 4 bars",
+            "x-unit": "count",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "void_edge_bar_count"
+            ],
+            "x-formula": "void_edge_bar_count"
+          },
+          "void_edge_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of additional reinforcement bars at void edge labeled 2x4 Y16 (TYP.)",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "void_edge_bar_diameter"
+            ],
+            "x-formula": "void_edge_bar_diameter"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

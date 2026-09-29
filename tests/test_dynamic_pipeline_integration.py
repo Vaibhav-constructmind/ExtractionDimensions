@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from pipeline.config import Settings
 from pipeline.orchestrator import run_pipeline
+from pipeline.schema import LlmCallUsage
 
 _PAGE_IMAGE = b"fake-page-image"
 _CROP_IMAGE = b"fake-crop-image"
@@ -63,7 +64,10 @@ _CLASSIFICATION_RESULT = {
 }
 
 
-def _fake_extract_page(image_bytes, ocr_text, page_number, settings, dynamic_properties=None):
+def _fake_extract_page(
+    image_bytes, ocr_text, page_number, settings, dynamic_properties=None,
+    usage_sink=None, call_type="segmentation", drawing_id=None,
+):
     # Pass 1 (whole page, no dynamic_properties) returns the plain drawing.
     # The detail pass (per drawing, dynamic_properties merged in once
     # classification has proposed this drawing's input roles) additionally
@@ -77,7 +81,7 @@ def _fake_extract_page(image_bytes, ocr_text, page_number, settings, dynamic_pro
     return [drawing]
 
 
-def _fake_classify_drawing(image_bytes, ocr_text, page_number, settings):
+def _fake_classify_drawing(image_bytes, ocr_text, page_number, settings, usage_sink=None, drawing_id=None):
     return _CLASSIFICATION_RESULT
 
 
@@ -134,6 +138,70 @@ class TestDynamicSchemaPipelineIntegration(unittest.TestCase):
         self.assertEqual(len(manifest["drawings"]), 1)
         self.assertEqual(manifest["drawings"][0]["schema_id"], drawing.dynamic_takeoff.schema_id)
 
+    def test_llm_usage_flows_from_calls_into_drawing_and_result_totals(self):
+        # Each of the three call sites (Pass 1 segmentation, Pass 1.5
+        # classification, Pass 2 detail) appends its own usage record onto
+        # the usage_sink it's given -- this proves run_pipeline wires all
+        # three through to the right place (page_llm_usage for the
+        # page-level call, drawing.llm_usage for the per-drawing calls) and
+        # rolls everything up into ExtractionResult's totals.
+        def fake_extract_page_with_usage(
+            image_bytes, ocr_text, page_number, settings, dynamic_properties=None,
+            usage_sink=None, call_type="segmentation", drawing_id=None,
+        ):
+            drawing = dict(_RAW_DRAWING)
+            if dynamic_properties:
+                drawing["quantities"] = {role: 5000.0 if role == "footing_length" else
+                                          2000.0 if role == "footing_width" else 600.0
+                                          for role in dynamic_properties}
+            if usage_sink is not None:
+                usage_sink.append(
+                    LlmCallUsage(
+                        call_type=call_type, page_number=page_number, drawing_id=drawing_id,
+                        attempt=1, input_tokens=100, output_tokens=50, cost_usd=0.001,
+                    )
+                )
+            return [drawing]
+
+        def fake_classify_drawing_with_usage(
+            image_bytes, ocr_text, page_number, settings, usage_sink=None, drawing_id=None,
+        ):
+            if usage_sink is not None:
+                usage_sink.append(
+                    LlmCallUsage(
+                        call_type="classification", page_number=page_number, drawing_id=drawing_id,
+                        attempt=1, input_tokens=200, output_tokens=80, cost_usd=0.002,
+                    )
+                )
+            return _CLASSIFICATION_RESULT
+
+        with (
+            patch("pipeline.orchestrator.doc_intelligence.analyze_pdf", return_value=object()),
+            patch("pipeline.orchestrator.doc_intelligence.text_by_page", return_value={1: ""}),
+            patch("pipeline.orchestrator.doc_intelligence.lines_by_page", return_value={1: []}),
+            patch("pipeline.orchestrator.doc_intelligence.page_count", return_value=1),
+            patch("pipeline.orchestrator.render.render_pages", return_value=[_PAGE_IMAGE]),
+            patch("pipeline.orchestrator.render.render_crop", return_value=_CROP_IMAGE),
+            patch("pipeline.orchestrator.claude_extractor.extract_page", side_effect=fake_extract_page_with_usage),
+            patch("pipeline.orchestrator.claude_extractor.classify_drawing", side_effect=fake_classify_drawing_with_usage),
+        ):
+            result = run_pipeline(b"fake-pdf-bytes", "test.pdf", self.settings)
+
+        # Page-level segmentation usage lands on the result, not on any one drawing.
+        self.assertEqual(len(result.page_llm_usage), 1)
+        self.assertEqual(result.page_llm_usage[0].call_type, "segmentation")
+        self.assertIsNone(result.page_llm_usage[0].drawing_id)
+
+        # Per-drawing classification + detail-pass usage lands on the drawing itself.
+        drawing = result.drawings[0]
+        self.assertEqual({u.call_type for u in drawing.llm_usage}, {"classification", "detail"})
+        self.assertTrue(all(u.drawing_id == drawing.drawing_id for u in drawing.llm_usage))
+
+        # Totals on the result are the sum of every call, page-level + per-drawing.
+        self.assertEqual(result.total_input_tokens, 100 + 200 + 100)
+        self.assertEqual(result.total_output_tokens, 50 + 80 + 50)
+        self.assertAlmostEqual(result.total_cost_usd, 0.001 + 0.002 + 0.001)
+
     def test_second_run_adds_new_timestamped_files_without_overwriting(self):
         # The registry is scoped to one run (per spec section 5: "Maintain a
         # schema registry for the run") -- reuse/extend applies to several
@@ -169,7 +237,10 @@ class TestDynamicSchemaPipelineIntegration(unittest.TestCase):
         # The detail pass reports different numbers than what the plain
         # dimensions would heuristically match to -- the reported ones must
         # win, proving the merged-schema values flow through end to end.
-        def fake_extract_page_with_override(image_bytes, ocr_text, page_number, settings, dynamic_properties=None):
+        def fake_extract_page_with_override(
+            image_bytes, ocr_text, page_number, settings, dynamic_properties=None,
+            usage_sink=None, call_type="segmentation", drawing_id=None,
+        ):
             drawing = dict(_RAW_DRAWING)
             if dynamic_properties:
                 drawing["quantities"] = {"footing_length": 10.0, "footing_width": 20.0, "footing_depth": 30.0}

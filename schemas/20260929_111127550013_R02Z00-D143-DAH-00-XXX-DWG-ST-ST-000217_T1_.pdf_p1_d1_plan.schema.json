@@ -1,0 +1,197 @@
+{
+  "header": {
+    "schema_id": "d68245846f16",
+    "version": 1,
+    "run_timestamp": "20260929_111127550013",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 1,
+    "drawing_title": "SECTION 1-1",
+    "classification": {
+      "project_type": "reinforced concrete structure (likely raft/mat foundation or tank base)",
+      "discipline": "structural",
+      "drawing_type": "plan",
+      "building_elements": [
+        "raft_foundation",
+        "slab",
+        "rebar",
+        "construction_joint"
+      ],
+      "confidence": "medium",
+      "notes": "Sheet is titled 'SECTION 1-1' but the content displayed is a plan-view reinforcement layout of a slab/raft (bar marks such as Y32-100, Y25-100, Y20-125, Y12-150/WEB spread across a two-directional grid with construction joints C.J.), typical of a mat/raft foundation top or bottom mesh plan rather than a vertical section cut. Overall footprint and bay dimensions are chain-dimensioned but no single overall slab thickness figure is legible, limiting volume derivation."
+    }
+  },
+  "schema_id": "d68245846f16",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:d68245846f16:v1",
+    "title": "Quantity takeoff schema d68245846f16 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "main_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of the primary reinforcement bars (e.g. Y32-100 callouts) read directly from bar-mark labels.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_diameter"
+            ],
+            "x-formula": "main_bar_diameter"
+          },
+          "main_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of the primary reinforcement bars read directly from bar-mark labels (e.g. Y32-100).",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_spacing"
+            ],
+            "x-formula": "main_bar_spacing"
+          },
+          "distribution_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of secondary/distribution bars (e.g. Y25-100, Y20-125 callouts).",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "distribution_bar_diameter"
+            ],
+            "x-formula": "distribution_bar_diameter"
+          },
+          "distribution_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of secondary/distribution bars read from bar-mark labels (e.g. Y25-100, Y20-125).",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "distribution_bar_spacing"
+            ],
+            "x-formula": "distribution_bar_spacing"
+          },
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of web reinforcement bars called out as 'Y12-150/WEB' or 'Y12-150x350'.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of web reinforcement bars called out as 'Y12-150/WEB' or 'Y12-150x350'.",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "web_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Number of web bars per location where a multiplier is called out (e.g. '2 Y12-150/WEB').",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_count"
+            ],
+            "x-formula": "web_bar_count"
+          },
+          "additional_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of additional top-up bars called out with 'ADD.' notation (e.g. Y25-200 ADD.).",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_diameter"
+            ],
+            "x-formula": "additional_bar_diameter"
+          },
+          "additional_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of additional top-up bars called out with 'ADD.' notation (e.g. Y25-200 ADD.).",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "additional_bar_spacing"
+            ],
+            "x-formula": "additional_bar_spacing"
+          },
+          "slab_area": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Plan area of the reinforced slab/raft panel derived from the two principal overall plan dimensions shown (e.g. overall bay run and overall width).",
+            "x-unit": "m2",
+            "x-measurement-basis": "area",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "slab_length",
+              "slab_width"
+            ],
+            "x-formula": "slab_length * slab_width"
+          },
+          "construction_joint_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of construction joints (C.J.) marked on the plan.",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "construction_joint_count"
+            ],
+            "x-formula": "construction_joint_count"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

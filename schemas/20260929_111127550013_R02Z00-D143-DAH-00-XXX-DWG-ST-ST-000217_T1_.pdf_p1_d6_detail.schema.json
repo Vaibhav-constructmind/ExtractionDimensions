@@ -1,0 +1,68 @@
+{
+  "header": {
+    "schema_id": "4c72a558f194",
+    "version": 1,
+    "run_timestamp": "20260929_111127550013",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000217[T1].pdf",
+    "page": 1,
+    "drawing_index": 6,
+    "drawing_title": null,
+    "classification": {
+      "project_type": null,
+      "discipline": "structural",
+      "drawing_type": "detail",
+      "building_elements": [
+        "reinforcement",
+        "wall_or_column_section"
+      ],
+      "confidence": "low",
+      "notes": "Fragment shows a partial reinforced concrete section with vertical rebar rows and bar-mark callouts (Y25-125, Y25-100). No overall element dimensions, scale is noted (1/25) but no length/width/depth figures are legible in this crop, so the specific element (wall, column, or pile cap) cannot be confirmed."
+    }
+  },
+  "schema_id": "4c72a558f194",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:4c72a558f194:v1",
+    "title": "Quantity takeoff schema 4c72a558f194 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "main_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of the vertical reinforcement bars read directly from the bar-mark callout (e.g. Y25-125 indicates a 25mm diameter bar).",
+            "x-unit": "mm",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_diameter"
+            ],
+            "x-formula": "main_bar_diameter"
+          },
+          "main_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing between the vertical reinforcement bars read directly from the bar-mark callout (e.g. Y25-125 indicates 125mm spacing).",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "main_bar_spacing"
+            ],
+            "x-formula": "main_bar_spacing"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

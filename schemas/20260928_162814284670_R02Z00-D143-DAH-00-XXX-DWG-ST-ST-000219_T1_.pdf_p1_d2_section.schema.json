@@ -1,0 +1,224 @@
+{
+  "header": {
+    "schema_id": "7a2559f6f202",
+    "version": 1,
+    "run_timestamp": "20260928_162814284670",
+    "source_pdf": "R02Z00-D143-DAH-00-XXX-DWG-ST-ST-000219[T1].pdf",
+    "page": 1,
+    "drawing_index": 2,
+    "drawing_title": "SECTION E-E",
+    "classification": {
+      "project_type": "commercial/institutional building (reinforced concrete structure)",
+      "discipline": "structural",
+      "drawing_type": "section",
+      "building_elements": [
+        "slab",
+        "voided slab",
+        "rebar",
+        "void former"
+      ],
+      "confidence": "high",
+      "notes": "Section E-E through a biaxial voided (bubble-deck type) reinforced concrete slab, showing top and bottom reinforcement mesh, additional bars around the voids, and web/shear-link bars. No plan-view run lengths, slab thickness, or void spacing dimensions are given on this drawing, so only bar-mark callout attributes (diameter, spacing, count) can be derived directly; weight/length items are omitted as no dimensioned bar run length is shown."
+    }
+  },
+  "schema_id": "7a2559f6f202",
+  "version": 1,
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:takeoff-schema:7a2559f6f202:v1",
+    "title": "Quantity takeoff schema 7a2559f6f202 v1",
+    "type": "object",
+    "properties": {
+      "quantities": {
+        "type": "object",
+        "properties": {
+          "y16_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y16 bars from callout 'Y16-125 (TYP.)'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y16_bar_diameter"
+            ],
+            "x-formula": "y16_bar_diameter"
+          },
+          "y16_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y16 bars from callout 'Y16-125 (TYP.)'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y16_bar_spacing"
+            ],
+            "x-formula": "y16_bar_spacing"
+          },
+          "y25_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y25 bars from callout 'Y25-125 (TYP.)'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y25_bar_diameter"
+            ],
+            "x-formula": "y25_bar_diameter"
+          },
+          "y25_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y25 bars from callout 'Y25-125 (TYP.)'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y25_bar_spacing"
+            ],
+            "x-formula": "y25_bar_spacing"
+          },
+          "y12_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of Y12 bars from callout 'Y12-125 (TYP.)'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y12_bar_diameter"
+            ],
+            "x-formula": "y12_bar_diameter"
+          },
+          "y12_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of Y12 bars from callout 'Y12-125 (TYP.)'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y12_bar_spacing"
+            ],
+            "x-formula": "y12_bar_spacing"
+          },
+          "web_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of web/shear-link bars from callout 'Y12-150 / WEB (TYP.)'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_diameter"
+            ],
+            "x-formula": "web_bar_diameter"
+          },
+          "web_bar_spacing": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Spacing of web/shear-link bars from callout 'Y12-150 / WEB (TYP.)'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "web_bar_spacing"
+            ],
+            "x-formula": "web_bar_spacing"
+          },
+          "y16_additional_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of additional Y16 bars around void from callout '2x4 Y16 (TYP.)'",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y16_additional_bar_count"
+            ],
+            "x-formula": "y16_additional_bar_count"
+          },
+          "y16_additional_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of additional Y16 bars from callout '2x4 Y16 (TYP.)'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y16_additional_bar_diameter"
+            ],
+            "x-formula": "y16_additional_bar_diameter"
+          },
+          "y12_local_bar_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of local Y12 bars from callout '4 Y12 (TYP.)'",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y12_local_bar_count"
+            ],
+            "x-formula": "y12_local_bar_count"
+          },
+          "y12_local_bar_diameter": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Diameter of local Y12 bars from callout '4 Y12 (TYP.)'",
+            "x-unit": "mm",
+            "x-measurement-basis": "length",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "y12_local_bar_diameter"
+            ],
+            "x-formula": "y12_local_bar_diameter"
+          },
+          "void_count": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Count of circular void formers visible in the section",
+            "x-unit": "ea",
+            "x-measurement-basis": "count",
+            "x-resource-category": "material",
+            "x-depends-on": [
+              "void_count"
+            ],
+            "x-formula": "void_count"
+          }
+        }
+      }
+    },
+    "required": [
+      "quantities"
+    ]
+  }
+}

@@ -169,6 +169,22 @@ class DynamicTakeoff(BaseModel):
     quantities: list[ComputedQuantity] = Field(default_factory=list)
 
 
+class LlmCallUsage(BaseModel):
+    """Token usage + estimated cost for one Claude API call (one attempt --
+    a retried call produces one of these per attempt, since a malformed
+    reply still consumes tokens and costs money). `drawing_id` is None for
+    a page-level Pass 1 (whole-page segmentation) call, since one such call
+    covers every drawing found on that page rather than belonging to one."""
+
+    call_type: str = Field(..., description="segmentation | classification | detail")
+    page_number: int
+    drawing_id: str | None = Field(None, description="None for a page-level segmentation call")
+    attempt: int
+    input_tokens: int
+    output_tokens: int
+    cost_usd: float = Field(..., description="Estimated cost per pipeline.pricing's rate table")
+
+
 class DetailCallout(BaseModel):
     """A numbered detail-bubble cross-reference on a drawing, e.g. a circled
     '6' pointing to 'STEEL HANDRAIL DETAIL-1-5' on another sheet. These are
@@ -261,6 +277,14 @@ class Drawing(BaseModel):
             "higher effective DPI, rather than from the single full-page render."
         ),
     )
+    llm_usage: list[LlmCallUsage] = Field(
+        default_factory=list,
+        description=(
+            "This drawing's own Claude calls: classification (Pass 1.5) and detail-pass "
+            "(Pass 2) attempts. Excludes the page-level Pass 1 segmentation call that found "
+            "this drawing in the first place -- see ExtractionResult.page_llm_usage."
+        ),
+    )
 
 
 class ExtractionResult(BaseModel):
@@ -275,3 +299,10 @@ class ExtractionResult(BaseModel):
     schema_files_written: list[str] = Field(
         default_factory=list, description="Schema .json files newly written by this run (excludes reused schemas)"
     )
+    page_llm_usage: list[LlmCallUsage] = Field(
+        default_factory=list,
+        description="Page-level Pass 1 (whole-page segmentation) call usage -- not attributable to one drawing",
+    )
+    total_input_tokens: int = Field(0, description="Sum of input tokens across every Claude call in this run")
+    total_output_tokens: int = Field(0, description="Sum of output tokens across every Claude call in this run")
+    total_cost_usd: float = Field(0.0, description="Estimated total cost across every Claude call in this run")
