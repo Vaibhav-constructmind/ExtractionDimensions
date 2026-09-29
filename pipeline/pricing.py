@@ -12,12 +12,12 @@ from __future__ import annotations
 
 # model name -> (input $ / Mtok, output $ / Mtok)
 _RATES_USD_PER_MTOK: dict[str, tuple[float, float]] = {
-    "claude-sonnet-5": (3.0, 15.0),
+    "claude-sonnet-5": (2.0, 10.0),
     "claude-opus-5-5": (15.0, 75.0),
     "claude-haiku-4-5-20251001": (1.0, 5.0),
     "claude-fable-5-1": (3.0, 15.0),
 }
-_DEFAULT_RATE_USD_PER_MTOK = (3.0, 15.0)
+_DEFAULT_RATE_USD_PER_MTOK = (2.0, 10.0)
 
 
 def estimate_cost_usd(model: str, input_tokens: int, output_tokens: int) -> float:
